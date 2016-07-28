@@ -69,6 +69,8 @@ class Display2(QtGui.QMainWindow):
         self.set_up_tool_bar()
         self.set_up_menu_bar()
 
+        self.rpp = reducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min")
+
     def set_up_menu_bar(self):
         # set path option
         setpath = QtGui.QAction("&Set Directory", self)
@@ -98,8 +100,13 @@ class Display2(QtGui.QMainWindow):
 
     def plot_analysis(self, x_min, x_max, y_min, y_max):
         try:
-            rpp = reducedRepPlot(self.data_dict, self.key_list, x_min, x_max, y_min, y_max, self.analysis_type)
-            rpp.plot()
+            self.rpp.x_start = x_min
+            self.rpp.x_stop = x_max
+            self.rpp.y_start = y_min
+            self.rpp.y_stop = y_max
+            self.rpp.selection = self.analysis_type
+            self.rpp.analyze()
+            self.rpp.show()
         except NotADirectoryError:
             print("exception excepted")
             err_msg_file = QtGui.QMessageBox()
@@ -264,6 +271,9 @@ class Display2(QtGui.QMainWindow):
             print("No new .tif files found")
         else:
             self.update_data(new_data, new_file_names)
+            print(self.rpp.is_Plotted)
+            if self.rpp.is_Plotted:
+                self.rpp.show(new_data=new_data)
 
     def update_data(self, data_list, file_list):
         # This method updates the data in the image display taking in some new data list and some other
