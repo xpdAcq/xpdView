@@ -10,5 +10,5 @@ setup(
     packages=find_packages(),
     description='Experimental code for summer project',
     zip_safe=False,
-    url='https://github.com/cduff4464/2016_summer_XPD.git'
+    url='https://github.com/cduff4464/xpdView.git'
 )
