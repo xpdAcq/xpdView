@@ -40,7 +40,7 @@ class Display2(QtGui.QMainWindow):
         self.analysis_type = None
         self.file_path = None
         # self.key_list = ['Home']
-        data_list, self.key_list = data_gen(1)
+        data_list, self.key_list = data_gen(21)
         self.analysis_list = ["min", "max", "mean", "Standard Deviation", "Total Intensity"]
         self.Tif = TifFileFinder()
 
@@ -58,10 +58,13 @@ class Display2(QtGui.QMainWindow):
         self.frame.setLayout(self.main_layout)
         self.setCentralWidget(self.frame)
         self.display = self.messenger._display
-        self.display_box = QtGui.QHBoxLayout()
-        self.display_box.addWidget(self.display)
+        # This makes the first layer for the
+        self.display_box_1 = QtGui.QHBoxLayout()
+        self.display_box_1.addWidget(self.display)
+        self.display_box_2 = QtGui.QHBoxLayout()
         self.tools_box = QtGui.QHBoxLayout()
-        self.main_layout.addLayout(self.display_box)
+        self.main_layout.addLayout(self.display_box_1)
+        self.main_layout.addLayout(self.display_box_2)
         self.main_layout.addLayout(self.tools_box)
 
         # These methods will set up the menu bars and the tool bars
@@ -124,7 +127,6 @@ class Display2(QtGui.QMainWindow):
         menu = QtGui.QDialog(self)
         menu.setWindowTitle("Reduced Representation Settings")
         menu.setWindowModality(QtCore.Qt.ApplicationModal)
-        #menu.setGeometry(300, 300, 800, 300)
         vbox = QtGui.QVBoxLayout()
         hbox_lim_labels = QtGui.QHBoxLayout()
         hbox_lim_widgets = QtGui.QHBoxLayout()
@@ -177,13 +179,13 @@ class Display2(QtGui.QMainWindow):
         plt_btn.clicked.connect(lambda: self.plot_analysis(x_lim_min.value(), x_lim_max.value(),
                                                            y_lim_min.value(), y_lim_max.value()))
 
-        #defining layout
+        # defining layout
         vbox.addStretch()
         vbox.addWidget(a_selector_label)
         vbox.addStretch()
         vbox.addWidget(analysis_selector)
         vbox.addStretch()
-        #defining label horizontal layout
+        # defining label horizontal layout
         hbox_lim_labels.addStretch()
         hbox_lim_labels.addWidget(x_min_label)
         hbox_lim_labels.addStretch()
@@ -197,7 +199,7 @@ class Display2(QtGui.QMainWindow):
         vbox.addLayout(hbox_lim_labels)
         vbox.addStretch()
 
-        #defining widget horizontal layout
+        # defining widget horizontal layout
         hbox_lim_widgets.addStretch()
         hbox_lim_widgets.addWidget(x_lim_min)
         hbox_lim_widgets.addStretch()
