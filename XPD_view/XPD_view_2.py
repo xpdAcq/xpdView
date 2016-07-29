@@ -7,7 +7,10 @@ import os
 import sys
 import numpy as np
 from Tif_File_Finder import TifFileFinder
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
 from plot_analysis import reducedRepPlot
+import matplotlib.pyplot as plt
 from xray_vision.messenger.mpl.cross_section_2d import CrossSection2DMessenger
 
 
@@ -72,7 +75,18 @@ class Display2(QtGui.QMainWindow):
         self.set_up_tool_bar()
         self.set_up_menu_bar()
 
-        self.rpp = reducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min")
+        self.rpp = None
+        self.r_rep_widget()
+
+    def r_rep_widget(self):
+        figure = plt.figure()
+        canvas = FigureCanvas(figure)
+        self.rpp = reducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
+        toolbar = NavigationToolBar(canvas, self)
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(toolbar)
+        layout.addWidget(canvas)
+        self.display_box_1.addLayout(layout)
 
     def set_up_menu_bar(self):
         # set path option

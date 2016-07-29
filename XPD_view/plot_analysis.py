@@ -6,7 +6,7 @@ import multiprocessing
 
 class reducedRepPlot:
 
-    def __init__(self, data_dict, key_list, x_start, x_stop, y_start, y_stop, selection):
+    def __init__(self, data_dict, key_list, x_start, x_stop, y_start, y_stop, selection, figure, canvas):
         """
         constructor for reducedRepPlot object
         :param file_path: path to file directory
@@ -32,6 +32,8 @@ class reducedRepPlot:
         self.selection = selection
         self.y_data = None
         self.is_Plotted = False
+        self.fig = figure
+        self.canvas = canvas
 
     def selectionSort(self, alist):
         for fillslot in range(len(alist) - 1, 0, -1):
@@ -205,25 +207,31 @@ class reducedRepPlot:
 
     def show(self, new_data = None):
 
-        if not self.is_Plotted:
-            fig = plt.figure()
-            fig.canvas.mpl_connect('close_event', self.handle_close)
-            plt.plot(range(0, len(self.y_data)), self.y_data, 'ro')
-            plt.xlabel("file num")
-            plt.ylabel(self.selection)
+        if new_data is None:
+            self.fig.canvas.mpl_connect('close_event', self.handle_close)
+            ax = self.fig.add_subplot(111)
+            ax.plot(range(0, len(self.y_data)), self.y_data, 'ro')
+            ax.set_xlabel("File Num")
+            ax.set_ylabel(self.selection)
+            ax.hold(False)
+            # plt.plot(range(0, len(self.y_data)), self.y_data, 'ro')
+            # plt.xlabel("file num")
+            # plt.ylabel(self.selection)
 
             #  plt.xscale()
             #
             self.is_Plotted = True
-            plt.ion()
+            # plt.ion()
             # plt.draw()
-            plt.show()
+            # plt.show()
+            self.canvas.draw()
         else:
             new_data = self.analyze_new_data(new_data)
             for val in new_data:
                 self.y_data.append(val)
-            plt.plot(range(0, len(self.y_data)), self.y_data, 'ro')
-            plt.draw()
+            ax.plot(range(0, len(self.y_data)), self.y_data, 'ro')
+            ax.autoscale()
+            self.canvas.draw()
 
     # def redraw(self, new_data):
     #

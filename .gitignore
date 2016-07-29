@@ -66,4 +66,4 @@ Duke_data/
 .idea/
 *.pyc
 
-XPD_view/__pycache__/analysis_concurrent.cpython-35.pyc
+.vscode/
