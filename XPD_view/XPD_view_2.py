@@ -39,8 +39,7 @@ class Display2(QtGui.QMainWindow):
         self.setWindowTitle('XPD View')
         self.analysis_type = None
         self.file_path = None
-        # self.key_list = ['Home']
-        data_list, self.key_list = data_gen(21)
+        data_list, self.key_list = data_gen(1)
         self.analysis_list = ["min", "max", "mean", "Standard Deviation", "Total Intensity"]
         self.Tif = TifFileFinder()
 
