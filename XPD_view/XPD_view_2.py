@@ -81,11 +81,15 @@ class Display2(QtGui.QMainWindow):
     def r_rep_widget(self):
         figure = plt.figure()
         canvas = FigureCanvas(figure)
+        FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(canvas)
+        canvas.setMinimumWidth(400)
         self.rpp = reducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
         layout.addWidget(canvas)
+        self.display_box_1.addStretch()
         self.display_box_1.addLayout(layout)
 
     def set_up_menu_bar(self):

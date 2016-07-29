@@ -32,29 +32,10 @@ class reducedRepPlot:
         self.selection = selection
         self.y_data = None
         self.is_Plotted = False
+        self.ax = None
         self.fig = figure
         self.canvas = canvas
 
-    def selectionSort(self, alist):
-        for fillslot in range(len(alist) - 1, 0, -1):
-            positionOfMax = 0
-            for location in range(1, fillslot + 1):
-                if alist[location][0] > alist[positionOfMax][0]:
-                    positionOfMax = location
-
-            temp = alist[fillslot]
-            alist[fillslot] = alist[positionOfMax]
-            alist[positionOfMax] = temp
-        for arr in alist:
-            arr.pop(0)
-        return alist
-
-    # def check_lists(self, list, nested_list, cpu_num):
-    #     flattened_list = [val for sublist in nested_list for val in sublist]
-    #     for i in range(0,cpu_num):
-    #         flattened_list.remove(i)
-    #
-    #     print(flattened_list == list)
 
     def analyze(self):
         """
@@ -63,71 +44,16 @@ class reducedRepPlot:
         :return: void
         """
         a = analysis_concurrent(self.y_start, self.y_stop, self.x_start, self.x_stop, self.selection)
-        trunc_list = []
-        cpu_count = multiprocessing.cpu_count()
-
-
-        def callback(list):
-            y.append(list)
-
-        for i in range(0, cpu_count):
-            temp_list = []
-            if i == cpu_count-1:
-                temp_key_list = self.key_list[(i * len(self.key_list) // cpu_count) : (((1 + i) * len(self.key_list) // cpu_count) +
-                                                                                     (len(self.data_dict) % cpu_count))]
-                for key in temp_key_list:
-                    temp_list.append(self.data_dict[key])
-                temp_list.insert(0, i)
-
-            else:
-                temp_key_list = self.key_list[(i * len(self.key_list) // cpu_count) : ((1 + i) * len(self.key_list) // cpu_count)]
-                for key in temp_key_list:
-                    temp_list.append(self.data_dict[key])
-                temp_list.insert(0, i)
-            trunc_list.append(temp_list)
-
-       # print(self.check_lists(self.tif_list, trunc_list, cpu_count))
-
-        process_list = []
-        x = range(0, len(self.data_dict))
-        y = []
-        q = multiprocessing.Queue()
-        p = multiprocessing.Pool(cpu_count)
-        #a = multiprocessing.Array()
-        #l = multiprocessing.Lock()
-        #p = multiprocessing.Process(a.x_and_y_vals, args=(l,))
-
-
-        # for i in range(0, cpu_count):
-        #     process_list.append(multiprocessing.Process(target=a.x_and_y_vals, args=(l, q, trunc_list[i])))
-        #
-        start_time = time.clock()
-        for list in trunc_list:
-            p.apply_async(a.x_and_y_vals, args=(list,), callback=callback)
-        # map = p.map_async(a.x_and_y_vals, trunc_list)
-        # y = map.get()
+        p = multiprocessing.Pool()
+        values = []
+        for key in self.key_list:
+            values.append(self.data_dict[key])
+        
+        y = p.map(a.x_and_y_vals, values)
         p.close()
         p.join()
+        
         print(y)
-        # for process in process_list:
-        #     process.start()
-
-
-        # for i in range(0, cpu_count):
-        #     y.append(q.get())
-        # for process in process_list:
-        #     y.append(q.get())
-        #     process.join()
-
-        end_time = time.clock() - start_time
-        print("time to analyze: " + str(end_time))
-
-        # for i in range(0,cpu_count):
-        #     y.append(q.get())
-
-        y = self.selectionSort(y)
-        print(y)
-        y = [val for sublist in y for val in sublist]
 
         assert (len(y) == len(self.key_list))
         self.y_data = y
@@ -137,71 +63,13 @@ class reducedRepPlot:
         an overloaded analyze method that will take in a data list and return an analyzed list
         """
         a = analysis_concurrent(self.y_start, self.y_stop, self.x_start, self.x_stop, self.selection)
-        trunc_list = []
-        cpu_count = multiprocessing.cpu_count()
-
-        def callback(list):
-            y.append(list)
-
-        for i in range(0, cpu_count):
-            temp_list = []
-            if i == cpu_count - 1:
-                temp_list = data_list[
-                            (i * len(data_list) // cpu_count): (((1 + i) * len(data_list) // cpu_count) +
-                                                                    (len(data_list) % cpu_count))]
-                temp_list.insert(0, i)
-
-            else:
-                temp_list = data_list[
-                            (i * len(data_list) // cpu_count): ((1 + i) * len(data_list) // cpu_count)]
-                temp_list.insert(0, i)
-
-            trunc_list.append(temp_list)
-
-            # print(self.check_lists(self.tif_list, trunc_list, cpu_count))
-
-        # process_list = []
-        x = range(0, len(self.data_dict))
-        y = []
-        q = multiprocessing.Queue()
-        p = multiprocessing.Pool(cpu_count)
-        # a = multiprocessing.Array()
-        # l = multiprocessing.Lock()
-        # p = multiprocessing.Process(a.x_and_y_vals, args=(l,))
-
-
-        # for i in range(0, cpu_count):
-        #     process_list.append(multiprocessing.Process(target=a.x_and_y_vals, args=(l, q, trunc_list[i])))
-        #
-        start_time = time.clock()
-        for list in trunc_list:
-            p.apply_async(a.x_and_y_vals, args=(list,), callback=callback)
-        # map = p.map_async(a.x_and_y_vals, trunc_list)
-        # y = map.get()
+        p = multiprocessing.Pool()
+        y = p.map(a.x_and_y_vals, data_list)
         p.close()
         p.join()
+        
         print(y)
-        # for process in process_list:
-        #     process.start()
 
-
-        # for i in range(0, cpu_count):
-        #     y.append(q.get())
-        # for process in process_list:
-        #     y.append(q.get())
-        #     process.join()
-
-        end_time = time.clock() - start_time
-        print("time to analyze: " + str(end_time))
-
-        # for i in range(0,cpu_count):
-        #     y.append(q.get())
-
-        y = self.selectionSort(y)
-        print(y)
-        y = [val for sublist in y for val in sublist]
-
-        assert (len(y) == len(data_list))
         return y
 
 
@@ -209,11 +77,11 @@ class reducedRepPlot:
 
         if new_data is None:
             self.fig.canvas.mpl_connect('close_event', self.handle_close)
-            ax = self.fig.add_subplot(111)
-            ax.plot(range(0, len(self.y_data)), self.y_data, 'ro')
-            ax.set_xlabel("File Num")
-            ax.set_ylabel(self.selection)
-            ax.hold(False)
+            self.ax = self.fig.add_subplot(111)
+            self.ax.plot(range(0, len(self.y_data)), self.y_data, 'ro')
+            self.ax.set_xlabel("File Num")
+            self.ax.set_ylabel(self.selection)
+            self.ax.hold(False)
             # plt.plot(range(0, len(self.y_data)), self.y_data, 'ro')
             # plt.xlabel("file num")
             # plt.ylabel(self.selection)
@@ -229,8 +97,10 @@ class reducedRepPlot:
             new_data = self.analyze_new_data(new_data)
             for val in new_data:
                 self.y_data.append(val)
-            ax.plot(range(0, len(self.y_data)), self.y_data, 'ro')
-            ax.autoscale()
+            self.ax.plot(range(0, len(self.y_data)), self.y_data, 'ro')
+            self.ax.set_xlabel("File Num")
+            self.ax.set_ylabel(self.selection)
+            self.ax.autoscale()
             self.canvas.draw()
 
     # def redraw(self, new_data):

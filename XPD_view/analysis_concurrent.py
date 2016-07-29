@@ -324,10 +324,9 @@ class analysis_concurrent:
 
         return total_intensity
 
-    def x_and_y_vals(self, file_list):
+    def x_and_y_vals(self, img):
 
         #x = range(0,len(self.file_list))
-        y = []
         label = ""
         func = None
 
@@ -348,22 +347,21 @@ class analysis_concurrent:
             func = self.get_total_intensity
             self.label = "Total Intensity"
 
-        list_num = file_list.pop(0)
+        # list_num = file_list.pop(0)
         # lock.acquire()
-        print("process " + str(list_num) + " active")
+        print("process active")
         # lock.release()
-        y.append(list_num)
-        for img in file_list:
+        # for img in file_list:
 
             # lock.acquire()
             # print("file from list:" + str(list_num) + " analyzed")
             # lock.release()
             #temp_arr = imread(img)
 
-            y.append(func(img))
+        
 
         #queue.put(y)
         # lock.acquire()
-        print("process " + str(list_num) + " complete")
-        return y
+        print("process complete")
+        return func(img)
         # lock.release()
