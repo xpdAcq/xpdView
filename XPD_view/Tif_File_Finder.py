@@ -25,21 +25,17 @@ class TifFileFinder(object):
         self.dir_fil.sort(key=lambda x: os.path.getmtime(self._directory_name + x))
         self.file_list = [file for file in self.dir_fil if file.endswith('.tif') and not (file.endswith('.dark.tif') or
                                                                                           file.endswith('.raw.tif'))]
-        print(len(self.file_list))
         self.get_image_arrays()
 
     def get_image_arrays(self):
-        self.pic_list = []
         for i in self.file_list:
             self.pic_list.append(imread(self._directory_name + i))
 
     def get_new_files(self):
         self.dir_fil = os.listdir(self._directory_name)
-        no1 = '.dark.tif'
-        no2 = '.raw.tif'
         self.dir_fil.sort(key=lambda x: os.path.getmtime(self._directory_name + x))
-        new_file_list = [el for el in self.dir_fil
-                         if el.endswith('.tif') and not (el.endswith(no1) or el.endswith(no2))]
+        new_file_list = [file for file in self.dir_fil if file.endswith('.tif') and not (file.endswith('.dark.tif') or
+                                                                                         file.endswith('.raw.tif'))]
         need_read_files = []
         for i in new_file_list:
             add = True
