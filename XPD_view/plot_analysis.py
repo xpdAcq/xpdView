@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from analysis_concurrent import analysis_concurrent
 import time
 import multiprocessing
 
@@ -35,6 +34,7 @@ class reducedRepPlot:
         self.ax = None
         self.fig = figure
         self.canvas = canvas
+        self.func_dict = {}
 
 
     def analyze(self):
@@ -43,13 +43,11 @@ class reducedRepPlot:
         things up
         :return: void
         """
-        a = analysis_concurrent(self.y_start, self.y_stop, self.x_start, self.x_stop, self.selection)
         p = multiprocessing.Pool()
-        values = []
+        vals = []
         for key in self.key_list:
-            values.append(self.data_dict[key])
-        
-        y = p.map(a.x_and_y_vals, values)
+            vals.append(self.data_dict[key])
+        y = p.map(self.y_vals, vals)
         p.close()
         p.join()
         
@@ -58,13 +56,37 @@ class reducedRepPlot:
         assert (len(y) == len(self.key_list))
         self.y_data = y
 
+    def y_vals(self, img):
+
+        #x = range(0,len(self.file_list))
+
+        # list_num = file_list.pop(0)
+        # lock.acquire()
+        print("process active")
+        # lock.release()
+        # for img in file_list:
+
+            # lock.acquire()
+            # print("file from list:" + str(list_num) + " analyzed")
+            # lock.release()
+            #temp_arr = imread(img)
+
+        
+        func = self.func_dict[self.selection]
+        #queue.put(y)
+        # lock.acquire()
+        print("process complete")
+        return self.func_dict[self.selection]\
+            (img, self.x_start, self.x_stop, self.y_start, self.y_stop)
+        # lock.release()
+
     def analyze_new_data(self, data_list):
         """
         an overloaded analyze method that will take in a data list and return an analyzed list
         """
-        a = analysis_concurrent(self.y_start, self.y_stop, self.x_start, self.x_stop, self.selection)
+        
         p = multiprocessing.Pool()
-        y = p.map(a.x_and_y_vals, data_list)
+        y = p.map(self.y_vals, data_list)
         p.close()
         p.join()
         
@@ -82,6 +104,7 @@ class reducedRepPlot:
             self.ax.set_xlabel("File Num")
             self.ax.set_ylabel(self.selection)
             self.ax.hold(False)
+            self.ax.autoscale()
             # plt.plot(range(0, len(self.y_data)), self.y_data, 'ro')
             # plt.xlabel("file num")
             # plt.ylabel(self.selection)
@@ -120,4 +143,31 @@ class reducedRepPlot:
         self.is_Plotted = False
         print("closed")
 
+    def set_func_dict(self, func_list):
+        """a setter for func_dict that takes in a list of functions 
+        and creates a dictionary for them
+        functions should have the arguments
+        arr for the 2d image array
+        x_start to define the the starting x val
+        x_stop to define the stopping x val
+        y_start to define the the starting y val
+        y_stop to define the stopping y val
+
+        """
+        self.func_dict.clear()
+        for func in func_list:
+            self.func_dict[func.__name__] = func
+
+    def add_func(self, func):
+        """functions should have the arguments
+        arr for the 2d image array
+        x_start to define the the starting x val
+        x_stop to define the stopping x val
+        y_start to define the the starting y val
+        y_stop to define the stopping y val
+        """
+        try:
+            self.func_dict[func.__name__] = func
+        except TypeError as te:
+            te("func_dict has not been initialized yet. use set_func_dict() before add_func()")
 

@@ -44,7 +44,7 @@ class Display2(QtGui.QMainWindow):
         self.file_path = None
         # self.key_list = ['Home']
         data_list, self.key_list = data_gen(1)
-        self.analysis_list = ["min", "max", "mean", "Standard Deviation", "Total Intensity"]
+        #self.analysis_list = ["min", "max", "mean", "Standard Deviation", "Total Intensity"]
         self.Tif = TifFileFinder()
 
         # These commands initialize the 2D cross section widget to draw itself
@@ -79,12 +79,14 @@ class Display2(QtGui.QMainWindow):
         self.r_rep_widget()
 
     def r_rep_widget(self):
+        from simple_analysis_functions import get_max, get_total_intensity
         figure = plt.figure()
         canvas = FigureCanvas(figure)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
         canvas.setMinimumWidth(400)
         self.rpp = reducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
+        self.rpp.set_func_dict([get_max, get_total_intensity])
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
@@ -117,7 +119,7 @@ class Display2(QtGui.QMainWindow):
         graph_menu.addAction(plt_action)
 
     def set_analysis_type(self, i):
-        self.analysis_type = self.analysis_list[i]
+        self.analysis_type = list(self.rpp.func_dict.keys())[i]
 
     def plot_analysis(self, x_min, x_max, y_min, y_max):
         try:
@@ -158,7 +160,7 @@ class Display2(QtGui.QMainWindow):
 
         # creating qt widgets
         analysis_selector = QtGui.QComboBox(menu)
-        analysis_selector.addItems(self.analysis_list)
+        analysis_selector.addItems(list(self.rpp.func_dict.keys()))
 
         print(self.messenger._fig.axes[0].get_xlim())
         print(self.messenger._fig.axes[0].get_ylim())
