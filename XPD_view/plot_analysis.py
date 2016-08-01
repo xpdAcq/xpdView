@@ -153,3 +153,21 @@ class ReducedRepPlot:
         """
         self.func_dict[func.__name__] = func
 
+    def remove_func(self, func_name):
+            """This function will remove a function from the function dictionary
+
+            To delete the name of the function must match the name of a function currently in the dictionary
+
+            Parameters
+            ----------
+
+            func_name : str
+                the name of the function to be removed. best to use func.__name__
+
+            """
+
+            try:
+                self.data_dict.__delitem__(func_name)
+            except KeyError:
+                print("There is no function matching " + func_name + " in the function dictionary")
+
