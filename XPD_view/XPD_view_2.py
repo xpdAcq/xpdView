@@ -79,6 +79,7 @@ class Display2(QtGui.QMainWindow):
     def r_rep_widget(self):
         figure = plt.figure()
         canvas = FigureCanvas(figure)
+        canvas.mpl_connect('button_press_event', self.click_handling)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
         canvas.setMinimumWidth(400)
@@ -89,6 +90,10 @@ class Display2(QtGui.QMainWindow):
         layout.addWidget(canvas)
         self.display_box_1.addStretch()
         self.display_box_1.addLayout(layout)
+
+    def click_handling(self, event):
+            if event.xdata != None and event.ydata != None:
+                self.ctrls._slider_img.setValue(int(event.xdata))
 
     def set_up_menu_bar(self):
         # set path option
