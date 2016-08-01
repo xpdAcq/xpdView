@@ -40,7 +40,7 @@ def get_stdev(arr, x_start, x_stop, y_start, y_stop):
     :return: the standard deviation of the array
     """
     #getting mean
-    array_avg = get_avg_2d(arr)
+    array_avg = get_avg_2d(arr, x_start, x_stop, y_start, y_stop)
 
     x = 0
     # list and loop to subtract mean from each val
