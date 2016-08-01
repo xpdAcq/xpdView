@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
-import time
+import numpy as np
 import multiprocessing
-from simple_analysis_functions import *
 
 
 class ReducedRepPlot:
@@ -36,8 +35,8 @@ class ReducedRepPlot:
         self.fig = figure
         self.canvas = canvas
         # default func dict is simple analysis functions
-        self.func_dict = {"get_avg_2d": get_avg_2d, "get_max": get_max, "get_min": get_min,
-                          "get_stdev": get_stdev, "get_total_intensity": get_total_intensity}
+        self.func_dict = {np.std.__name__: np.std, np.mean.__name__: np.mean, np.amin.__name__: np.amin,
+                          np.amax.__name__: np.amax, np.sum.__name__: np.sum}
 
     def analyze(self):
         """
@@ -48,8 +47,8 @@ class ReducedRepPlot:
         p = multiprocessing.Pool()
         vals = []
         for key in self.key_list:
-            vals.append((self.data_dict[key], self.x_start, self.x_stop, self.y_start, self.y_stop))
-        y = p.starmap(self.func_dict[self.selection], vals)
+            vals.append(self.data_dict[key][self.y_start: self.y_stop, self.x_start: self.x_stop])
+        y = p.map(self.func_dict[self.selection], vals)
         p.close()
         p.join()
 
@@ -64,8 +63,8 @@ class ReducedRepPlot:
         p = multiprocessing.Pool()
         vals = []
         for data in data_list:
-            vals.append((data, self.x_start, self.x_stop, self.y_start, self.y_stop))
-        y = p.starmap(self.func_dict[self.selection], vals)
+            vals.append(data[self.y_start: self.y_stop, self.x_start: self.x_stop])
+        y = p.map(self.func_dict[self.selection], vals)
         p.close()
         p.join()
 
@@ -101,11 +100,6 @@ class ReducedRepPlot:
         and creates a dictionary for them
         functions should have the arguments
         arr for the 2d image array
-        x_start to define the the starting x val
-        x_stop to define the stopping x val
-        y_start to define the the starting y val
-        y_stop to define the stopping y val
-
         """
         self.func_dict.clear()
         for func in func_list:
@@ -114,10 +108,6 @@ class ReducedRepPlot:
     def add_func(self, func):
         """functions should have the arguments
         arr for the 2d image array
-        x_start to define the the starting x val
-        x_stop to define the stopping x val
-        y_start to define the the starting y val
-        y_stop to define the stopping y val
         """
         self.func_dict[func.__name__] = func
 

@@ -88,7 +88,7 @@ class Display2(QtGui.QMainWindow):
         canvas.mpl_connect('button_press_event', self.click_handling)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
-        canvas.setMinimumWidth(400)
+        canvas.setMinimumWidth(800)
         self.rpp = ReducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
