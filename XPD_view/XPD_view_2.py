@@ -8,9 +8,10 @@ import sys
 import numpy as np
 from Tif_File_Finder import TifFileFinder
 from Chi_File_Finder import ChiFileFinder
+from plot_analysis import ReducedRepPlot
+from one_dimensional_int import IntegrationPlot
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
-from plot_analysis import ReducedRepPlot
 import matplotlib.pyplot as plt
 from xray_vision.messenger.mpl.cross_section_2d import CrossSection2DMessenger
 
@@ -78,6 +79,7 @@ class Display2(QtGui.QMainWindow):
         self.set_up_menu_bar()
 
         self.rpp = None
+        self.one_dim_plot = None
         self.r_rep_widget()
         self.one_dim_integrate()
         self.waterfall()
@@ -102,6 +104,8 @@ class Display2(QtGui.QMainWindow):
         canvas = FigureCanvas(figure)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
+        canvas.setMinimumHeight(200)
+        self.one_dim_plot = IntegrationPlot(self.int_data_dict, self.key_list, figure, canvas)
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
@@ -296,6 +300,7 @@ class Display2(QtGui.QMainWindow):
         self.tools_box.addWidget(self.name_label)
         # This makes sure that the display is updated when the image is changed
         self.ctrls._spin_img.valueChanged.connect(self.change_display_name)
+        self.ctrls._slider_img.valueChanged.connect(self.change_one_dim_plot)
 
         # This makes the refresh button
         refresh = QtGui.QPushButton('Refresh', self)
@@ -318,9 +323,13 @@ class Display2(QtGui.QMainWindow):
                 self.key_list.remove(x)
                 self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
                 self.update_data(self.Tif.pic_list, self.Tif.file_list)
+                self.messenger.sl_update_image(0)
+                self.one_dim_plot.give_plot(self.ctrls._slider_img.value())
             else:
                 self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
                 self.update_data(self.Tif.pic_list, self.Tif.file_list)
+                self.messenger.sl_update_image(0)
+                self.one_dim_plot.give_plot(self.ctrls._slider_img.value())
 
     def refresh(self):
         new_file_names, new_data = self.Tif.get_new_files()
@@ -364,6 +373,9 @@ class Display2(QtGui.QMainWindow):
     def change_display_name(self, index_val):
         # This is how the display updates the current name displayed
         self.name_label.setText("Current: " + self.key_list[index_val])
+
+    def change_one_dim_plot(self, index_val):
+        self.one_dim_plot.give_plot(index=index_val)
 
 
 def main():
