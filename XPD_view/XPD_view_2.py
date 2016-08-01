@@ -79,6 +79,8 @@ class Display2(QtGui.QMainWindow):
 
         self.rpp = None
         self.r_rep_widget()
+        self.one_dim_integrate()
+        self.waterfall()
 
     def r_rep_widget(self):
         figure = plt.figure()
@@ -94,6 +96,30 @@ class Display2(QtGui.QMainWindow):
         layout.addWidget(canvas)
         self.display_box_1.addStretch()
         self.display_box_1.addLayout(layout)
+
+    def one_dim_integrate(self):
+        figure = plt.figure()
+        canvas = FigureCanvas(figure)
+        FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(canvas)
+        toolbar = NavigationToolBar(canvas, self)
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(toolbar)
+        layout.addWidget(canvas)
+        self.display_box_2.addStretch()
+        self.display_box_2.addLayout(layout)
+
+    def waterfall(self):
+        figure = plt.figure()
+        canvas = FigureCanvas(figure)
+        FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(canvas)
+        toolbar = NavigationToolBar(canvas, self)
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(toolbar)
+        layout.addWidget(canvas)
+        self.display_box_2.addStretch()
+        self.display_box_2.addLayout(layout)
 
     def click_handling(self, event):
             if (event.xdata is not None) and (event.ydata is not None):
