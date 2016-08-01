@@ -46,8 +46,8 @@ class reducedRepPlot:
         p = multiprocessing.Pool()
         vals = []
         for key in self.key_list:
-            vals.append(self.data_dict[key])
-        y = p.map(self.y_vals, vals)
+            vals.append((self.data_dict[key], self.x_start, self.x_stop, self.y_start, self.y_stop))
+        y = p.starmap(self.func_dict[self.selection], vals)
         p.close()
         p.join()
         
@@ -56,20 +56,20 @@ class reducedRepPlot:
         assert (len(y) == len(self.key_list))
         self.y_data = y
 
-    def y_vals(self, img):
+    # def y_vals(self, img):
 
-        #x = range(0,len(self.file_list))
+    #     #x = range(0,len(self.file_list))
 
-        # list_num = file_list.pop(0)
-        # lock.acquire()
-        print("process active")
-        # lock.release()
-        # for img in file_list:
+    #     # list_num = file_list.pop(0)
+    #     # lock.acquire()
+    #     print("process active")
+    #     # lock.release()
+    #     # for img in file_list:
 
-            # lock.acquire()
-            # print("file from list:" + str(list_num) + " analyzed")
-            # lock.release()
-            #temp_arr = imread(img)
+    #         # lock.acquire()
+    #         # print("file from list:" + str(list_num) + " analyzed")
+    #         # lock.release()
+    #         #temp_arr = imread(img)
 
         
         func = self.func_dict[self.selection]
