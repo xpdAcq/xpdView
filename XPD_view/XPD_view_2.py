@@ -347,8 +347,8 @@ class Display2(QtGui.QMainWindow):
             self.key_list.append(file)
         for i in range(old_length, len(self.key_list)):
             self.data_dict[self.key_list[i]] = data_list[i - old_length]
-        self.ctrls._slider_img.setMaximum(len(self.Chi.file_list) - 1)
-        self.ctrls._spin_img.setMaximum(len(self.Chi.file_list) - 1)
+        self.ctrls._slider_img.setMaximum(len(self.key_list) - 1)
+        self.ctrls._spin_img.setMaximum(len(self.key_list) - 1)
 
     def update_int_data(self, file_list, data_x, data_y):
         # This method updates the data for the 1-D integrated plot display by taking in some new data lists for
