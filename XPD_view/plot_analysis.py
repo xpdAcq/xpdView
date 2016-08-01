@@ -1,20 +1,46 @@
+"""This class handles the plotting and analysis for reduced representation
+"""
+
 import matplotlib.pyplot as plt
-import time
+import numpy as np
 import multiprocessing
-from simple_analysis_functions import *
 
 
 class ReducedRepPlot:
 
     def __init__(self, data_dict, key_list, x_start, x_stop, y_start, y_stop, selection, figure, canvas):
-        """
-        constructor for reducedRepPlot object
-        :param file_path: path to file directory
-        :type file_path: str
-        :param x_start: start val for x analysis
-        :param x_stop: stop val for x analysis
-        :param y_start:
-        :param y_stop:
+        """constructor for reducedRepPlot object
+
+        Parameters
+        ----------
+
+        data_dict : dict
+            The dictionary where the image arrays are stored
+
+        key_list : list
+            A list where the keys for the data_dict are kept in order
+
+        x_start : int
+            The starting value for x array slicing defined by the ROI
+
+        x_stop : int
+            The stopping value for x array slicing defined by the ROI
+
+        y_start : int
+            The starting value for y array slicing defined by the ROI
+
+        y_stop : int
+            The stopping value for y array slicing defined by the ROI
+
+        selection : str
+            The name of the current function selected for analysis
+
+        figure : matplotlib.figure
+            The figure where the reduced rep plotting is drawn
+
+        canvas : FigureCanvas
+            The canvas where the reduced rep plotting is drawn
+
         """
 
         # self.tif_list = get_files(file_path)
@@ -31,25 +57,22 @@ class ReducedRepPlot:
         self.y_stop = y_stop
         self.selection = selection
         self.y_data = None
-        self.is_Plotted = False
         self.ax = None
         self.fig = figure
         self.canvas = canvas
         # default func dict is simple analysis functions
-        self.func_dict = {"get_avg_2d": get_avg_2d, "get_max": get_max, "get_min": get_min,
-                          "get_stdev": get_stdev, "get_total_intensity": get_total_intensity}
+        self.func_dict = {np.std.__name__: np.std, np.mean.__name__: np.mean, np.amin.__name__: np.amin,
+                          np.amax.__name__: np.amax, np.sum.__name__: np.sum}
 
     def analyze(self):
-        """
-        This function will plot analysis data as a function of the number of images. uses multiprocessing to speed
-        things up
-        :return: void
+        """This function will plot analysis data as a function of the number of images.
+
         """
         p = multiprocessing.Pool()
         vals = []
         for key in self.key_list:
-            vals.append((self.data_dict[key], self.x_start, self.x_stop, self.y_start, self.y_stop))
-        y = p.starmap(self.func_dict[self.selection], vals)
+            vals.append(self.data_dict[key][self.y_start: self.y_stop, self.x_start: self.x_stop])
+        y = p.map(self.func_dict[self.selection], vals)
         p.close()
         p.join()
 
@@ -57,21 +80,32 @@ class ReducedRepPlot:
         self.y_data = y
 
     def analyze_new_data(self, data_list):
-        """
-        an overloaded analyze method that will take in a data list and return an analyzed list
+        """an analyze method that will take in a data list and return an analyzed list
+
+        Parameters
+        ----------
+        data_list : list
+            the list of sliced numpy arrays to be analyzed
         """
         
         p = multiprocessing.Pool()
         vals = []
         for data in data_list:
-            vals.append((data, self.x_start, self.x_stop, self.y_start, self.y_stop))
-        y = p.starmap(self.func_dict[self.selection], vals)
+            vals.append(data[self.y_start: self.y_stop, self.x_start: self.x_stop])
+        y = p.map(self.func_dict[self.selection], vals)
         p.close()
         p.join()
 
         return y
 
     def show(self, new_data=None):
+        """handles plotting for the reduced rep plot panel
+
+        Parameters
+        ----------
+        new_data : list (optional)
+            if the new data list is present, the plot will be updated with new data and not completely redrawn
+        """
 
         if new_data is None:
             self.fig.canvas.mpl_connect('close_event', self.handle_close)
@@ -81,7 +115,6 @@ class ReducedRepPlot:
             self.ax.set_ylabel(self.selection)
             self.ax.hold(False)
             self.ax.autoscale()
-            self.is_Plotted = True
             self.canvas.draw()
         else:
             new_data = self.analyze_new_data(new_data)
@@ -93,31 +126,48 @@ class ReducedRepPlot:
             self.ax.autoscale()
             self.canvas.draw()
 
-    def handle_close(self, event):
-        self.is_Plotted = False
-
     def set_func_dict(self, func_list):
         """a setter for func_dict that takes in a list of functions 
-        and creates a dictionary for them
+
+        creates a dictionary for them
         functions should have the arguments
         arr for the 2d image array
-        x_start to define the the starting x val
-        x_stop to define the stopping x val
-        y_start to define the the starting y val
-        y_stop to define the stopping y val
 
+        Parameters
+        ----------
+        func_list : a list of functions that you want to replace the current dictionary functions
         """
         self.func_dict.clear()
         for func in func_list:
             self.func_dict[func.__name__] = func
 
     def add_func(self, func):
-        """functions should have the arguments
-        arr for the 2d image array
-        x_start to define the the starting x val
-        x_stop to define the stopping x val
-        y_start to define the the starting y val
-        y_stop to define the stopping y val
+        """adds an arbitrary function to the function dictionary
+
+        the function should have the argument arr for a 2d image array
+
+        Parameters
+        ----------
+        func : function
+            the function to be passed in
         """
         self.func_dict[func.__name__] = func
+
+    def remove_func(self, func_name):
+            """This function will remove a function from the function dictionary
+
+            To delete the name of the function must match the name of a function currently in the dictionary
+
+            Parameters
+            ----------
+
+            func_name : str
+                the name of the function to be removed. best to use func.__name__
+
+            """
+
+            try:
+                self.data_dict.__delitem__(func_name)
+            except KeyError:
+                print("There is no function matching " + func_name + " in the function dictionary")
 

@@ -90,7 +90,7 @@ class Display2(QtGui.QMainWindow):
         canvas.mpl_connect('button_press_event', self.click_handling)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
-        canvas.setMinimumWidth(400)
+        canvas.setMinimumWidth(800)
         self.rpp = ReducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
@@ -341,9 +341,7 @@ class Display2(QtGui.QMainWindow):
             self.update_data([], [])
         elif len(new_file_names) != 0 and len(int_new_files) == 0:
             self.update_data(new_data, new_file_names)
-            print(self.rpp.is_Plotted)
-            if self.rpp.is_Plotted:
-                self.rpp.show(new_data=new_data)
+            self.rpp.show(new_data=new_data)
         else:
             self.update_int_data(int_new_files, int_data_x, int_data_y)
             self.update_data(new_data, new_file_names)
