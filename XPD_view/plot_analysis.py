@@ -52,8 +52,6 @@ class ReducedRepPlot:
         y = p.starmap(self.func_dict[self.selection], vals)
         p.close()
         p.join()
-        
-        print(y)
 
         assert (len(y) == len(self.key_list))
         self.y_data = y
@@ -70,8 +68,6 @@ class ReducedRepPlot:
         y = p.starmap(self.func_dict[self.selection], vals)
         p.close()
         p.join()
-        
-        print(y)
 
         return y
 
@@ -99,7 +95,6 @@ class ReducedRepPlot:
 
     def handle_close(self, event):
         self.is_Plotted = False
-        print("closed")
 
     def set_func_dict(self, func_list):
         """a setter for func_dict that takes in a list of functions 
