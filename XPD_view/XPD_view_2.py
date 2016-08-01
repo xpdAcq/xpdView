@@ -96,7 +96,7 @@ class Display2(QtGui.QMainWindow):
         self.display_box_1.addLayout(layout)
 
     def click_handling(self, event):
-            if event.xdata != None and event.ydata != None:
+            if (event.xdata is not None) and (event.ydata is not None):
                 self.ctrls._slider_img.setValue(int(event.xdata))
 
     def set_up_menu_bar(self):
