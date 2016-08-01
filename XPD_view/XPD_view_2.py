@@ -9,7 +9,7 @@ import numpy as np
 from Tif_File_Finder import TifFileFinder
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
-from plot_analysis import reducedRepPlot
+from plot_analysis import ReducedRepPlot
 import matplotlib.pyplot as plt
 from xray_vision.messenger.mpl.cross_section_2d import CrossSection2DMessenger
 
@@ -79,16 +79,21 @@ class Display2(QtGui.QMainWindow):
     def r_rep_widget(self):
         figure = plt.figure()
         canvas = FigureCanvas(figure)
+        canvas.mpl_connect('button_press_event', self.click_handling)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
         canvas.setMinimumWidth(400)
-        self.rpp = reducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
+        self.rpp = ReducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
         layout.addWidget(canvas)
         self.display_box_1.addStretch()
         self.display_box_1.addLayout(layout)
+
+    def click_handling(self, event):
+            if event.xdata != None and event.ydata != None:
+                self.ctrls._slider_img.setValue(int(event.xdata))
 
     def set_up_menu_bar(self):
         # set path option
