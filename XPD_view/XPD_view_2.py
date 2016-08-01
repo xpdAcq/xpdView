@@ -344,7 +344,8 @@ class Display2(QtGui.QMainWindow):
         # list that is normally the list of File names. The other list is represented as the new key names.
         old_length = len(self.key_list)
         for file in file_list:
-            self.key_list.append(file)
+            x = file.split('.')
+            self.key_list.append(x[0])
         for i in range(old_length, len(self.key_list)):
             self.data_dict[self.key_list[i]] = data_list[i - old_length]
         self.ctrls._slider_img.setMaximum(len(self.key_list) - 1)
@@ -355,7 +356,8 @@ class Display2(QtGui.QMainWindow):
         # the x and y axis along with the key names that will be used
         old_length = len(self.int_key_list)
         for file in file_list:
-            self.int_key_list.append(file)
+            x = file.split('.')
+            self.int_key_list.append(x[0])
         for i in range(old_length, len(self.int_key_list)):
             self.int_data_dict[self.int_key_list[i]] = [data_x[i], data_y[i]]
 
