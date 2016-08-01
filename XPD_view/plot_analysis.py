@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import time
 import multiprocessing
+from simple_analysis_functions import *
 
 
-class reducedRepPlot:
+class ReducedRepPlot:
 
     def __init__(self, data_dict, key_list, x_start, x_stop, y_start, y_stop, selection, figure, canvas):
         """
@@ -34,8 +35,9 @@ class reducedRepPlot:
         self.ax = None
         self.fig = figure
         self.canvas = canvas
-        self.func_dict = {}
-
+        # default func dict is simple analysis functions
+        self.func_dict = {"get_avg_2d": get_avg_2d, "get_max": get_max, "get_min": get_min,
+                          "get_stdev": get_stdev, "get_total_intensity": get_total_intensity}
 
     def analyze(self):
         """
@@ -56,37 +58,16 @@ class reducedRepPlot:
         assert (len(y) == len(self.key_list))
         self.y_data = y
 
-    # def y_vals(self, img):
-
-    #     #x = range(0,len(self.file_list))
-
-    #     # list_num = file_list.pop(0)
-    #     # lock.acquire()
-    #     print("process active")
-    #     # lock.release()
-    #     # for img in file_list:
-
-    #         # lock.acquire()
-    #         # print("file from list:" + str(list_num) + " analyzed")
-    #         # lock.release()
-    #         #temp_arr = imread(img)
-
-        
-        func = self.func_dict[self.selection]
-        #queue.put(y)
-        # lock.acquire()
-        print("process complete")
-        return self.func_dict[self.selection]\
-            (img, self.x_start, self.x_stop, self.y_start, self.y_stop)
-        # lock.release()
-
     def analyze_new_data(self, data_list):
         """
         an overloaded analyze method that will take in a data list and return an analyzed list
         """
         
         p = multiprocessing.Pool()
-        y = p.map(self.y_vals, data_list)
+        vals = []
+        for data in data_list:
+            vals.append((data, self.x_start, self.x_stop, self.y_start, self.y_stop))
+        y = p.starmap(self.func_dict[self.selection], vals)
         p.close()
         p.join()
         
@@ -94,8 +75,7 @@ class reducedRepPlot:
 
         return y
 
-
-    def show(self, new_data = None):
+    def show(self, new_data=None):
 
         if new_data is None:
             self.fig.canvas.mpl_connect('close_event', self.handle_close)
@@ -105,16 +85,7 @@ class reducedRepPlot:
             self.ax.set_ylabel(self.selection)
             self.ax.hold(False)
             self.ax.autoscale()
-            # plt.plot(range(0, len(self.y_data)), self.y_data, 'ro')
-            # plt.xlabel("file num")
-            # plt.ylabel(self.selection)
-
-            #  plt.xscale()
-            #
             self.is_Plotted = True
-            # plt.ion()
-            # plt.draw()
-            # plt.show()
             self.canvas.draw()
         else:
             new_data = self.analyze_new_data(new_data)
@@ -125,19 +96,6 @@ class reducedRepPlot:
             self.ax.set_ylabel(self.selection)
             self.ax.autoscale()
             self.canvas.draw()
-
-    # def redraw(self, new_data):
-    #
-    #     if not self.is_Plotted:
-    #         self.show()
-    #     else:
-    #         new_data = self.analyze_new_data(new_data)
-    #         for val in new_data:
-    #             self.y_data.append(val)
-    #         self.axes.set_xdata(range(0, len(self.y_data)))
-    #         self.axes.set_ydata(self.y_data)
-    #         self.axes.draw()
-
 
     def handle_close(self, event):
         self.is_Plotted = False
@@ -166,8 +124,5 @@ class reducedRepPlot:
         y_start to define the the starting y val
         y_stop to define the stopping y val
         """
-        try:
-            self.func_dict[func.__name__] = func
-        except TypeError as te:
-            te("func_dict has not been initialized yet. use set_func_dict() before add_func()")
+        self.func_dict[func.__name__] = func
 

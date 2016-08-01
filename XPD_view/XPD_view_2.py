@@ -79,14 +79,12 @@ class Display2(QtGui.QMainWindow):
         self.r_rep_widget()
 
     def r_rep_widget(self):
-        from simple_analysis_functions import get_max, get_total_intensity
         figure = plt.figure()
         canvas = FigureCanvas(figure)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
         canvas.setMinimumWidth(400)
         self.rpp = reducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
-        self.rpp.set_func_dict([get_max, get_total_intensity])
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
