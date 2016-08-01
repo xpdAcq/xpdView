@@ -49,12 +49,17 @@ class ChiFileFinder(object):
             if add:
                 self.file_list.append(i)
                 need_read_files.append(i)
-        return self.get_new_images(need_read_files)
+        return self.get_new_data(need_read_files)
 
-    def get_new_images(self, temp_file_list):
+    def get_new_data(self, temp_file_list):
+        temp_data_x = []
+        temp_data_y = []
         if temp_file_list is not None:
             for i in temp_file_list:
                 temp = np.loadtxt(self._directory_name+i, skiprows=4)
                 x, y = np.hsplit(temp, 2)
                 self.x_lists.append(x)
                 self.y_lists.append(y)
+                temp_data_x.append(x)
+                temp_data_y.append(y)
+        return temp_file_list, temp_data_x, temp_data_y

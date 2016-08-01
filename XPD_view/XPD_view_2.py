@@ -7,6 +7,7 @@ import os
 import sys
 import numpy as np
 from Tif_File_Finder import TifFileFinder
+from Chi_File_Finder import ChiFileFinder
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
 from plot_analysis import ReducedRepPlot
@@ -43,7 +44,9 @@ class Display2(QtGui.QMainWindow):
         self.analysis_type = None
         self.file_path = None
         data_list, self.key_list = data_gen(1)
+        self.int_key_list = []
         self.Tif = TifFileFinder()
+        self.Chi = ChiFileFinder()
 
         # These commands initialize the 2D cross section widget to draw itself
         self.messenger = CrossSection2DMessenger(data_list=data_list,
@@ -52,6 +55,7 @@ class Display2(QtGui.QMainWindow):
         self.ctrls.set_image_intensity_behavior('full range')
         self.messenger.sl_update_image(0)
         self.data_dict = self.messenger._view._data_dict
+        self.int_data_dict = dict()
 
         # This makes the layout for the main window
         self.frame = QtGui.QFrame()
@@ -276,7 +280,9 @@ class Display2(QtGui.QMainWindow):
         popup = QtGui.QFileDialog()
         self.file_path = str(popup.getExistingDirectory())
         self.Tif._directory_name = self.file_path
+        self.Chi._directory_name = self.file_path
         self.Tif.get_file_list()
+        self.Chi.get_file_list()
         if len(self.Tif.pic_list) == 0:
             print('No .tif files in directory')
         else:
@@ -284,19 +290,28 @@ class Display2(QtGui.QMainWindow):
             if x == 'Home' or x == '0':
                 del self.data_dict[self.key_list[0]]
                 self.key_list.remove(x)
+                self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
                 self.update_data(self.Tif.pic_list, self.Tif.file_list)
             else:
+                self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
                 self.update_data(self.Tif.pic_list, self.Tif.file_list)
 
     def refresh(self):
         new_file_names, new_data = self.Tif.get_new_files()
-        if len(new_file_names) == 0:
-            print("No new .tif files found")
-        else:
+        int_new_files, int_data_x, int_data_y = self.Chi.get_new_files()
+        if len(new_file_names) == 0 and len(int_new_files) == 0:
+            print("No new files found")
+        elif len(new_file_names) == 0 and len(int_new_files) != 0:
+            self.update_int_data(int_new_files, int_data_x, int_data_y)
+            self.update_data([], [])
+        elif len(new_file_names) != 0 and len(int_new_files) == 0:
             self.update_data(new_data, new_file_names)
             print(self.rpp.is_Plotted)
             if self.rpp.is_Plotted:
                 self.rpp.show(new_data=new_data)
+        else:
+            self.update_int_data(int_new_files, int_data_x, int_data_y)
+            self.update_data(new_data, new_file_names)
 
     def update_data(self, data_list, file_list):
         # This method updates the data in the image display taking in some new data list and some other
@@ -306,8 +321,17 @@ class Display2(QtGui.QMainWindow):
             self.key_list.append(file)
         for i in range(old_length, len(self.key_list)):
             self.data_dict[self.key_list[i]] = data_list[i - old_length]
-        self.ctrls._slider_img.setMaximum(len(self.key_list) - 1)
-        self.ctrls._spin_img.setMaximum(len(self.key_list) - 1)
+        self.ctrls._slider_img.setMaximum(len(self.Chi.file_list) - 1)
+        self.ctrls._spin_img.setMaximum(len(self.Chi.file_list) - 1)
+
+    def update_int_data(self, file_list, data_x, data_y):
+        # This method updates the data for the 1-D integrated plot display by taking in some new data lists for
+        # the x and y axis along with the key names that will be used
+        old_length = len(self.int_key_list)
+        for file in file_list:
+            self.int_key_list.append(file)
+        for i in range(old_length, len(self.int_key_list)):
+            self.int_data_dict[self.int_key_list[i]] = [data_x[i], data_y[i]]
 
     def change_display_name(self, index_val):
         # This is how the display updates the current name displayed
