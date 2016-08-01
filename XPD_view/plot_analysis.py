@@ -1,3 +1,6 @@
+"""This class handles the plotting and analysis for reduced representation
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import multiprocessing
@@ -7,16 +10,36 @@ class ReducedRepPlot:
 
     def __init__(self, data_dict, key_list, x_start, x_stop, y_start, y_stop, selection, figure, canvas):
         """constructor for reducedRepPlot object
-        :param data_dict: Dictionary where data is stored
-        :type data_dict: dict
-        :param x_start: start val for x analysis
-        :type x_start: int
-        :param x_stop: stop val for x analysis
-        :type x_stop: int
-        :param y_start: start val for y analysis
-        :type y_start: int
-        :param y_stop: stop val for y analysis
-        :type y_stop: int
+
+        Parameters
+        ----------
+
+        data_dict : dict
+            The dictionary where the image arrays are stored
+
+        key_list : list
+            A list where the keys for the data_dict are kept in order
+
+        x_start : int
+            The starting value for x array slicing defined by the ROI
+
+        x_stop : int
+            The stopping value for x array slicing defined by the ROI
+
+        y_start : int
+            The starting value for y array slicing defined by the ROI
+
+        y_stop : int
+            The stopping value for y array slicing defined by the ROI
+
+        selection : str
+            The name of the current function selected for analysis
+
+        figure : matplotlib.figure
+            The figure where the reduced rep plotting is drawn
+
+        canvas : FigureCanvas
+            The canvas where the reduced rep plotting is drawn
 
         """
 
@@ -42,9 +65,7 @@ class ReducedRepPlot:
                           np.amax.__name__: np.amax, np.sum.__name__: np.sum}
 
     def analyze(self):
-        """This function will plot analysis data as a function of the number of images. uses multiprocessing to speed
-        things up
-        :return: void
+        """This function will plot analysis data as a function of the number of images.
 
         """
         p = multiprocessing.Pool()
@@ -60,8 +81,11 @@ class ReducedRepPlot:
 
     def analyze_new_data(self, data_list):
         """an analyze method that will take in a data list and return an analyzed list
-        :param data_list: a list with data to be analyzed
-        :type data_list: list
+
+        Parameters
+        ----------
+        data_list : list
+            the list of sliced numpy arrays to be analyzed
         """
         
         p = multiprocessing.Pool()
@@ -76,8 +100,11 @@ class ReducedRepPlot:
 
     def show(self, new_data=None):
         """handles plotting for the reduced rep plot panel
-        :param new_data: if there is new data, the plot will be updated
-        :return: void
+
+        Parameters
+        ----------
+        new_data : list (optional)
+            if the new data list is present, the plot will be updated with new data and not completely redrawn
         """
 
         if new_data is None:
@@ -101,19 +128,28 @@ class ReducedRepPlot:
 
     def set_func_dict(self, func_list):
         """a setter for func_dict that takes in a list of functions 
-        and creates a dictionary for them
+
+        creates a dictionary for them
         functions should have the arguments
         arr for the 2d image array
-        :type func_list: list
+
+        Parameters
+        ----------
+        func_list : a list of functions that you want to replace the current dictionary functions
         """
         self.func_dict.clear()
         for func in func_list:
             self.func_dict[func.__name__] = func
 
     def add_func(self, func):
-        """functions should have the arguments
-        arr for the 2d image array
-        :type func: function
+        """adds an arbitrary function to the function dictionary
+
+        the function should have the argument arr for a 2d image array
+
+        Parameters
+        ----------
+        func : function
+            the function to be passed in
         """
         self.func_dict[func.__name__] = func
 
