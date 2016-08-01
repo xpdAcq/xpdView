@@ -7,7 +7,10 @@ import os
 import sys
 import numpy as np
 from Tif_File_Finder import TifFileFinder
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
 from plot_analysis import reducedRepPlot
+import matplotlib.pyplot as plt
 from xray_vision.messenger.mpl.cross_section_2d import CrossSection2DMessenger
 
 
@@ -40,7 +43,6 @@ class Display2(QtGui.QMainWindow):
         self.analysis_type = None
         self.file_path = None
         data_list, self.key_list = data_gen(1)
-        self.analysis_list = ["min", "max", "mean", "Standard Deviation", "Total Intensity"]
         self.Tif = TifFileFinder()
 
         # These commands initialize the 2D cross section widget to draw itself
@@ -71,7 +73,22 @@ class Display2(QtGui.QMainWindow):
         self.set_up_tool_bar()
         self.set_up_menu_bar()
 
-        self.rpp = reducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min")
+        self.rpp = None
+        self.r_rep_widget()
+
+    def r_rep_widget(self):
+        figure = plt.figure()
+        canvas = FigureCanvas(figure)
+        FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(canvas)
+        canvas.setMinimumWidth(400)
+        self.rpp = reducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
+        toolbar = NavigationToolBar(canvas, self)
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(toolbar)
+        layout.addWidget(canvas)
+        self.display_box_1.addStretch()
+        self.display_box_1.addLayout(layout)
 
     def set_up_menu_bar(self):
         # set path option
@@ -98,7 +115,7 @@ class Display2(QtGui.QMainWindow):
         graph_menu.addAction(plt_action)
 
     def set_analysis_type(self, i):
-        self.analysis_type = self.analysis_list[i]
+        self.analysis_type = list(self.rpp.func_dict.keys())[i]
 
     def plot_analysis(self, x_min, x_max, y_min, y_max):
         try:
@@ -139,7 +156,7 @@ class Display2(QtGui.QMainWindow):
 
         # creating qt widgets
         analysis_selector = QtGui.QComboBox(menu)
-        analysis_selector.addItems(self.analysis_list)
+        analysis_selector.addItems(list(self.rpp.func_dict.keys()))
 
         print(self.messenger._fig.axes[0].get_xlim())
         print(self.messenger._fig.axes[0].get_ylim())
