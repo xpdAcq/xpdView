@@ -1,0 +1,778 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>XPD_view package &mdash; XPD_view 0.vista documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.vista',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="XPD_view 0.vista documentation" href="index.html" />
+    <link rel="prev" title="Welcome to XPD_view’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="xpd-view-package">
+<h1>XPD_view package<a class="headerlink" href="#xpd-view-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-Chi_File_Finder">
+<span id="chi-file-finder-module"></span><h2>Chi_File_Finder module<a class="headerlink" href="#module-Chi_File_Finder" title="Permalink to this headline">¶</a></h2>
+<p>This class will handle reading in .chi files from the directory so that XPD view can show
+the 1-D integration patterns extracted from the .chi files</p>
+<dl class="class">
+<dt id="Chi_File_Finder.ChiFileFinder">
+<em class="property">class </em><code class="descclassname">Chi_File_Finder.</code><code class="descname">ChiFileFinder</code><a class="headerlink" href="#Chi_File_Finder.ChiFileFinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="Chi_File_Finder.ChiFileFinder.get_data_lists">
+<code class="descname">get_data_lists</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Chi_File_Finder.ChiFileFinder.get_data_lists" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method reads in the data from the files and then splits it up into the x and y data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Chi_File_Finder.ChiFileFinder.get_file_list">
+<code class="descname">get_file_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Chi_File_Finder.ChiFileFinder.get_file_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method gets all of the chi files from the directory and organizes them according to the time they were
+made</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Chi_File_Finder.ChiFileFinder.get_new_data">
+<code class="descname">get_new_data</code><span class="sig-paren">(</span><em>temp_file_list</em><span class="sig-paren">)</span><a class="headerlink" href="#Chi_File_Finder.ChiFileFinder.get_new_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method gets the new data from the files that get_new_files determined had not been read in yet</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>temp_file_list</strong> : list of strings</p>
+<blockquote>
+<div><p>a list of strings that correspond to all of the new files that need to be read in</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>temp_file_list</strong> : list of strings</p>
+<blockquote>
+<div><p>see above</p>
+</div></blockquote>
+<p><strong>temp_data_x</strong> : list of 1D numpy arrays</p>
+<blockquote>
+<div><p>a temporary list of all the new x axis data</p>
+</div></blockquote>
+<p><strong>temp_data_y</strong> : list of 1D numpy arrays</p>
+<blockquote class="last">
+<div><p>a temporary list of all the new y axis data</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Chi_File_Finder.ChiFileFinder.get_new_files">
+<code class="descname">get_new_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Chi_File_Finder.ChiFileFinder.get_new_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method checks for new files and being the read in process for them</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The returns of the get_new_data method</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-Tif_File_Finder">
+<span id="tif-file-finder-module"></span><h2>Tif_File_Finder module<a class="headerlink" href="#module-Tif_File_Finder" title="Permalink to this headline">¶</a></h2>
+<p>This class is what gets the .tif files from the directory when entered and returns the numpy arrays used
+in XPD_view. This class is designed to ensure that files are ordered according to time signature, and that
+all dark tifs and raw tifs are ignored as they are being read in.</p>
+<dl class="class">
+<dt id="Tif_File_Finder.TifFileFinder">
+<em class="property">class </em><code class="descclassname">Tif_File_Finder.</code><code class="descname">TifFileFinder</code><a class="headerlink" href="#Tif_File_Finder.TifFileFinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="Tif_File_Finder.TifFileFinder.get_file_list">
+<code class="descname">get_file_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Tif_File_Finder.TifFileFinder.get_file_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class gets the initial list of tif files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Tif_File_Finder.TifFileFinder.get_image_arrays">
+<code class="descname">get_image_arrays</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Tif_File_Finder.TifFileFinder.get_image_arrays" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method reads in the tif files into 2D numpy arrays and appends them to the class&#8217;s pic_list</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Tif_File_Finder.TifFileFinder.get_new_files">
+<code class="descname">get_new_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Tif_File_Finder.TifFileFinder.get_new_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method finds new tif files in the directory for the user</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">all returns from the get_new_images method</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="Tif_File_Finder.TifFileFinder.get_new_images">
+<code class="descname">get_new_images</code><span class="sig-paren">(</span><em>temp_file_list</em><span class="sig-paren">)</span><a class="headerlink" href="#Tif_File_Finder.TifFileFinder.get_new_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method reads in the newly found files if there are any and returns them</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>self</strong></p>
+<p><strong>temp_file_list</strong> : list of strings</p>
+<blockquote>
+<div><p>temporary list containing all of the new names</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">temp_file_list: list of strings</p>
+<blockquote>
+<div><p>see above</p>
+</div></blockquote>
+<p>new_pic: list of 2D numpy arrays</p>
+<blockquote class="last">
+<div><p>temporary list of all new read in data</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-XPD_view_2">
+<span id="xpd-view-2-module"></span><h2>XPD_view_2 module<a class="headerlink" href="#module-XPD_view_2" title="Permalink to this headline">¶</a></h2>
+<p>This file will contain the code that makes the XPD view GUI</p>
+<dl class="class">
+<dt id="XPD_view_2.Display2">
+<em class="property">class </em><code class="descclassname">XPD_view_2.</code><code class="descname">Display2</code><span class="sig-paren">(</span><em>parent: QWidget = None</em>, <em>flags: Qt.WindowFlags = 0</em><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QMainWindow</span></code></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="XPD_view_2.Display2.change_display_name">
+<code class="descname">change_display_name</code><span class="sig-paren">(</span><em>index_val</em><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.change_display_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method updates the displayed current key name on the tool bar</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>self</strong></p>
+<p><strong>index_val</strong> : int</p>
+<blockquote>
+<div><p>This is index of the key with the associated new image and 1D plot</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.change_one_dim_plot">
+<code class="descname">change_one_dim_plot</code><span class="sig-paren">(</span><em>index_val</em><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.change_one_dim_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function updates the 1D plot for the user</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>self</strong></p>
+<p><strong>index_val</strong> : int</p>
+<blockquote>
+<div><p>Index value of the new plot that is supposed to be displayed</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.click_handling">
+<code class="descname">click_handling</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.click_handling" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method simply tells the display window what to do when someone clicks on the top right tile what to do</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>event: object</strong></p>
+<blockquote>
+<div><p>from mouse click that is used to change the image</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.one_dim_integrate">
+<code class="descname">one_dim_integrate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.one_dim_integrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>This creates the bottom left tile and also creates an instance of the IntegrationPlot class for handling
+the plotting of the image</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.plot_analysis">
+<code class="descname">plot_analysis</code><span class="sig-paren">(</span><em>x_min</em>, <em>x_max</em>, <em>y_min</em>, <em>y_max</em><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.plot_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>This
+Parameters
+&#8212;&#8212;&#8212;-
+x_min : int</p>
+<blockquote>
+<div>integer that tells which column the analysis software should begin with on the image</div></blockquote>
+<dl class="docutils">
+<dt>x_max</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">int</span><dd>integer that tells which column the analysis software should end with on the image</dd>
+<dt>y_min</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">int</span><dd>integer that tells which row the analysis software should begin with on the image</dd>
+<dt>y_max</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">int</span><dd>integer that tells which row the analysis software should end with on the image</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.r_rep_widget">
+<code class="descname">r_rep_widget</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.r_rep_widget" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class creates the figure and instance of the ReducedRepPlot that is used to create the plot in the
+top right corner</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.refresh">
+<code class="descname">refresh</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.refresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method checks for new data using the methods available to ChiFileFinder and TifFileFinder Classes and
+handles the new data to ensure that nothing breaks</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.set_analysis_type">
+<code class="descname">set_analysis_type</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.set_analysis_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method creates the display in the dialog window</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>self</strong></p>
+<p><strong>i</strong> : int</p>
+<blockquote>
+<div><p>key chosen in dialog window that sets index</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.set_graph_settings">
+<code class="descname">set_graph_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.set_graph_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function creates the pop up window that allows the user to communicate over what region of the image
+and what statistical parameter they want to observe</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.set_path">
+<code class="descname">set_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.set_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>This creates the dialog window that pops up to set the path</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.set_up_menu_bar">
+<code class="descname">set_up_menu_bar</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.set_up_menu_bar" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method creates the menu bar and ties all of the actions associated with the different options to the menu
+bar</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.set_up_tool_bar">
+<code class="descname">set_up_tool_bar</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.set_up_tool_bar" title="Permalink to this definition">¶</a></dt>
+<dd><p>This creates all of the widgets that are put into the toolbar and puts them in there</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>self</strong></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.update_data">
+<code class="descname">update_data</code><span class="sig-paren">(</span><em>data_list</em>, <em>file_list</em><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.update_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method updates the data_dict for the viewer and rest of the program to use</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>self</strong></p>
+<p><strong>data_list</strong> : list of 2D arrays</p>
+<blockquote>
+<div><p>data that is to be put into the dictionary</p>
+</div></blockquote>
+<p><strong>file_list</strong> : list of stings</p>
+<blockquote>
+<div><p>unique key names associated with the 2D arrays</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.update_int_data">
+<code class="descname">update_int_data</code><span class="sig-paren">(</span><em>file_list</em>, <em>data_x</em>, <em>data_y</em><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.update_int_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method update the integrated data dictionary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>self</strong></p>
+<p><strong>file_list</strong> : list of strings</p>
+<blockquote>
+<div><p>key names that are the same as the 2D arrays but associated with the 1D plots</p>
+</div></blockquote>
+<p><strong>data_x</strong> : list of 1D numpy arrays</p>
+<blockquote>
+<div><p>x-axis data for the 1D plot associated with corresponding key name</p>
+</div></blockquote>
+<p><strong>data_y</strong> : list of 1D numpy arrays</p>
+<blockquote>
+<div><p>y-axis data for the 1D plot associated with corresponding key name</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="XPD_view_2.Display2.waterfall">
+<code class="descname">waterfall</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.Display2.waterfall" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method simply creates an instance of the class that creates the waterfall plot in the bottom right corner
+Parameters
+&#8212;&#8212;&#8212;-
+self</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="XPD_view_2.data_gen">
+<code class="descclassname">XPD_view_2.</code><code class="descname">data_gen</code><span class="sig-paren">(</span><em>length</em><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.data_gen" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function generates circular data to create the homepage, and also to practice with</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>length: some integer that will decide the length of the data and key arrays</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">data: a list of 2-D numpy arrays; normally only generates one to make the homepage</p>
+<p class="last">keys: a list of strings that represent the indices of the generated arrays</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="XPD_view_2.main">
+<code class="descclassname">XPD_view_2.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#XPD_view_2.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-one_dimensional_int">
+<span id="one-dimensional-int-module"></span><h2>one_dimensional_int module<a class="headerlink" href="#module-one_dimensional_int" title="Permalink to this headline">¶</a></h2>
+<p>This file will handle all of the one dimensional plotting of the lower left tile in the
+Display Window</p>
+<dl class="class">
+<dt id="one_dimensional_int.IntegrationPlot">
+<em class="property">class </em><code class="descclassname">one_dimensional_int.</code><code class="descname">IntegrationPlot</code><span class="sig-paren">(</span><em>dictionary</em>, <em>keys</em>, <em>fig</em>, <em>canvas</em>, <em>index=0</em><span class="sig-paren">)</span><a class="headerlink" href="#one_dimensional_int.IntegrationPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="one_dimensional_int.IntegrationPlot.give_plot">
+<code class="descname">give_plot</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#one_dimensional_int.IntegrationPlot.give_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method draws the desired 1D integrated plot
+Parameters
+&#8212;&#8212;&#8212;-
+index : int</p>
+<blockquote>
+<div>Index of key whose plot you want to see</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-plot_analysis">
+<span id="plot-analysis-module"></span><h2>plot_analysis module<a class="headerlink" href="#module-plot_analysis" title="Permalink to this headline">¶</a></h2>
+<p>This class handles the plotting and analysis for reduced representation</p>
+<dl class="class">
+<dt id="plot_analysis.ReducedRepPlot">
+<em class="property">class </em><code class="descclassname">plot_analysis.</code><code class="descname">ReducedRepPlot</code><span class="sig-paren">(</span><em>data_dict</em>, <em>key_list</em>, <em>x_start</em>, <em>x_stop</em>, <em>y_start</em>, <em>y_stop</em>, <em>selection</em>, <em>figure</em>, <em>canvas</em><span class="sig-paren">)</span><a class="headerlink" href="#plot_analysis.ReducedRepPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<dl class="method">
+<dt id="plot_analysis.ReducedRepPlot.add_func">
+<code class="descname">add_func</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="headerlink" href="#plot_analysis.ReducedRepPlot.add_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>adds an arbitrary function to the function dictionary</p>
+<p>the function should have the argument arr for a 2d image array</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>func</strong> : function</p>
+<blockquote class="last">
+<div><p>the function to be passed in</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="plot_analysis.ReducedRepPlot.analyze">
+<code class="descname">analyze</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#plot_analysis.ReducedRepPlot.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will plot analysis data as a function of the number of images.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="plot_analysis.ReducedRepPlot.analyze_new_data">
+<code class="descname">analyze_new_data</code><span class="sig-paren">(</span><em>data_list</em><span class="sig-paren">)</span><a class="headerlink" href="#plot_analysis.ReducedRepPlot.analyze_new_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>an analyze method that will take in a data list and return an analyzed list</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data_list</strong> : list</p>
+<blockquote class="last">
+<div><p>the list of sliced numpy arrays to be analyzed</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="plot_analysis.ReducedRepPlot.remove_func">
+<code class="descname">remove_func</code><span class="sig-paren">(</span><em>func_name</em><span class="sig-paren">)</span><a class="headerlink" href="#plot_analysis.ReducedRepPlot.remove_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will remove a function from the function dictionary</p>
+<p>To delete the name of the function must match the name of a function currently in the dictionary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>func_name</strong> : str</p>
+<blockquote class="last">
+<div><p>the name of the function to be removed. best to use func.__name__</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="plot_analysis.ReducedRepPlot.set_func_dict">
+<code class="descname">set_func_dict</code><span class="sig-paren">(</span><em>func_list</em><span class="sig-paren">)</span><a class="headerlink" href="#plot_analysis.ReducedRepPlot.set_func_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>a setter for func_dict that takes in a list of functions</p>
+<p>creates a dictionary for them
+functions should have the arguments
+arr for the 2d image array</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>func_list</strong> : a list of functions that you want to replace the current dictionary functions</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="plot_analysis.ReducedRepPlot.show">
+<code class="descname">show</code><span class="sig-paren">(</span><em>new_data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#plot_analysis.ReducedRepPlot.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>handles plotting for the reduced rep plot panel</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>new_data</strong> : list (optional)</p>
+<blockquote class="last">
+<div><p>if the new data list is present, the plot will be updated with new data and not completely redrawn</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-waterfall_maker">
+<span id="waterfall-maker-module"></span><h2>waterfall_maker module<a class="headerlink" href="#module-waterfall_maker" title="Permalink to this headline">¶</a></h2>
+<p>This will create the class that draws the waterfall plot for the Display window</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">XPD_view package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-Chi_File_Finder">Chi_File_Finder module</a></li>
+<li><a class="reference internal" href="#module-Tif_File_Finder">Tif_File_Finder module</a></li>
+<li><a class="reference internal" href="#module-XPD_view_2">XPD_view_2 module</a></li>
+<li><a class="reference internal" href="#module-one_dimensional_int">one_dimensional_int module</a></li>
+<li><a class="reference internal" href="#module-plot_analysis">plot_analysis module</a></li>
+<li><a class="reference internal" href="#module-waterfall_maker">waterfall_maker module</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to XPD_view&#8217;s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/XPD_view.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Joseph Kaming-Thanassi, Caleb Duff.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/XPD_view.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
