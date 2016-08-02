@@ -9,6 +9,7 @@ from Tif_File_Finder import TifFileFinder
 from Chi_File_Finder import ChiFileFinder
 from plot_analysis import ReducedRepPlot
 from one_dimensional_int import IntegrationPlot
+from waterfall_maker import WaterFallMaker
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
 import matplotlib.pyplot as plt
@@ -194,7 +195,7 @@ class Display2(QtGui.QMainWindow):
         canvas = FigureCanvas(figure)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
-        canvas.setMinimumHeight(200)
+        canvas.setMinimumHeight(400)
         self.one_dim_plot = IntegrationPlot(self.int_data_dict, self.key_list, figure, canvas)
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
@@ -217,9 +218,10 @@ class Display2(QtGui.QMainWindow):
         """
         figure = plt.figure()
         canvas = FigureCanvas(figure)
+        canvas.setMinimumHeight(400)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
-        self.water = None
+        self.water = WaterFallMaker(figure, canvas, self.int_data_dict, self.int_key_list)
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
@@ -607,6 +609,9 @@ class Display2(QtGui.QMainWindow):
             self.int_key_list.append(x[0])
         for i in range(old_length, len(self.int_key_list)):
             self.int_data_dict[self.int_key_list[i]] = [data_x[i], data_y[i]]
+        if len(self.int_key_list) != 0:
+            self.water.get_right_shape()
+            self.water.get_plot()
 
     def change_display_name(self, index_val):
         """
