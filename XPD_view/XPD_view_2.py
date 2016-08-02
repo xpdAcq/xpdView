@@ -94,7 +94,9 @@ class Display2(QtGui.QMainWindow):
         rpp : None
             allows instance of the ReducedRepPlot later in the code
         one_dim_plot : None
-            allows instance of IntegratedPlot class later in code as needed
+            allows instance of IntegratedPlot class later in code
+        water : None
+            allows instance of WaterfallMaker class later in code
 
         Returns
         -------
