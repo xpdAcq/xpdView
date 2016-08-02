@@ -141,6 +141,7 @@ class Display2(QtGui.QMainWindow):
 
         self.rpp = None
         self.one_dim_plot = None
+        self.water = None
         self.r_rep_widget()
         self.one_dim_integrate()
         self.waterfall()
@@ -216,6 +217,7 @@ class Display2(QtGui.QMainWindow):
         canvas = FigureCanvas(figure)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
+        self.water = None
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
