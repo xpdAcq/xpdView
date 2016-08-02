@@ -108,7 +108,6 @@ class ReducedRepPlot:
         """
 
         if new_data is None:
-            self.fig.canvas.mpl_connect('close_event', self.handle_close)
             self.ax = self.fig.add_subplot(111)
             self.ax.plot(range(0, len(self.y_data)), self.y_data, 'ro')
             self.ax.set_xlabel("File Num")

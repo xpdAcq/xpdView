@@ -3,7 +3,6 @@ This file will contain the code that makes the XPD view GUI
 """
 
 from PyQt4 import QtGui, QtCore
-import os
 import sys
 import numpy as np
 from Tif_File_Finder import TifFileFinder
@@ -17,7 +16,19 @@ from xray_vision.messenger.mpl.cross_section_2d import CrossSection2DMessenger
 
 
 def data_gen(length):
-    # This will generate circular looking data
+    """
+    This function generates circular data to create the homepage, and also to practice with
+
+    Parameters
+    ----------
+    length: some integer that will decide the length of the data and key arrays
+
+    Returns
+    -------
+    data: a list of 2-D numpy arrays; normally only generates one to make the homepage
+    keys: a list of strings that represent the indices of the generated arrays
+
+    """
     x_length = 100
     y_length = 100
     data = []
@@ -39,6 +50,56 @@ def data_gen(length):
 class Display2(QtGui.QMainWindow):
 
     def __init__(self):
+        """
+        This class creates the display window that is used by users to analyze their data
+
+        Parameters
+        ----------
+        none
+
+        Attributes
+        ----------
+        analysis_type : string
+            determines what kind of statistical parameter will be observed
+        file_path : string
+            the directory that will contain the .tif and .chi files for viewing
+        key_list : list of strings
+            that are ordered according to time data was read in for data_dict
+        int_key_list : list of strings
+            that show when integrated data was read in
+        Tif : instance of the TifFileFinder class
+            that is used to search and read in tif files
+        Chi : instance of the ChiFileFinder class
+            that is used to search and read in chi files
+        messenger : creates an instance of the CrossSection2DMessenger widget
+            for future use in code
+        ctrls : object
+            spawns all of the widgets made available by the CrossSection2DMessenger class
+        data_dict : dictionary
+            stores all of the 2D image arrays as a dictionary
+        int_data_dict : dictionary
+            stores all of the integrated data's x and y lists in a dictionary
+        frame : object
+            creates the background frame on which all of the widgets are displayed
+        main_layout : object
+            creates main vertical box that will store all display widgets and tools
+        display_box_1 : object
+            creates the horizontal box intended to contain the 2D cross section widget and some other plot
+        display_box_2 : object
+            creates the horizontal box that will hold two other useful plots
+        tools_box : object
+            creates the horizontal box that will contain all of the control widgets
+        name_label : object
+            widget that will display current final, UID, etc.
+        rpp : None
+            allows instance of the ReducedRepPlot later in the code
+        one_dim_plot : None
+            allows instance of IntegratedPlot class later in code as needed
+
+        Returns
+        -------
+        None
+        """
         # This is just setting up some of the beginning variables
         QtGui.QMainWindow.__init__(self)
         self.setWindowTitle('XPD View')
@@ -85,6 +146,19 @@ class Display2(QtGui.QMainWindow):
         self.waterfall()
 
     def r_rep_widget(self):
+        """
+        This class creates the figure and instance of the ReducedRepPlot that is used to create the plot in the
+        top right corner
+
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
         figure = plt.figure()
         canvas = FigureCanvas(figure)
         canvas.mpl_connect('button_press_event', self.click_handling)
@@ -100,6 +174,19 @@ class Display2(QtGui.QMainWindow):
         self.display_box_1.addLayout(layout)
 
     def one_dim_integrate(self):
+        """
+        This creates the bottom left tile and also creates an instance of the IntegrationPlot class for handling
+        the plotting of the image
+
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
         figure = plt.figure()
         canvas = FigureCanvas(figure)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -114,6 +201,17 @@ class Display2(QtGui.QMainWindow):
         self.display_box_2.addLayout(layout)
 
     def waterfall(self):
+        """
+        This method simply creates an instance of the class that creates the waterfall plot in the bottom right corner
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
         figure = plt.figure()
         canvas = FigureCanvas(figure)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -126,10 +224,36 @@ class Display2(QtGui.QMainWindow):
         self.display_box_2.addLayout(layout)
 
     def click_handling(self, event):
-            if (event.xdata is not None) and (event.ydata is not None):
-                self.ctrls._slider_img.setValue(int(event.xdata))
+        """
+        This method simply tells the display window what to do when someone clicks on the top right tile what to do
+
+        Parameters
+        ----------
+        event: object
+            from mouse click that is used to change the image
+
+        Returns
+        -------
+        None
+
+        """
+        if (event.xdata is not None) and (event.ydata is not None):
+            self.ctrls._slider_img.setValue(int(event.xdata))
 
     def set_up_menu_bar(self):
+        """
+        This method creates the menu bar and ties all of the actions associated with the different options to the menu
+        bar
+
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
         # set path option
         setpath = QtGui.QAction("&Set Directory", self)
         setpath.setShortcut("Ctrl+O")
@@ -154,9 +278,41 @@ class Display2(QtGui.QMainWindow):
         graph_menu.addAction(plt_action)
 
     def set_analysis_type(self, i):
+        """
+        This method creates the display in the dialog window
+
+        Parameters
+        ----------
+        self
+        i : int
+            key chosen in dialog window that sets index
+
+        Returns
+        -------
+        None
+
+        """
         self.analysis_type = list(self.rpp.func_dict.keys())[i]
 
     def plot_analysis(self, x_min, x_max, y_min, y_max):
+        """
+        This
+        Parameters
+        ----------
+        x_min : int
+            integer that tells which column the analysis software should begin with on the image
+        x_max : int
+            integer that tells which column the analysis software should end with on the image
+        y_min : int
+            integer that tells which row the analysis software should begin with on the image
+        y_max : int
+            integer that tells which row the analysis software should end with on the image
+
+        Returns
+        -------
+        None
+
+        """
         try:
             self.rpp.x_start = x_min
             self.rpp.x_stop = x_max
@@ -186,6 +342,19 @@ class Display2(QtGui.QMainWindow):
             err_msg_analysis.exec_()
 
     def set_graph_settings(self):
+        """
+        This function creates the pop up window that allows the user to communicate over what region of the image
+        and what statistical parameter they want to observe
+
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
         menu = QtGui.QDialog(self)
         menu.setWindowTitle("Reduced Representation Settings")
         menu.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -281,6 +450,18 @@ class Display2(QtGui.QMainWindow):
         menu.exec_()
 
     def set_up_tool_bar(self):
+        """
+        This creates all of the widgets that are put into the toolbar and puts them in there
+
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
         # All these commands will extract the desired widgets from x-ray_vision for our purposes
         self.tools_box.addWidget(self.ctrls._slider_img)
         self.tools_box.addWidget(self.ctrls._spin_img)
@@ -303,11 +484,23 @@ class Display2(QtGui.QMainWindow):
         self.ctrls._slider_img.valueChanged.connect(self.change_one_dim_plot)
 
         # This makes the refresh button
-        refresh = QtGui.QPushButton('Refresh', self)
-        refresh.clicked.connect(self.refresh)
-        self.tools_box.addWidget(refresh)
+        refresh_btn = QtGui.QPushButton('Refresh', self)
+        refresh_btn.clicked.connect(self.refresh)
+        self.tools_box.addWidget(refresh_btn)
 
     def set_path(self):
+        """
+        This creates the dialog window that pops up to set the path
+
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
         popup = QtGui.QFileDialog()
         self.file_path = str(popup.getExistingDirectory())
         self.Tif._directory_name = self.file_path
@@ -332,6 +525,19 @@ class Display2(QtGui.QMainWindow):
                 self.one_dim_plot.give_plot(self.ctrls._slider_img.value())
 
     def refresh(self):
+        """
+        This method checks for new data using the methods available to ChiFileFinder and TifFileFinder Classes and
+        handles the new data to ensure that nothing breaks
+
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
         new_file_names, new_data = self.Tif.get_new_files()
         int_new_files, int_data_x, int_data_y = self.Chi.get_new_files()
         if len(new_file_names) == 0 and len(int_new_files) == 0:
@@ -347,8 +553,22 @@ class Display2(QtGui.QMainWindow):
             self.update_data(new_data, new_file_names)
 
     def update_data(self, data_list, file_list):
-        # This method updates the data in the image display taking in some new data list and some other
-        # list that is normally the list of File names. The other list is represented as the new key names.
+        """
+        This method updates the data_dict for the viewer and rest of the program to use
+
+        Parameters
+        ----------
+        self
+        data_list : list of 2D arrays
+            data that is to be put into the dictionary
+        file_list : list of stings
+            unique key names associated with the 2D arrays
+
+        Returns
+        -------
+        None
+
+        """
         old_length = len(self.key_list)
         for file in file_list:
             x = file.split('.')
@@ -359,8 +579,24 @@ class Display2(QtGui.QMainWindow):
         self.ctrls._spin_img.setMaximum(len(self.key_list) - 1)
 
     def update_int_data(self, file_list, data_x, data_y):
-        # This method updates the data for the 1-D integrated plot display by taking in some new data lists for
-        # the x and y axis along with the key names that will be used
+        """
+        This method update the integrated data dictionary
+
+        Parameters
+        ----------
+        self
+        file_list : list of strings
+            key names that are the same as the 2D arrays but associated with the 1D plots
+        data_x : list of 1D numpy arrays
+            x-axis data for the 1D plot associated with corresponding key name
+        data_y : list of 1D numpy arrays
+            y-axis data for the 1D plot associated with corresponding key name
+
+        Returns
+        -------
+        None
+
+        """
         old_length = len(self.int_key_list)
         for file in file_list:
             x = file.split('.')
@@ -369,10 +605,37 @@ class Display2(QtGui.QMainWindow):
             self.int_data_dict[self.int_key_list[i]] = [data_x[i], data_y[i]]
 
     def change_display_name(self, index_val):
-        # This is how the display updates the current name displayed
+        """
+        This method updates the displayed current key name on the tool bar
+
+        Parameters
+        ----------
+        self
+        index_val : int
+            This is index of the key with the associated new image and 1D plot
+
+        Returns
+        -------
+        None
+
+        """
         self.name_label.setText("Current: " + self.key_list[index_val])
 
     def change_one_dim_plot(self, index_val):
+        """
+        This function updates the 1D plot for the user
+
+        Parameters
+        ----------
+        self
+        index_val : int
+            Index value of the new plot that is supposed to be displayed
+
+        Returns
+        -------
+        None
+
+        """
         self.one_dim_plot.give_plot(index=index_val)
 
 
