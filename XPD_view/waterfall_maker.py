@@ -31,7 +31,17 @@ class WaterFallMaker:
                 self.Y[j][i] = i
                 self.Z[j][i] = self.data[self.keys[i]][1][j]
 
-    def get_plot(self):
+    def get_wire_plot(self):
+        self.ax.cla()
+        self.ax.plot_wireframe(self.X, self.Y, self.Z, rstride=0)
+        self.ax.set_xlabel('Distance from Center')
+        self.ax.set_ylabel('File Index')
+        self.ax.set_zlabel('Total Intensity')
+        self.ax.hold(False)
+        self.ax.autoscale()
+        self.canvas.draw()
+
+    def get_surface_plot(self):
         self.ax.plot_surface(self.X, self.Y, self.Z, cmap='coolwarm')
         self.ax.set_xlabel('Distance from Center')
         self.ax.set_ylabel('File Index')

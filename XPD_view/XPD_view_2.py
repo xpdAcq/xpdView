@@ -72,6 +72,10 @@ class Display2(QtGui.QMainWindow):
             that is used to search and read in tif files
         Chi : instance of the ChiFileFinder class
             that is used to search and read in chi files
+        surface : Bool
+            this variable keeps track of whether the user wants a contour plot or a wire plot in the 3d frame
+        three_dim_drawn : Bool
+            this variable keeps track of whether or not the 3d plot has been drawn yet
         messenger : creates an instance of the CrossSection2DMessenger widget
             for future use in code
         ctrls : object
@@ -112,6 +116,8 @@ class Display2(QtGui.QMainWindow):
         self.int_key_list = []
         self.Tif = TifFileFinder()
         self.Chi = ChiFileFinder()
+        self.surface = True
+        self.three_dim_drawn = False
 
         # These commands initialize the 2D cross section widget to draw itself
         self.messenger = CrossSection2DMessenger(data_list=data_list,
@@ -168,7 +174,7 @@ class Display2(QtGui.QMainWindow):
         canvas.mpl_connect('button_press_event', self.click_handling)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
-        canvas.setMinimumWidth(800)
+        canvas.setMinimumWidth(500)
         self.rpp = ReducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
@@ -195,7 +201,7 @@ class Display2(QtGui.QMainWindow):
         canvas = FigureCanvas(figure)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
-        canvas.setMinimumHeight(400)
+        canvas.setMinimumHeight(200)
         self.one_dim_plot = IntegrationPlot(self.int_data_dict, self.key_list, figure, canvas)
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
@@ -218,7 +224,7 @@ class Display2(QtGui.QMainWindow):
         """
         figure = plt.figure()
         canvas = FigureCanvas(figure)
-        canvas.setMinimumHeight(400)
+        canvas.setMinimumHeight(200)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
         self.water = WaterFallMaker(figure, canvas, self.int_data_dict, self.int_key_list)
@@ -271,17 +277,28 @@ class Display2(QtGui.QMainWindow):
         refresh_path.setShortcut('Ctrl+R')
         refresh_path.triggered.connect(self.refresh)
 
+        # This sets up the option that makes the popup window
         plt_action = QtGui.QAction("&Plot", self)
         plt_action.setShortcut("Ctrl+P")
         plt_action.triggered.connect(self.set_graph_settings)
+
+        # This sets up the options that control the 3d Plot style
+        surface_action = QtGui.QAction("&Surface", self)
+        surface_action.triggered.connect(self.surface_plot_wanted)
+
+        wire_action = QtGui.QAction("&Wire", self)
+        wire_action.triggered.connect(self.wire_plot_wanted)
 
         # This sets up all of the menu widgets that are used in the GUI
         mainmenu = self.menuBar()
         filemenu = mainmenu.addMenu("&File")
         graph_menu = mainmenu.addMenu('&Reduced Representation')
+        three_dim = mainmenu.addMenu('&3D Plot style')
         filemenu.addAction(setpath)
         filemenu.addAction(refresh_path)
         graph_menu.addAction(plt_action)
+        three_dim.addAction(surface_action)
+        three_dim.addAction(wire_action)
 
     def set_analysis_type(self, i):
         """
@@ -611,7 +628,8 @@ class Display2(QtGui.QMainWindow):
             self.int_data_dict[self.int_key_list[i]] = [data_x[i], data_y[i]]
         if len(self.int_key_list) != 0:
             self.water.get_right_shape()
-            self.water.get_plot()
+            self.get_three_dim_plot()
+            self.three_dim_drawn = True
 
     def change_display_name(self, index_val):
         """
@@ -646,6 +664,57 @@ class Display2(QtGui.QMainWindow):
 
         """
         self.one_dim_plot.give_plot(index=index_val)
+
+    def get_three_dim_plot(self):
+        """
+        This method simply draws the kind of plot selected by the user
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
+        if self.surface:
+            self.water.get_surface_plot()
+        else:
+            self.water.get_wire_plot()
+
+    def surface_plot_wanted(self):
+        """
+        This function simply allows the 3d style options to draw the right plot
+
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
+        self.surface = True
+        if self.three_dim_drawn:
+            self.get_three_dim_plot()
+
+    def wire_plot_wanted(self):
+        """
+        This function allows the 3d style option to draw the wire option
+
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
+        self.surface = False
+        if self.three_dim_drawn:
+            self.get_three_dim_plot()
 
 
 def main():
