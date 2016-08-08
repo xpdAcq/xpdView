@@ -202,7 +202,7 @@ class Display2(QtGui.QMainWindow):
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
         canvas.setMinimumHeight(200)
-        self.one_dim_plot = IntegrationPlot(self.int_data_dict, self.key_list, figure, canvas)
+        self.one_dim_plot = IntegrationPlot(self.int_data_dict, self.key_list, figure, canvas, self.key_list[0])
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
@@ -540,12 +540,12 @@ class Display2(QtGui.QMainWindow):
                 self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
                 self.update_data(self.Tif.pic_list, self.Tif.file_list)
                 self.messenger.sl_update_image(0)
-                self.one_dim_plot.give_plot(self.ctrls._slider_img.value())
+                self.one_dim_plot.give_plot(self.key_list[0])
             else:
                 self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
                 self.update_data(self.Tif.pic_list, self.Tif.file_list)
                 self.messenger.sl_update_image(0)
-                self.one_dim_plot.give_plot(self.ctrls._slider_img.value())
+                self.one_dim_plot.give_plot(self.key_list[0])
 
     def refresh(self):
         """
@@ -594,8 +594,7 @@ class Display2(QtGui.QMainWindow):
         """
         old_length = len(self.key_list)
         for file in file_list:
-            x = file.split('.')
-            self.key_list.append(x[0])
+            self.key_list.append(file)
         for i in range(old_length, len(self.key_list)):
             self.data_dict[self.key_list[i]] = data_list[i - old_length]
         self.ctrls._slider_img.setMaximum(len(self.key_list) - 1)
@@ -622,10 +621,9 @@ class Display2(QtGui.QMainWindow):
         """
         old_length = len(self.int_key_list)
         for file in file_list:
-            x = file.split('.')
-            self.int_key_list.append(x[0])
+            self.int_key_list.append(file)
         for i in range(old_length, len(self.int_key_list)):
-            self.int_data_dict[self.int_key_list[i]] = [data_x[i], data_y[i]]
+            self.int_data_dict[self.int_key_list[i]] = [data_x[i-old_length], data_y[i-old_length]]
         if len(self.int_key_list) != 0:
             self.water.get_right_shape()
             self.get_three_dim_plot()
@@ -663,7 +661,7 @@ class Display2(QtGui.QMainWindow):
         None
 
         """
-        self.one_dim_plot.give_plot(index=index_val)
+        self.one_dim_plot.give_plot(key=self.key_list[index_val])
 
     def get_three_dim_plot(self):
         """

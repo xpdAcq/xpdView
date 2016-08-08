@@ -43,6 +43,7 @@ class WaterFallMaker:
         self.canvas.draw()
 
     def get_surface_plot(self):
+        self.ax.cla()
         self.ax.plot_surface(self.X, self.Y, self.Z, cmap='coolwarm')
         self.ax.set_ylabel('File Index')
         self.ax.get_xaxis().set_ticks([])

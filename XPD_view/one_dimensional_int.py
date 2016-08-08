@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 class IntegrationPlot(object):
 
-    def __init__(self, dictionary, keys, fig, canvas, index=0):
+    def __init__(self, dictionary, keys, fig, canvas, key):
         """
         This initializes the IntegrationPlot class
 
@@ -43,23 +43,28 @@ class IntegrationPlot(object):
         self.ax.set_xlabel('Distance from Center')
         self.ax.set_ylabel('Total Integrated Intensity')
         self.ax.set_title('1-D Integrated Plot')
-        self.give_plot(index)
+        self.give_plot(key)
 
-    def give_plot(self, index):
+    def give_plot(self, key):
         """
         This method draws the desired 1D integrated plot
         Parameters
         ----------
-        index : int
-            Index of key whose plot you want to see
+        key : str
+            key of integrated data to be viewed
 
         Returns
         -------
         None
 
         """
+        if key[-4:] == '.tif':
+            use_key = key[:-4] + '.chi'
+        else:
+            use_key = key
+
         try:
-            data = self.int_data_dict[self.key_list[index]]
+            data = self.int_data_dict[use_key]
             self.ax.plot(data[0], data[1])
             self.ax.hold(False)
             self.ax.autoscale()
