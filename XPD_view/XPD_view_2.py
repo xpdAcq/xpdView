@@ -119,6 +119,23 @@ class Display2(QtGui.QMainWindow):
         self.surface = True
         self.three_dim_drawn = False
 
+        # setting up dockable windows
+        self.plot_dock = QtGui.QDockWidget("Dockable", self)
+        self.plot_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.plot_dock.setWindowTitle("Reduced Representation")
+
+        self.img_dock = QtGui.QDockWidget("Dockable", self)
+        self.img_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.img_dock.setWindowTitle("Image")
+
+        self.integration_dock = QtGui.QDockWidget("Dockable", self)
+        self.integration_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.integration_dock.setWindowTitle("Integration")
+
+        self.waterfall_dock = QtGui.QDockWidget("Dockable", self)
+        self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.waterfall_dock.setWindowTitle("Waterfall Plot")
+
         # These commands initialize the 2D cross section widget to draw itself
         self.messenger = CrossSection2DMessenger(data_list=data_list,
                                                  key_list=self.key_list)
@@ -134,9 +151,10 @@ class Display2(QtGui.QMainWindow):
         self.frame.setLayout(self.main_layout)
         self.setCentralWidget(self.frame)
         self.display = self.messenger._display
+        self.img_dock.setWidget(self.display)
         # This makes the first layer for the
         self.display_box_1 = QtGui.QHBoxLayout()
-        self.display_box_1.addWidget(self.display)
+        self.display_box_1.addWidget(self.img_dock)
         self.display_box_2 = QtGui.QHBoxLayout()
         self.tools_box = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.display_box_1)
@@ -180,8 +198,11 @@ class Display2(QtGui.QMainWindow):
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
         layout.addWidget(canvas)
+        multiwidget = QtGui.QWidget()
+        multiwidget.setLayout(layout)
+        self.plot_dock.setWidget(multiwidget)
         self.display_box_1.addStretch()
-        self.display_box_1.addLayout(layout)
+        self.display_box_1.addWidget(self.plot_dock)
 
     def one_dim_integrate(self):
         """
@@ -207,8 +228,11 @@ class Display2(QtGui.QMainWindow):
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
         layout.addWidget(canvas)
+        multi_widget = QtGui.QWidget()
+        multi_widget.setLayout(layout)
+        self.integration_dock.setWidget(multi_widget)
         self.display_box_2.addStretch()
-        self.display_box_2.addLayout(layout)
+        self.display_box_2.addWidget(self.integration_dock)
 
     def waterfall(self):
         """
@@ -232,8 +256,11 @@ class Display2(QtGui.QMainWindow):
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
         layout.addWidget(canvas)
+        multi_widget = QtGui.QWidget()
+        multi_widget.setLayout(layout)
+        self.waterfall_dock.setWidget(multi_widget)
         self.display_box_2.addStretch()
-        self.display_box_2.addLayout(layout)
+        self.display_box_2.addWidget(self.waterfall_dock)
 
     def click_handling(self, event):
         """
