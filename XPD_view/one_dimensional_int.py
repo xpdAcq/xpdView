@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 class IntegrationPlot(object):
 
-    def __init__(self, dictionary, keys, fig, canvas, key):
+    def __init__(self, dictionary, fig, canvas, key):
         """
         This initializes the IntegrationPlot class
 
@@ -36,7 +36,6 @@ class IntegrationPlot(object):
         None
         """
         self.int_data_dict = dictionary
-        self.key_list = keys
         self.fig = fig
         self.canvas = canvas
         self.ax = self.fig.add_subplot(111)

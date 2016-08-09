@@ -202,7 +202,7 @@ class Display2(QtGui.QMainWindow):
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
         canvas.setMinimumHeight(200)
-        self.one_dim_plot = IntegrationPlot(self.int_data_dict, self.key_list, figure, canvas, self.key_list[0])
+        self.one_dim_plot = IntegrationPlot(self.int_data_dict, figure, canvas, self.key_list[0])
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
