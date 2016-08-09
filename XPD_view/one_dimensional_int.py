@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 class IntegrationPlot(object):
 
-    def __init__(self, dictionary, fig, canvas, key):
+    def __init__(self, dictionary, fig, canvas):
         """
         This initializes the IntegrationPlot class
 
@@ -16,8 +16,6 @@ class IntegrationPlot(object):
         ----------
         dictionary: dictionary
             contains pairs of lists [[list_x], [list_y]] from the 1D integrated data
-        keys: list of strings
-            unique names that can pull information from the dictionary for use by the class
         fig: matplotlib figure
         canvas: the canvas associated with the above figure
         index: int
@@ -26,7 +24,6 @@ class IntegrationPlot(object):
         Attributes
         ----------
         int_data_dict: see dictionary
-        key_list: see keys
         fig: see fig
         canvas: see canvas
         ax: the axis that will hold the plot and handle all redrawing
@@ -42,7 +39,7 @@ class IntegrationPlot(object):
         self.ax.set_xlabel('Distance from Center')
         self.ax.set_ylabel('Total Integrated Intensity')
         self.ax.set_title('1-D Integrated Plot')
-        self.give_plot(key)
+        self.give_plot('nothing')
 
     def give_plot(self, key):
         """

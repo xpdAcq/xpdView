@@ -7,13 +7,13 @@ import sys
 import numpy as np
 from Tif_File_Finder import TifFileFinder
 from Chi_File_Finder import ChiFileFinder
+from two_dim_data import DiffractionData
 from plot_analysis import ReducedRepPlot
 from one_dimensional_int import IntegrationPlot
 from waterfall_maker import WaterFallMaker
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
 import matplotlib.pyplot as plt
-from xray_vision.messenger.mpl.cross_section_2d import CrossSection2DMessenger
 
 
 def data_gen(length):
@@ -76,10 +76,6 @@ class Display2(QtGui.QMainWindow):
             this variable keeps track of whether the user wants a contour plot or a wire plot in the 3d frame
         three_dim_drawn : Bool
             this variable keeps track of whether or not the 3d plot has been drawn yet
-        messenger : creates an instance of the CrossSection2DMessenger widget
-            for future use in code
-        ctrls : object
-            spawns all of the widgets made available by the CrossSection2DMessenger class
         data_dict : dictionary
             stores all of the 2D image arrays as a dictionary
         int_data_dict : dictionary
@@ -94,8 +90,27 @@ class Display2(QtGui.QMainWindow):
             creates the horizontal box that will hold two other useful plots
         tools_box : object
             creates the horizontal box that will contain all of the control widgets
+        fig1 : matplotlib figure
+            this allows us to change the kinds of plots shown on any of the four tiles
+        canvas1 : matplotlib canvas
+            see reasoning above
+        (same for 2 - 4)
         name_label : object
             widget that will display current final, UID, etc.
+        img_slider : object
+            makes slider for toolbar to change image
+        img_spin : object
+            creates spinbox that will be used to display current frame and allow more controlled steps through frames
+        color : object
+            combobox that will control color maps available to the user for the 2D data
+        int_style : object
+            combobox that contains options for controlling the intensity of the image
+        int_min : object
+            spinbox that will control the minimum intensity value
+        int_max : object
+            spinbox that will control the maximum intensity value
+        two_dim_data : None
+            allows instance of the DiffractionData class later in the code
         rpp : None
             allows instance of the ReducedRepPlot later in the code
         one_dim_plot : None
@@ -112,20 +127,13 @@ class Display2(QtGui.QMainWindow):
         self.setWindowTitle('XPD View')
         self.analysis_type = None
         self.file_path = None
-        data_list, self.key_list = data_gen(1)
+        self.key_list = []
         self.int_key_list = []
         self.Tif = TifFileFinder()
         self.Chi = ChiFileFinder()
         self.surface = True
         self.three_dim_drawn = False
-
-        # These commands initialize the 2D cross section widget to draw itself
-        self.messenger = CrossSection2DMessenger(data_list=data_list,
-                                                 key_list=self.key_list)
-        self.ctrls = self.messenger._ctrl_widget
-        self.ctrls.set_image_intensity_behavior('full range')
-        self.messenger.sl_update_image(0)
-        self.data_dict = self.messenger._view._data_dict
+        self.data_dict = dict()
         self.int_data_dict = dict()
 
         # This makes the layout for the main window
@@ -133,27 +141,70 @@ class Display2(QtGui.QMainWindow):
         self.main_layout = QtGui.QVBoxLayout()
         self.frame.setLayout(self.main_layout)
         self.setCentralWidget(self.frame)
-        self.display = self.messenger._display
-        # This makes the first layer for the
+
+        # This makes the gui boxes that will hold all of the widgets and plots
         self.display_box_1 = QtGui.QHBoxLayout()
-        self.display_box_1.addWidget(self.display)
         self.display_box_2 = QtGui.QHBoxLayout()
         self.tools_box = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.display_box_1)
         self.main_layout.addLayout(self.display_box_2)
         self.main_layout.addLayout(self.tools_box)
 
-        # These methods will set up the menu bars and the tool bars
+        # This creates the canvases that all plots within the GUI will be drawn on
+        self.fig1 = plt.figure()
+        self.canvas1 = FigureCanvas(self.fig1)
+        self.fig2 = plt.figure()
+        self.canvas2 = FigureCanvas(self.fig2)
+        self.fig3 = plt.figure()
+        self.canvas3 = FigureCanvas(self.fig3)
+        self.fig4 = plt.figure()
+        self.canvas4 = FigureCanvas(self.fig4)
+
+        # This creates the widgets so they can be accessed later
         self.name_label = QtGui.QLabel()
+        self.img_slider = QtGui.QSlider()
+        self.img_slider.setOrientation(QtCore.Qt.Horizontal)
+        self.img_spin = QtGui.QSpinBox()
+        self.color = QtGui.QComboBox()
+        self.int_style = QtGui.QComboBox()
+        self.int_min = QtGui.QSpinBox()
+        self.int_max = QtGui.QSpinBox()
+
+        # These methods will set up the menu bars and the tool bars
         self.set_up_tool_bar()
         self.set_up_menu_bar()
 
+        # These methods begin the process of creating the four tiles to hold the plots
+        self.two_dim_data = None
         self.rpp = None
         self.one_dim_plot = None
         self.water = None
+        self.two_dim()
         self.r_rep_widget()
         self.one_dim_integrate()
         self.waterfall()
+
+    def two_dim(self):
+        '''
+        This functions creates the class that will control the 2D data tile of the display
+
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        '''
+        FigureCanvas.setSizePolicy(self.canvas1, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self.canvas1)
+        self.two_dim_data = DiffractionData(self.fig1, self.canvas1, self.data_dict)
+        toolbar = NavigationToolBar(self.canvas1, self)
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(toolbar)
+        layout.addWidget(self.canvas1)
+        self.display_box_1.addLayout(layout)
 
     def r_rep_widget(self):
         """
@@ -169,17 +220,14 @@ class Display2(QtGui.QMainWindow):
         None
 
         """
-        figure = plt.figure()
-        canvas = FigureCanvas(figure)
-        canvas.mpl_connect('button_press_event', self.click_handling)
-        FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(canvas)
-        canvas.setMinimumWidth(500)
-        self.rpp = ReducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
-        toolbar = NavigationToolBar(canvas, self)
+        self.canvas2.mpl_connect('button_press_event', self.click_handling)
+        FigureCanvas.setSizePolicy(self.canvas2, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self.canvas2)
+        self.rpp = ReducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", self.fig2, self.canvas2)
+        toolbar = NavigationToolBar(self.canvas2, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
-        layout.addWidget(canvas)
+        layout.addWidget(self.canvas2)
         self.display_box_1.addStretch()
         self.display_box_1.addLayout(layout)
 
@@ -197,16 +245,13 @@ class Display2(QtGui.QMainWindow):
         None
 
         """
-        figure = plt.figure()
-        canvas = FigureCanvas(figure)
-        FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(canvas)
-        canvas.setMinimumHeight(200)
-        self.one_dim_plot = IntegrationPlot(self.int_data_dict, figure, canvas, self.key_list[0])
-        toolbar = NavigationToolBar(canvas, self)
+        FigureCanvas.setSizePolicy(self.canvas3, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self.canvas3)
+        self.one_dim_plot = IntegrationPlot(self.int_data_dict, self.fig3, self.canvas3)
+        toolbar = NavigationToolBar(self.canvas3, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
-        layout.addWidget(canvas)
+        layout.addWidget(self.canvas3)
         self.display_box_2.addStretch()
         self.display_box_2.addLayout(layout)
 
@@ -222,16 +267,13 @@ class Display2(QtGui.QMainWindow):
         None
 
         """
-        figure = plt.figure()
-        canvas = FigureCanvas(figure)
-        canvas.setMinimumHeight(200)
-        FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(canvas)
-        self.water = WaterFallMaker(figure, canvas, self.int_data_dict, self.int_key_list)
-        toolbar = NavigationToolBar(canvas, self)
+        FigureCanvas.setSizePolicy(self.canvas4, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self.canvas4)
+        self.water = WaterFallMaker(self.fig4, self.canvas4, self.int_data_dict, self.int_key_list)
+        toolbar = NavigationToolBar(self.canvas4, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
-        layout.addWidget(canvas)
+        layout.addWidget(self.canvas4)
         self.display_box_2.addStretch()
         self.display_box_2.addLayout(layout)
 
@@ -250,7 +292,7 @@ class Display2(QtGui.QMainWindow):
 
         """
         if (event.xdata is not None) and (event.ydata is not None):
-            self.ctrls._slider_img.setValue(int(event.xdata))
+            self.img_slider.setValue(int(event.xdata))
 
     def set_up_menu_bar(self):
         """
@@ -389,8 +431,8 @@ class Display2(QtGui.QMainWindow):
         analysis_selector = QtGui.QComboBox(menu)
         analysis_selector.addItems(list(self.rpp.func_dict.keys()))
 
-        print(self.messenger._fig.axes[0].get_xlim())
-        print(self.messenger._fig.axes[0].get_ylim())
+        print(self.fig1.axes[0].get_xlim())
+        print(self.fig1.axes[0].get_ylim())
 
         a_selector_label = QtGui.QLabel()
         x_min_label = QtGui.QLabel()
@@ -404,7 +446,7 @@ class Display2(QtGui.QMainWindow):
         y_min_label.setText("y min")
         y_max_label.setText("y max")
 
-        x_min, x_max = self.messenger._fig.axes[0].get_xlim()
+        x_min, x_max = self.fig1.axes[0].get_xlim()
         x_lim_min = QtGui.QSpinBox()
         x_lim_min.setMinimum(0)
         x_lim_min.setMaximum(2048)
@@ -415,7 +457,7 @@ class Display2(QtGui.QMainWindow):
         x_lim_max.setMaximum(2048)
         x_lim_max.setValue(int(x_max))
 
-        y_min, y_max = self.messenger._fig.axes[0].get_ylim()
+        y_min, y_max = self.fig1.axes[0].get_ylim()
         y_lim_min = QtGui.QSpinBox()
         y_lim_min.setMinimum(0)
         y_lim_min.setMaximum(10000)
@@ -474,7 +516,7 @@ class Display2(QtGui.QMainWindow):
 
     def set_up_tool_bar(self):
         """
-        This creates all of the widgets that are put into the toolbar and puts them in there
+        This takes all of the widgets that are put into the toolbar and puts them in there
 
         Parameters
         ----------
@@ -485,26 +527,26 @@ class Display2(QtGui.QMainWindow):
         None
 
         """
-        # All these commands will extract the desired widgets from x-ray_vision for our purposes
-        self.tools_box.addWidget(self.ctrls._slider_img)
-        self.tools_box.addWidget(self.ctrls._spin_img)
-        self.tools_box.addWidget(self.ctrls._cm_cb)
-        self.tools_box.addWidget(self.ctrls._cmbbox_intensity_behavior)
+        # All these commands will add the widgets in their proper order to the tool bar
+        self.tools_box.addWidget(self.img_slider)
+        self.tools_box.addWidget(self.img_spin)
+        self.tools_box.addWidget(self.color)
+        self.tools_box.addWidget(self.int_style)
         min_label = QtGui.QLabel()
         min_label.setText('Int Min')
         self.tools_box.addWidget(min_label)
-        self.tools_box.addWidget(self.ctrls._spin_min)
+        self.tools_box.addWidget(self.int_min)
         max_label = QtGui.QLabel()
         max_label.setText('Int Max')
         self.tools_box.addWidget(max_label)
-        self.tools_box.addWidget(self.ctrls._spin_max)
+        self.tools_box.addWidget(self.int_max)
 
         # This makes the Label that is used to display the current key name
-        self.name_label.setText('Current File: '+self.key_list[0])
+        self.name_label.setText('Current File: ')
         self.tools_box.addWidget(self.name_label)
         # This makes sure that the display is updated when the image is changed
-        self.ctrls._spin_img.valueChanged.connect(self.change_display_name)
-        self.ctrls._slider_img.valueChanged.connect(self.change_one_dim_plot)
+        self.img_spin.valueChanged.connect(self.change_frame)
+        self.img_slider.valueChanged.connect(self.change_frame)
 
         # This makes the refresh button
         refresh_btn = QtGui.QPushButton('Refresh', self)
@@ -533,19 +575,10 @@ class Display2(QtGui.QMainWindow):
         if len(self.Tif.pic_list) == 0:
             print('No .tif files in directory')
         else:
-            x = self.key_list[0]
-            if x == 'Home' or x == '0':
-                del self.data_dict[self.key_list[0]]
-                self.key_list.remove(x)
-                self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
-                self.update_data(self.Tif.pic_list, self.Tif.file_list)
-                self.messenger.sl_update_image(0)
-                self.one_dim_plot.give_plot(self.key_list[0])
-            else:
-                self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
-                self.update_data(self.Tif.pic_list, self.Tif.file_list)
-                self.messenger.sl_update_image(0)
-                self.one_dim_plot.give_plot(self.key_list[0])
+            self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
+            self.update_data(self.Tif.pic_list, self.Tif.file_list)
+            self.one_dim_plot.give_plot(self.key_list[0])
+            self.two_dim_data.draw_image(self.key_list[0])
 
     def refresh(self):
         """
@@ -597,8 +630,8 @@ class Display2(QtGui.QMainWindow):
             self.key_list.append(file)
         for i in range(old_length, len(self.key_list)):
             self.data_dict[self.key_list[i]] = data_list[i - old_length]
-        self.ctrls._slider_img.setMaximum(len(self.key_list) - 1)
-        self.ctrls._spin_img.setMaximum(len(self.key_list) - 1)
+        self.img_slider.setMaximum(len(self.key_list) - 1)
+        self.img_spin.setMaximum(len(self.key_list) - 1)
 
     def update_int_data(self, file_list, data_x, data_y):
         """
@@ -629,9 +662,9 @@ class Display2(QtGui.QMainWindow):
             self.get_three_dim_plot()
             self.three_dim_drawn = True
 
-    def change_display_name(self, index_val):
+    def change_frame(self, index_val):
         """
-        This method updates the displayed current key name on the tool bar
+        This method updates all display items associated with the frame of the image
 
         Parameters
         ----------
@@ -645,23 +678,10 @@ class Display2(QtGui.QMainWindow):
 
         """
         self.name_label.setText("Current: " + self.key_list[index_val])
-
-    def change_one_dim_plot(self, index_val):
-        """
-        This function updates the 1D plot for the user
-
-        Parameters
-        ----------
-        self
-        index_val : int
-            Index value of the new plot that is supposed to be displayed
-
-        Returns
-        -------
-        None
-
-        """
         self.one_dim_plot.give_plot(key=self.key_list[index_val])
+        self.two_dim_data.draw_image(key=self.key_list[index_val])
+        self.img_slider.setValue(index_val)
+        self.img_spin.setValue(index_val)
 
     def get_three_dim_plot(self):
         """
