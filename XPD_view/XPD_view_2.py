@@ -118,6 +118,8 @@ class Display2(QtGui.QMainWindow):
         self.Chi = ChiFileFinder()
         self.surface = True
         self.three_dim_drawn = False
+        self.setDockNestingEnabled(True)
+        self.setAnimated(True)
 
         # setting up dockable windows
         self.plot_dock = QtGui.QDockWidget("Dockable", self)
@@ -147,23 +149,22 @@ class Display2(QtGui.QMainWindow):
 
         # This makes the layout for the main window
         self.frame = QtGui.QFrame()
-        self.main_layout = QtGui.QVBoxLayout()
-        self.frame.setLayout(self.main_layout)
-        self.setCentralWidget(self.frame)
+        # self.main_layout = QtGui.QVBoxLayout()
+        # self.frame.setLayout(self.main_layout)
+        # self.setCentralWidget(self.frame)
         self.display = self.messenger._display
         self.img_dock.setWidget(self.display)
         # This makes the first layer for the
-        self.display_box_1 = QtGui.QHBoxLayout()
-        self.display_box_1.addWidget(self.img_dock)
-        self.display_box_2 = QtGui.QHBoxLayout()
-        self.tools_box = QtGui.QHBoxLayout()
-        self.main_layout.addLayout(self.display_box_1)
-        self.main_layout.addLayout(self.display_box_2)
-        self.main_layout.addLayout(self.tools_box)
-
+        # self.display_box_1 = QtGui.QHBoxLayout()
+        # self.display_box_1.addWidget(self.img_dock)
+        # self.display_box_2 = QtGui.QHBoxLayout()
+        #self.tools_box = QtGui.QHBoxLayout()
+        # self.main_layout.addLayout(self.display_box_1)
+        # self.main_layout.addLayout(self.display_box_2)
+        # self.main_layout.addLayout(self.tools_box)
         # These methods will set up the menu bars and the tool bars
         self.name_label = QtGui.QLabel()
-        self.set_up_tool_bar()
+        # self.set_up_tool_bar()
         self.set_up_menu_bar()
 
         self.rpp = None
@@ -172,6 +173,12 @@ class Display2(QtGui.QMainWindow):
         self.r_rep_widget()
         self.one_dim_integrate()
         self.waterfall()
+
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.img_dock)
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.plot_dock)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.integration_dock)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.waterfall_dock)
+
 
     def r_rep_widget(self):
         """
@@ -201,8 +208,8 @@ class Display2(QtGui.QMainWindow):
         multiwidget = QtGui.QWidget()
         multiwidget.setLayout(layout)
         self.plot_dock.setWidget(multiwidget)
-        self.display_box_1.addStretch()
-        self.display_box_1.addWidget(self.plot_dock)
+        # self.display_box_1.addStretch()
+        # self.display_box_1.addWidget(self.plot_dock)
 
     def one_dim_integrate(self):
         """
@@ -231,8 +238,8 @@ class Display2(QtGui.QMainWindow):
         multi_widget = QtGui.QWidget()
         multi_widget.setLayout(layout)
         self.integration_dock.setWidget(multi_widget)
-        self.display_box_2.addStretch()
-        self.display_box_2.addWidget(self.integration_dock)
+        # self.display_box_2.addStretch()
+        # self.display_box_2.addWidget(self.integration_dock)
 
     def waterfall(self):
         """
@@ -259,8 +266,8 @@ class Display2(QtGui.QMainWindow):
         multi_widget = QtGui.QWidget()
         multi_widget.setLayout(layout)
         self.waterfall_dock.setWidget(multi_widget)
-        self.display_box_2.addStretch()
-        self.display_box_2.addWidget(self.waterfall_dock)
+        # self.display_box_2.addStretch()
+        # self.display_box_2.addWidget(self.waterfall_dock)
 
     def click_handling(self, event):
         """
