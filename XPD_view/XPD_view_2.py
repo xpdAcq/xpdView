@@ -138,6 +138,11 @@ class Display2(QtGui.QMainWindow):
         self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
         self.waterfall_dock.setWindowTitle("Waterfall Plot")
 
+        self.toolbar_dock = QtGui.QDockWidget("Dockable", self)
+        self.toolbar_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
+        self.toolbar_dock.setWindowTitle("img toolbar")
+
+
         # These commands initialize the 2D cross section widget to draw itself
         self.messenger = CrossSection2DMessenger(data_list=data_list,
                                                  key_list=self.key_list)
@@ -158,7 +163,7 @@ class Display2(QtGui.QMainWindow):
         # self.display_box_1 = QtGui.QHBoxLayout()
         # self.display_box_1.addWidget(self.img_dock)
         # self.display_box_2 = QtGui.QHBoxLayout()
-        #self.tools_box = QtGui.QHBoxLayout()
+        self.tools_box = QtGui.QHBoxLayout()
         # self.main_layout.addLayout(self.display_box_1)
         # self.main_layout.addLayout(self.display_box_2)
         # self.main_layout.addLayout(self.tools_box)
@@ -166,6 +171,7 @@ class Display2(QtGui.QMainWindow):
         self.name_label = QtGui.QLabel()
         # self.set_up_tool_bar()
         self.set_up_menu_bar()
+        # self.setLayout(self.tools_box)
 
         self.rpp = None
         self.one_dim_plot = None
@@ -178,6 +184,7 @@ class Display2(QtGui.QMainWindow):
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.plot_dock)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.integration_dock)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.waterfall_dock)
+        # self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.toolbar_dock)
 
 
     def r_rep_widget(self):
@@ -323,8 +330,12 @@ class Display2(QtGui.QMainWindow):
         wire_action = QtGui.QAction("&Wire", self)
         wire_action.triggered.connect(self.wire_plot_wanted)
 
+        reset_windows = QtGui.QAction("&Reset Window Layout", self)
+        reset_windows.triggered.connect(self.reset_window_layout)
+
         # This sets up all of the menu widgets that are used in the GUI
         mainmenu = self.menuBar()
+        window_menu = mainmenu.addMenu("&Window")
         filemenu = mainmenu.addMenu("&File")
         graph_menu = mainmenu.addMenu('&Reduced Representation')
         three_dim = mainmenu.addMenu('&3D Plot style')
@@ -333,6 +344,7 @@ class Display2(QtGui.QMainWindow):
         graph_menu.addAction(plt_action)
         three_dim.addAction(surface_action)
         three_dim.addAction(wire_action)
+        window_menu.addAction(reset_windows)
 
     def set_analysis_type(self, i):
         """
@@ -545,6 +557,13 @@ class Display2(QtGui.QMainWindow):
         refresh_btn.clicked.connect(self.refresh)
         self.tools_box.addWidget(refresh_btn)
 
+
+
+        multi_widget = QtGui.QWidget()
+        multi_widget.setLayout(self.tools_box)
+        self.toolbar_dock.setWidget(multi_widget)
+        self.toolbar_dock.setFixedHeight(75)
+
     def set_path(self):
         """
         This creates the dialog window that pops up to set the path
@@ -747,6 +766,12 @@ class Display2(QtGui.QMainWindow):
         self.surface = False
         if self.three_dim_drawn:
             self.get_three_dim_plot()
+
+    def reset_window_layout(self):
+        self.integration_dock.setFloating(False)
+        self.img_dock.setFloating(False)
+        self.plot_dock.setFloating(False)
+        self.waterfall_dock.setFloating(False)
 
 
 def main():
