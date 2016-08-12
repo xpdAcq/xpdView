@@ -138,10 +138,6 @@ class Display2(QtGui.QMainWindow):
         self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
         self.waterfall_dock.setWindowTitle("Waterfall Plot")
 
-        self.toolbar_dock = QtGui.QDockWidget("Dockable", self)
-        self.toolbar_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
-        self.toolbar_dock.setWindowTitle("img toolbar")
-
 
         # These commands initialize the 2D cross section widget to draw itself
         self.messenger = CrossSection2DMessenger(data_list=data_list,
@@ -206,7 +202,7 @@ class Display2(QtGui.QMainWindow):
         canvas.mpl_connect('button_press_event', self.click_handling)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
-        canvas.setMinimumWidth(500)
+        # canvas.setMinimumWidth(500)
         self.rpp = ReducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
