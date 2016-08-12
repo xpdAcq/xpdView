@@ -138,9 +138,9 @@ class Display2(QtGui.QMainWindow):
         self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
         self.waterfall_dock.setWindowTitle("Waterfall Plot")
 
-        # self.toolbar_dock = QtGui.QDockWidget("Dockable", self)
-        # self.toolbar_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
-        # self.toolbar_dock.setWindowTitle("img toolbar")
+        self.toolbar_dock = QtGui.QDockWidget("Dockable", self)
+        self.toolbar_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
+        self.toolbar_dock.setWindowTitle("img toolbar")
 
 
         # These commands initialize the 2D cross section widget to draw itself
@@ -153,29 +153,23 @@ class Display2(QtGui.QMainWindow):
         self.int_data_dict = dict()
 
         # This makes the layout for the main window
-        # self.frame = QtGui.QFrame()
-        self.central_widget = QtGui.QWidget()
-
+        self.frame = QtGui.QFrame()
         # self.main_layout = QtGui.QVBoxLayout()
         # self.frame.setLayout(self.main_layout)
         # self.setCentralWidget(self.frame)
         self.display = self.messenger._display
-        self.tools_box = QtGui.QHBoxLayout()
-        self.name_label = QtGui.QLabel()
         self.img_dock.setWidget(self.display)
-        self.set_up_tool_bar()
-        self.setCentralWidget(self.central_widget)
         # This makes the first layer for the
         # self.display_box_1 = QtGui.QHBoxLayout()
         # self.display_box_1.addWidget(self.img_dock)
         # self.display_box_2 = QtGui.QHBoxLayout()
-
+        self.tools_box = QtGui.QHBoxLayout()
         # self.main_layout.addLayout(self.display_box_1)
         # self.main_layout.addLayout(self.display_box_2)
         # self.main_layout.addLayout(self.tools_box)
         # These methods will set up the menu bars and the tool bars
-
-
+        self.name_label = QtGui.QLabel()
+        # self.set_up_tool_bar()
         self.set_up_menu_bar()
         # self.setLayout(self.tools_box)
 
@@ -212,7 +206,7 @@ class Display2(QtGui.QMainWindow):
         canvas.mpl_connect('button_press_event', self.click_handling)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
-        # canvas.setMinimumWidth(500)
+        canvas.setMinimumWidth(500)
         self.rpp = ReducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", figure, canvas)
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
@@ -242,7 +236,7 @@ class Display2(QtGui.QMainWindow):
         canvas = FigureCanvas(figure)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
-        # canvas.setMinimumHeight(200)
+        canvas.setMinimumHeight(200)
         self.one_dim_plot = IntegrationPlot(self.int_data_dict, self.key_list, figure, canvas, self.key_list[0])
         toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
@@ -268,7 +262,7 @@ class Display2(QtGui.QMainWindow):
         """
         figure = plt.figure()
         canvas = FigureCanvas(figure)
-        # canvas.setMinimumHeight(200)
+        canvas.setMinimumHeight(200)
         FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(canvas)
         self.water = WaterFallMaker(figure, canvas, self.int_data_dict, self.int_key_list)
@@ -554,6 +548,7 @@ class Display2(QtGui.QMainWindow):
         # This makes the Label that is used to display the current key name
         self.name_label.setText('Current File: '+self.key_list[0])
         self.tools_box.addWidget(self.name_label)
+        # This makes sure that the display is updated when the image is changed
         self.ctrls._spin_img.valueChanged.connect(self.change_display_name)
         self.ctrls._slider_img.valueChanged.connect(self.change_one_dim_plot)
 
@@ -562,10 +557,12 @@ class Display2(QtGui.QMainWindow):
         refresh_btn.clicked.connect(self.refresh)
         self.tools_box.addWidget(refresh_btn)
 
-        self.central_widget.setLayout(self.tools_box)
-        self.central_widget.setMaximumSize(16777215, 50)
-        # self.toolbar_dock.setWidget(multi_widget)
-        # self.toolbar_dock.setFixedHeight(75)
+
+
+        multi_widget = QtGui.QWidget()
+        multi_widget.setLayout(self.tools_box)
+        self.toolbar_dock.setWidget(multi_widget)
+        self.toolbar_dock.setFixedHeight(75)
 
     def set_path(self):
         """
