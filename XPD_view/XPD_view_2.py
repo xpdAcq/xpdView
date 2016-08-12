@@ -16,38 +16,6 @@ from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as Navigatio
 import matplotlib.pyplot as plt
 
 
-def data_gen(length):
-    """
-    This function generates circular data to create the homepage, and also to practice with
-
-    Parameters
-    ----------
-    length: some integer that will decide the length of the data and key arrays
-
-    Returns
-    -------
-    data: a list of 2-D numpy arrays; normally only generates one to make the homepage
-    keys: a list of strings that represent the indices of the generated arrays
-
-    """
-    x_length = 100
-    y_length = 100
-    data = []
-    keys = []
-    for idx in range(length):
-        array_style = np.zeros((x_length, y_length))
-        keys.append(str(idx))
-        for x in range(x_length):
-            for y in range(y_length):
-                height = idx + 1
-                if x == int(x_length/2) and y == int(y_length/2):
-                    array_style[x][y] = 0
-                else:
-                    array_style[x][y] = height/np.sqrt((x-int(x_length/2))**2+(y-int(y_length/2))**2)
-        data.append(array_style)
-    return data, keys
-
-
 class Display2(QtGui.QMainWindow):
 
     def __init__(self):
@@ -137,6 +105,7 @@ class Display2(QtGui.QMainWindow):
         self.three_dim_drawn = False
         self.two_dim_drawn = False
         self.data_dict = dict()
+        self.int_data_dict = dict()
 
         self.setDockNestingEnabled(True)
         self.setAnimated(True)
@@ -158,13 +127,6 @@ class Display2(QtGui.QMainWindow):
         self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
         self.waterfall_dock.setWindowTitle("Waterfall Plot")
 
-        self.int_data_dict = dict()
-
-        # This makes the layout for the main window
-        # self.frame = QtGui.QFrame()
-        # self.main_layout = QtGui.QVBoxLayout()
-        # self.frame.setLayout(self.main_layout)
-        # self.setCentralWidget(self.frame)
 
         # This creates the canvases that all plots within the GUI will be drawn on
         self.fig1 = plt.figure()
@@ -182,7 +144,6 @@ class Display2(QtGui.QMainWindow):
         self.img_slider.setOrientation(QtCore.Qt.Horizontal)
         self.img_spin = QtGui.QSpinBox()
         self.color = QtGui.QComboBox()
-        self.int_style = QtGui.QComboBox()
         self.int_min = QtGui.QSpinBox()
         self.int_max = QtGui.QSpinBox()
         self.name_label = QtGui.QLabel()
@@ -192,9 +153,10 @@ class Display2(QtGui.QMainWindow):
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.plot_dock)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.integration_dock)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.waterfall_dock)
-        # self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.toolbar_dock)
+
         # These methods will set up the menu bars and the tool bars
-        # self.set_up_tool_bar()
+        self.tools_box = self.addToolBar('Image Manipulation')
+        self.set_up_tool_bar()
         self.set_up_menu_bar()
 
         # These methods begin the process of creating the four tiles to hold the plots
@@ -572,14 +534,11 @@ class Display2(QtGui.QMainWindow):
                       'gist_earth', 'terrain', 'ocean', 'gist_stern', 'brg',
                       'jet', 'rainbow', 'gist_rainbow', 'hsv', 'flag', 'prism']
         self.color.addItems(color_maps)
-        intensity_styles = ['Full Range', 'Percentile', 'Absolute']
-        self.int_style.addItems(intensity_styles)
 
         # All these commands will add the widgets in their proper order to the tool bar
         self.tools_box.addWidget(self.img_slider)
         self.tools_box.addWidget(self.img_spin)
         self.tools_box.addWidget(self.color)
-        self.tools_box.addWidget(self.int_style)
         min_label = QtGui.QLabel()
         min_label.setText('Int Min')
         self.tools_box.addWidget(min_label)
@@ -604,11 +563,6 @@ class Display2(QtGui.QMainWindow):
         refresh_btn = QtGui.QPushButton('Refresh', self)
         refresh_btn.clicked.connect(self.refresh)
         self.tools_box.addWidget(refresh_btn)
-
-        multi_widget = QtGui.QWidget()
-        multi_widget.setLayout(self.tools_box)
-        self.toolbar_dock.setWidget(multi_widget)
-        self.toolbar_dock.setFixedHeight(75)
 
     def set_path(self):
         """
