@@ -1,14 +1,12 @@
 """This class handles the plotting and analysis for reduced representation
 """
 
-import matplotlib.pyplot as plt
-import numpy as np
 import multiprocessing
 
 
 class ReducedRepPlot:
 
-    def __init__(self, data_dict, key_list, x_start, x_stop, y_start, y_stop, selection, figure, canvas):
+    def __init__(self, data_dict, key_list, figure, canvas, func_dict):
         """constructor for reducedRepPlot object
 
         Parameters
@@ -43,26 +41,21 @@ class ReducedRepPlot:
 
         """
 
-        # self.tif_list = get_files(file_path)
-        assert x_start >= 0 and x_start < x_stop
-        assert x_stop <= 2048 #TODO change so resolution is flexible
-        assert y_start >= 0 and y_start < y_stop
-        assert y_stop <= 2048 #TODO change so resolution is flexible
-
         self.data_dict = data_dict
         self.key_list = key_list
-        self.x_start = x_start
-        self.x_stop = x_stop
-        self.y_start = y_start
-        self.y_stop = y_stop
-        self.selection = selection
+        self.x_start = None
+        self.x_stop = None
+        self.y_start = None
+        self.y_stop = None
+        self.selection = None
         self.y_data = None
         self.ax = None
         self.fig = figure
         self.canvas = canvas
+        self.func_dict = func_dict
         # default func dict is simple analysis functions
-        self.func_dict = {np.std.__name__: np.std, np.mean.__name__: np.mean, np.amin.__name__: np.amin,
-                          np.amax.__name__: np.amax, np.sum.__name__: np.sum}
+
+
 
     def analyze(self):
         """This function will plot analysis data as a function of the number of images.
@@ -87,7 +80,7 @@ class ReducedRepPlot:
         data_list : list
             the list of sliced numpy arrays to be analyzed
         """
-        
+
         p = multiprocessing.Pool()
         vals = []
         for data in data_list:
@@ -108,6 +101,7 @@ class ReducedRepPlot:
         """
 
         if new_data is None:
+            self.analyze()
             self.ax = self.fig.add_subplot(111)
             self.ax.plot(range(0, len(self.y_data)), self.y_data, 'ro')
             self.ax.set_xlabel("File Num")
@@ -126,7 +120,7 @@ class ReducedRepPlot:
             self.canvas.draw()
 
     def set_func_dict(self, func_list):
-        """a setter for func_dict that takes in a list of functions 
+        """a setter for func_dict that takes in a list of functions
 
         creates a dictionary for them
         functions should have the arguments
@@ -166,7 +160,7 @@ class ReducedRepPlot:
             """
 
             try:
-                self.data_dict.__delitem__(func_name)
+                self.func_dict.__delitem__(func_name)
             except KeyError:
                 print("There is no function matching " + func_name + " in the function dictionary")
 

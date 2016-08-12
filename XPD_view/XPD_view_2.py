@@ -137,11 +137,15 @@ class Display2(QtGui.QMainWindow):
         self.three_dim_drawn = False
         self.two_dim_drawn = False
         self.data_dict = dict()
-
+        self.func_dict = {np.std.__name__: np.std, np.mean.__name__: np.mean, np.amin.__name__: np.amin,
+                          np.amax.__name__: np.amax, np.sum.__name__: np.sum}
         self.setDockNestingEnabled(True)
         self.setAnimated(True)
 
-        # setting up dockable windows
+        # list for additional rpp  windows to be drawn
+        self.rpp_list = list()
+
+        # setting up default dockwindows
         self.plot_dock = QtGui.QDockWidget("Dockable", self)
         self.plot_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
         self.plot_dock.setWindowTitle("Reduced Representation")
@@ -159,6 +163,7 @@ class Display2(QtGui.QMainWindow):
         self.waterfall_dock.setWindowTitle("Waterfall Plot")
 
         self.int_data_dict = dict()
+        self.is_main_rpp_plotted = False
 
         # This makes the layout for the main window
         # self.frame = QtGui.QFrame()
@@ -223,6 +228,7 @@ class Display2(QtGui.QMainWindow):
         FigureCanvas.setSizePolicy(self.canvas1, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self.canvas1)
         self.two_dim_data = DiffractionData(self.fig1, self.canvas1, self.data_dict)
+        self.two_dim_data.ax.callbacks.connect('xlim_changed', self.roi_change_hanlder)
         toolbar = NavigationToolBar(self.canvas1, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
@@ -230,6 +236,17 @@ class Display2(QtGui.QMainWindow):
         multi = QtGui.QWidget()
         multi.setLayout(layout)
         self.img_dock.setWidget(multi)
+
+    def roi_change_hanlder(self, axes):
+        xstart, xstop = axes.get_xlim()
+        ystart, ystop = axes.get_ylim()
+        if self.is_main_rpp_plotted:
+            for rpp_obj in self.rpp_list:
+                rpp_obj.x_start = xstart
+                rpp_obj.x_stop = xstop
+                rpp_obj.y_start = ystart
+                rpp_obj.y_stop = ystop
+                rpp_obj.show()
 
     def r_rep_widget(self):
         """
@@ -245,17 +262,33 @@ class Display2(QtGui.QMainWindow):
         None
 
         """
-        self.canvas2.mpl_connect('button_press_event', self.click_handling)
-        FigureCanvas.setSizePolicy(self.canvas2, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self.canvas2)
-        self.rpp = ReducedRepPlot(self.data_dict, self.key_list, 0, 100, 0, 100, "min", self.fig2, self.canvas2)
-        toolbar = NavigationToolBar(self.canvas2, self)
+        fig = plt.figure()
+        canvas = FigureCanvas(fig)
+        canvas.mpl_connect('button_press_event', self.click_handling)
+        FigureCanvas.setSizePolicy(canvas, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(canvas)
+        self.rpp_list.append(ReducedRepPlot(self.data_dict, self.key_list, fig, canvas, self.func_dict))
+        toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
-        layout.addWidget(self.canvas2)
+        layout.addWidget(canvas)
         multi = QtGui.QWidget()
         multi.setLayout(layout)
         self.plot_dock.setWidget(multi)
+
+    def new_r_rep(self):
+        popup_window = QtGui.QDialog(self)
+        # TODO make title reflect the kind of analysis is being done
+        # setting up the popup window
+        # TODO fix rpp init arguments
+        popup_window.setWindowTitle("Reduced Representation")
+        popup_window.setWindowModality(QtCore.Qt.NonModal)
+        fig = plt.figure()
+        canvas = FigureCanvas(fig)
+        canvas.mpl_connect('button_press_event', self.click_handling)
+        self.rpp_list.append(ReducedRepPlot(self.data_dict, self.key_list, fig, canvas, self.func_dict))
+
+
 
     def one_dim_integrate(self):
         """
@@ -390,7 +423,7 @@ class Display2(QtGui.QMainWindow):
         None
 
         """
-        self.analysis_type = list(self.rpp.func_dict.keys())[i]
+        self.analysis_type = list(self.func_dict.keys())[i]
 
     def plot_analysis(self, x_min, x_max, y_min, y_max):
         """
@@ -412,13 +445,13 @@ class Display2(QtGui.QMainWindow):
 
         """
         try:
-            self.rpp.x_start = x_min
-            self.rpp.x_stop = x_max
-            self.rpp.y_start = y_min
-            self.rpp.y_stop = y_max
-            self.rpp.selection = self.analysis_type
-            self.rpp.analyze()
-            self.rpp.show()
+            self.rpp_list[0].x_start = x_min
+            self.rpp_list[0].x_stop = x_max
+            self.rpp_list[0].y_start = y_min
+            self.rpp_list[0].y_stop = y_max
+            self.rpp_list[0].selection = self.analysis_type
+            self.rpp_list[0].show()
+            self.is_main_rpp_plotted = True
         except NotADirectoryError:
             print("exception excepted")
             err_msg_file = QtGui.QMessageBox()
@@ -462,7 +495,7 @@ class Display2(QtGui.QMainWindow):
 
         # creating qt widgets
         analysis_selector = QtGui.QComboBox(menu)
-        analysis_selector.addItems(list(self.rpp.func_dict.keys()))
+        analysis_selector.addItems(list(self.func_dict.keys()))
 
         print(self.fig1.axes[0].get_xlim())
         print(self.fig1.axes[0].get_ylim())
@@ -508,6 +541,13 @@ class Display2(QtGui.QMainWindow):
         plt_btn.clicked.connect(lambda: self.plot_analysis(x_lim_min.value(), x_lim_max.value(),
                                                            y_lim_min.value(), y_lim_max.value()))
 
+        new_plot_btn = QtGui.QPushButton()
+        new_plot_btn.setText("Plot in new window")
+        new_plot_btn.clicked.connect(menu.close)
+        new_plot_btn.clicked.connect(lambda:
+                self.set_analysis_type(analysis_selector.currentIndex()))
+        new_plot_btn.clicked.connect(self.new_r_rep)
+
         # defining layout
         vbox.addStretch()
         vbox.addWidget(a_selector_label)
@@ -542,6 +582,8 @@ class Display2(QtGui.QMainWindow):
         vbox.addLayout(hbox_lim_widgets)
         vbox.addStretch()
         vbox.addWidget(plt_btn)
+        vbox.addStretch()
+        vbox.addWidget(new_plot_btn)
 
         menu.setLayout(vbox)
         menu.show()
@@ -816,6 +858,50 @@ class Display2(QtGui.QMainWindow):
         self.plot_dock.setFloating(False)
         self.waterfall_dock.setFloating(False)
 
+    def set_func_dict(self, func_list):
+        """a setter for func_dict that takes in a list of functions
+
+        creates a dictionary for them
+        functions should have the arguments
+        arr for the 2d image array
+
+        Parameters
+        ----------
+        func_list : a list of functions that you want to replace the current dictionary functions
+        """
+        self.func_dict.clear()
+        for func in func_list:
+            self.func_dict[func.__name__] = func
+
+    def add_func(self, func):
+        """adds an arbitrary function to the function dictionary
+
+        the function should have the argument arr for a 2d image array
+
+        Parameters
+        ----------
+        func : function
+            the function to be passed in
+        """
+        self.func_dict[func.__name__] = func
+
+    def remove_func(self, func_name):
+            """This function will remove a function from the function dictionary
+
+            To delete the name of the function must match the name of a function currently in the dictionary
+
+            Parameters
+            ----------
+
+            func_name : str
+                the name of the function to be removed. best to use func.__name__
+
+            """
+
+            try:
+                self.data_dict.__delitem__(func_name)
+            except KeyError:
+                print("There is no function matching " + func_name + " in the function dictionary")
 
 def main():
     app = QtGui.QApplication(sys.argv)
