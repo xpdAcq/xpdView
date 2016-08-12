@@ -1,5 +1,5 @@
 """
-use 'python setup.py install' while in file folder in anaconda to install this package
+use 'python setup.py install' while in file folder and anaconda is active to install this package
 """
 
 from setuptools import setup, find_packages

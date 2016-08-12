@@ -76,6 +76,8 @@ class Display2(QtGui.QMainWindow):
             this variable keeps track of whether the user wants a contour plot or a wire plot in the 3d frame
         three_dim_drawn : Bool
             this variable keeps track of whether or not the 3d plot has been drawn yet
+        two_dim_drawn : Bool
+            this variable keeps track on whether or not the 2D data has been drawn yet
         data_dict : dictionary
             stores all of the 2D image arrays as a dictionary
         int_data_dict : dictionary
@@ -133,6 +135,7 @@ class Display2(QtGui.QMainWindow):
         self.Chi = ChiFileFinder()
         self.surface = True
         self.three_dim_drawn = False
+        self.two_dim_drawn = False
         self.data_dict = dict()
         self.int_data_dict = dict()
 
@@ -185,7 +188,7 @@ class Display2(QtGui.QMainWindow):
         self.waterfall()
 
     def two_dim(self):
-        '''
+        """
         This functions creates the class that will control the 2D data tile of the display
 
         Parameters
@@ -196,7 +199,7 @@ class Display2(QtGui.QMainWindow):
         -------
         None
 
-        '''
+        """
         FigureCanvas.setSizePolicy(self.canvas1, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self.canvas1)
         self.two_dim_data = DiffractionData(self.fig1, self.canvas1, self.data_dict)
@@ -527,6 +530,21 @@ class Display2(QtGui.QMainWindow):
         None
 
         """
+        # This sets ups the combo boxes to have the appropriate options
+        color_maps = ['RdBu', 'inferno', 'plasma', 'magma', 'Blues',
+                      'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges',
+                      'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu',
+                      'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd', 'afmhot',
+                      'autumn', 'bone', 'cool', 'copper', 'gist_heat', 'gray',
+                      'hot', 'pink', 'spring', 'summer', 'winter', 'BrBG',
+                      'bwr', 'coolwarm', 'PiYG', 'PRGn', 'PuOr', 'viridis',
+                      'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral', 'seismic',
+                      'gist_earth', 'terrain', 'ocean', 'gist_stern', 'brg',
+                      'jet', 'rainbow', 'gist_rainbow', 'hsv', 'flag', 'prism']
+        self.color.addItems(color_maps)
+        intensity_styles = ['Full Range', 'Percentile', 'Absolute']
+        self.int_style.addItems(intensity_styles)
+
         # All these commands will add the widgets in their proper order to the tool bar
         self.tools_box.addWidget(self.img_slider)
         self.tools_box.addWidget(self.img_spin)
@@ -544,9 +562,13 @@ class Display2(QtGui.QMainWindow):
         # This makes the Label that is used to display the current key name
         self.name_label.setText('Current File: ')
         self.tools_box.addWidget(self.name_label)
+
         # This makes sure that the display is updated when the image is changed
         self.img_spin.valueChanged.connect(self.change_frame)
         self.img_slider.valueChanged.connect(self.change_frame)
+
+        # This makes it so that when the color map is changed the image changes color with it
+        self.color.currentIndexChanged.connect(self.change_color_scheme)
 
         # This makes the refresh button
         refresh_btn = QtGui.QPushButton('Refresh', self)
@@ -578,7 +600,7 @@ class Display2(QtGui.QMainWindow):
             self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
             self.update_data(self.Tif.pic_list, self.Tif.file_list)
             self.one_dim_plot.give_plot(self.key_list[0])
-            self.two_dim_data.draw_image(self.key_list[0])
+            self.two_dim_data.draw_image(self.key_list[0], color=self.color.currentText())
 
     def refresh(self):
         """
@@ -632,6 +654,7 @@ class Display2(QtGui.QMainWindow):
             self.data_dict[self.key_list[i]] = data_list[i - old_length]
         self.img_slider.setMaximum(len(self.key_list) - 1)
         self.img_spin.setMaximum(len(self.key_list) - 1)
+        self.two_dim_drawn = True
 
     def update_int_data(self, file_list, data_x, data_y):
         """
@@ -679,9 +702,27 @@ class Display2(QtGui.QMainWindow):
         """
         self.name_label.setText("Current: " + self.key_list[index_val])
         self.one_dim_plot.give_plot(key=self.key_list[index_val])
-        self.two_dim_data.draw_image(key=self.key_list[index_val])
+        self.two_dim_data.draw_image(key=self.key_list[index_val], color=self.color.currentText())
         self.img_slider.setValue(index_val)
         self.img_spin.setValue(index_val)
+
+    def change_color_scheme(self, val):
+        """
+
+        Parameters
+        ----------
+        val : int
+            this is the passed in value from the color map combo box showing the color map that was chosen
+        self
+
+        Returns
+        -------
+        None
+
+        """
+        if self.two_dim_drawn:
+            self.two_dim_data.draw_image(key=self.key_list[self.img_slider.value()],
+                                         color=self.color.currentText())
 
     def get_three_dim_plot(self):
         """

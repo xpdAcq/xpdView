@@ -12,11 +12,11 @@ class DiffractionData(object):
         self.fig = fig
         self.canvas = canvas
         self.data_dict = data_dict
-        self.ax = self.fig.add_subplot(111)
+        self.ax = self.fig.add_subplot(1, 1, 1)
 
-    def draw_image(self, key):
+    def draw_image(self, key, color):
         try:
-            self.ax.imshow(self.data_dict[key], origin='lower')
+            self.ax.imshow(self.data_dict[key], origin='lower', cmap=color)
             self.ax.hold(False)
             self.ax.autoscale()
             self.canvas.draw()
