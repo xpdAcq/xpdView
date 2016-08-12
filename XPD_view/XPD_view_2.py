@@ -137,21 +137,34 @@ class Display2(QtGui.QMainWindow):
         self.three_dim_drawn = False
         self.two_dim_drawn = False
         self.data_dict = dict()
+
+        self.setDockNestingEnabled(True)
+        self.setAnimated(True)
+
+        # setting up dockable windows
+        self.plot_dock = QtGui.QDockWidget("Dockable", self)
+        self.plot_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.plot_dock.setWindowTitle("Reduced Representation")
+
+        self.img_dock = QtGui.QDockWidget("Dockable", self)
+        self.img_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.img_dock.setWindowTitle("Image")
+
+        self.integration_dock = QtGui.QDockWidget("Dockable", self)
+        self.integration_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.integration_dock.setWindowTitle("Integration")
+
+        self.waterfall_dock = QtGui.QDockWidget("Dockable", self)
+        self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.waterfall_dock.setWindowTitle("Waterfall Plot")
+
         self.int_data_dict = dict()
 
         # This makes the layout for the main window
-        self.frame = QtGui.QFrame()
-        self.main_layout = QtGui.QVBoxLayout()
-        self.frame.setLayout(self.main_layout)
-        self.setCentralWidget(self.frame)
-
-        # This makes the gui boxes that will hold all of the widgets and plots
-        self.display_box_1 = QtGui.QHBoxLayout()
-        self.display_box_2 = QtGui.QHBoxLayout()
-        self.tools_box = QtGui.QHBoxLayout()
-        self.main_layout.addLayout(self.display_box_1)
-        self.main_layout.addLayout(self.display_box_2)
-        self.main_layout.addLayout(self.tools_box)
+        # self.frame = QtGui.QFrame()
+        # self.main_layout = QtGui.QVBoxLayout()
+        # self.frame.setLayout(self.main_layout)
+        # self.setCentralWidget(self.frame)
 
         # This creates the canvases that all plots within the GUI will be drawn on
         self.fig1 = plt.figure()
@@ -172,9 +185,16 @@ class Display2(QtGui.QMainWindow):
         self.int_style = QtGui.QComboBox()
         self.int_min = QtGui.QSpinBox()
         self.int_max = QtGui.QSpinBox()
+        self.name_label = QtGui.QLabel()
 
+        # These statements add the dock widgets to the GUI
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.img_dock)
+        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.plot_dock)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.integration_dock)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.waterfall_dock)
+        # self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.toolbar_dock)
         # These methods will set up the menu bars and the tool bars
-        self.set_up_tool_bar()
+        # self.set_up_tool_bar()
         self.set_up_menu_bar()
 
         # These methods begin the process of creating the four tiles to hold the plots
@@ -207,7 +227,9 @@ class Display2(QtGui.QMainWindow):
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
         layout.addWidget(self.canvas1)
-        self.display_box_1.addLayout(layout)
+        multi = QtGui.QWidget()
+        multi.setLayout(layout)
+        self.img_dock.setWidget(multi)
 
     def r_rep_widget(self):
         """
@@ -231,8 +253,9 @@ class Display2(QtGui.QMainWindow):
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
         layout.addWidget(self.canvas2)
-        self.display_box_1.addStretch()
-        self.display_box_1.addLayout(layout)
+        multi = QtGui.QWidget()
+        multi.setLayout(layout)
+        self.plot_dock.setWidget(multi)
 
     def one_dim_integrate(self):
         """
@@ -255,8 +278,9 @@ class Display2(QtGui.QMainWindow):
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
         layout.addWidget(self.canvas3)
-        self.display_box_2.addStretch()
-        self.display_box_2.addLayout(layout)
+        multi = QtGui.QWidget()
+        multi.setLayout(layout)
+        self.integration_dock.setWidget(multi)
 
     def waterfall(self):
         """
@@ -277,8 +301,9 @@ class Display2(QtGui.QMainWindow):
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
         layout.addWidget(self.canvas4)
-        self.display_box_2.addStretch()
-        self.display_box_2.addLayout(layout)
+        multi = QtGui.QWidget()
+        multi.setLayout(layout)
+        self.waterfall_dock.setWidget(multi)
 
     def click_handling(self, event):
         """
@@ -334,8 +359,12 @@ class Display2(QtGui.QMainWindow):
         wire_action = QtGui.QAction("&Wire", self)
         wire_action.triggered.connect(self.wire_plot_wanted)
 
+        reset_windows = QtGui.QAction("&Reset Window Layout", self)
+        reset_windows.triggered.connect(self.reset_window_layout)
+
         # This sets up all of the menu widgets that are used in the GUI
         mainmenu = self.menuBar()
+        window_menu = mainmenu.addMenu("&Window")
         filemenu = mainmenu.addMenu("&File")
         graph_menu = mainmenu.addMenu('&Reduced Representation')
         three_dim = mainmenu.addMenu('&3D Plot style')
@@ -344,6 +373,7 @@ class Display2(QtGui.QMainWindow):
         graph_menu.addAction(plt_action)
         three_dim.addAction(surface_action)
         three_dim.addAction(wire_action)
+        window_menu.addAction(reset_windows)
 
     def set_analysis_type(self, i):
         """
@@ -575,6 +605,11 @@ class Display2(QtGui.QMainWindow):
         refresh_btn.clicked.connect(self.refresh)
         self.tools_box.addWidget(refresh_btn)
 
+        multi_widget = QtGui.QWidget()
+        multi_widget.setLayout(self.tools_box)
+        self.toolbar_dock.setWidget(multi_widget)
+        self.toolbar_dock.setFixedHeight(75)
+
     def set_path(self):
         """
         This creates the dialog window that pops up to set the path
@@ -774,6 +809,12 @@ class Display2(QtGui.QMainWindow):
         self.surface = False
         if self.three_dim_drawn:
             self.get_three_dim_plot()
+
+    def reset_window_layout(self):
+        self.integration_dock.setFloating(False)
+        self.img_dock.setFloating(False)
+        self.plot_dock.setFloating(False)
+        self.waterfall_dock.setFloating(False)
 
 
 def main():
