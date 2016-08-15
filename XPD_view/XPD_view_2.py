@@ -7,13 +7,33 @@ import sys
 import numpy as np
 from Tif_File_Finder import TifFileFinder
 from Chi_File_Finder import ChiFileFinder
-from two_dim_data import DiffractionData
 from plot_analysis import ReducedRepPlot
 from one_dimensional_int import IntegrationPlot
 from waterfall_maker import WaterFallMaker
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
 import matplotlib.pyplot as plt
+from xray_vision.messenger.mpl.cross_section_2d import CrossSection2DMessenger
+
+
+def data_gen(length):
+    # This will generate circular looking data
+    x_length = 100
+    y_length = 100
+    data = []
+    keys = []
+    for idx in range(length):
+        array_style = np.zeros((x_length, y_length))
+        keys.append(str(idx))
+        for x in range(x_length):
+            for y in range(y_length):
+                height = idx + 1
+                if x == int(x_length/2) and y == int(y_length/2):
+                    array_style[x][y] = 0
+                else:
+                    array_style[x][y] = height/np.sqrt((x-int(x_length/2))**2+(y-int(y_length/2))**2)
+        data.append(array_style)
+    return data, keys
 
 
 class Display2(QtGui.QMainWindow):
@@ -97,18 +117,25 @@ class Display2(QtGui.QMainWindow):
         self.setWindowTitle('XPD View')
         self.analysis_type = None
         self.file_path = None
-        self.key_list = []
+        data_list, self.key_list = data_gen(1)
         self.int_key_list = []
         self.Tif = TifFileFinder()
         self.Chi = ChiFileFinder()
         self.surface = True
         self.three_dim_drawn = False
-        self.two_dim_drawn = False
-        self.data_dict = dict()
         self.int_data_dict = dict()
 
         self.setDockNestingEnabled(True)
         self.setAnimated(True)
+
+        # This sets up all we need from the cross section 2D messenger class for use in the code
+        self.messenger = CrossSection2DMessenger(data_list=data_list,
+                                                 key_list=self.key_list)
+        self.display = self.messenger._display
+        self.ctrls = self.messenger._ctrl_widget
+        self.ctrls.set_image_intensity_behavior('full range')
+        self.messenger.sl_update_image(0)
+        self.data_dict = self.messenger._view._data_dict
 
         # setting up dockable windows
         self.plot_dock = QtGui.QDockWidget("Dockable", self)
@@ -139,12 +166,12 @@ class Display2(QtGui.QMainWindow):
 
         # This creates the widgets so they can be accessed later
         self.name_label = QtGui.QLabel()
-        self.img_slider = QtGui.QSlider()
-        self.img_slider.setOrientation(QtCore.Qt.Horizontal)
-        self.img_spin = QtGui.QSpinBox()
-        self.color = QtGui.QComboBox()
-        self.int_min = QtGui.QSpinBox()
-        self.int_max = QtGui.QSpinBox()
+        self.img_slider = self.ctrls._slider_img
+        self.img_spin = self.ctrls._spin_img
+        self.color = self.ctrls._cm_cb
+        self.int_style = self.ctrls._cmbbox_intensity_behavior
+        self.int_min = self.ctrls._spin_min
+        self.int_max = self.ctrls._spin_max
         self.name_label = QtGui.QLabel()
 
         # These statements add the dock widgets to the GUI
@@ -160,38 +187,13 @@ class Display2(QtGui.QMainWindow):
         self.set_up_menu_bar()
 
         # These methods begin the process of creating the four tiles to hold the plots
-        self.two_dim_data = None
+        self.img_dock.setWidget(self.display)
         self.rpp = None
         self.one_dim_plot = None
         self.water = None
-        self.two_dim()
         self.r_rep_widget()
         self.one_dim_integrate()
         self.waterfall()
-
-    def two_dim(self):
-        """
-        This functions creates the class that will control the 2D data tile of the display
-
-        Parameters
-        ----------
-        self
-
-        Returns
-        -------
-        None
-
-        """
-        FigureCanvas.setSizePolicy(self.canvas1, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self.canvas1)
-        self.two_dim_data = DiffractionData(self.fig1, self.canvas1, self.data_dict)
-        toolbar = NavigationToolBar(self.canvas1, self)
-        layout = QtGui.QVBoxLayout()
-        layout.addWidget(toolbar)
-        layout.addWidget(self.canvas1)
-        multi = QtGui.QWidget()
-        multi.setLayout(layout)
-        self.img_dock.setWidget(multi)
 
     def r_rep_widget(self):
         """
@@ -426,9 +428,6 @@ class Display2(QtGui.QMainWindow):
         analysis_selector = QtGui.QComboBox(menu)
         analysis_selector.addItems(list(self.rpp.func_dict.keys()))
 
-        print(self.fig1.axes[0].get_xlim())
-        print(self.fig1.axes[0].get_ylim())
-
         a_selector_label = QtGui.QLabel()
         x_min_label = QtGui.QLabel()
         x_max_label = QtGui.QLabel()
@@ -441,7 +440,7 @@ class Display2(QtGui.QMainWindow):
         y_min_label.setText("y min")
         y_max_label.setText("y max")
 
-        x_min, x_max = self.fig1.axes[0].get_xlim()
+        x_min, x_max = self.messenger._fig.axes[0].get_xlim()
         x_lim_min = QtGui.QSpinBox()
         x_lim_min.setMinimum(0)
         x_lim_min.setMaximum(2048)
@@ -452,7 +451,7 @@ class Display2(QtGui.QMainWindow):
         x_lim_max.setMaximum(2048)
         x_lim_max.setValue(int(x_max))
 
-        y_min, y_max = self.fig1.axes[0].get_ylim()
+        y_min, y_max = self.messenger._fig.axes[0].get_ylim()
         y_lim_min = QtGui.QSpinBox()
         y_lim_min.setMinimum(0)
         y_lim_min.setMaximum(10000)
@@ -522,24 +521,12 @@ class Display2(QtGui.QMainWindow):
         None
 
         """
-        # This sets ups the combo boxes to have the appropriate options
-        color_maps = ['RdBu', 'inferno', 'plasma', 'magma', 'Blues',
-                      'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges',
-                      'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu',
-                      'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd', 'afmhot',
-                      'autumn', 'bone', 'cool', 'copper', 'gist_heat', 'gray',
-                      'hot', 'pink', 'spring', 'summer', 'winter', 'BrBG',
-                      'bwr', 'coolwarm', 'PiYG', 'PRGn', 'PuOr', 'viridis',
-                      'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral', 'seismic',
-                      'gist_earth', 'terrain', 'ocean', 'gist_stern', 'brg',
-                      'jet', 'rainbow', 'gist_rainbow', 'hsv', 'flag', 'prism']
-        self.color.addItems(color_maps)
-
         # All these commands will add the widgets in their proper order to the tool bar
         self.tools_box.addWidget(self.img_slider)
         self.tools_box.addWidget(self.img_spin)
         self.tools_box.addWidget(self.color)
         min_label = QtGui.QLabel()
+        self.tools_box.addWidget(self.int_style)
         min_label.setText('Int Min')
         self.tools_box.addWidget(min_label)
         self.tools_box.addWidget(self.int_min)
@@ -549,20 +536,20 @@ class Display2(QtGui.QMainWindow):
         self.tools_box.addWidget(self.int_max)
 
         # This makes the Label that is used to display the current key name
-        self.name_label.setText('Current File: ')
+        self.name_label.setText('Current File: ' + self.key_list[0])
         self.tools_box.addWidget(self.name_label)
 
         # This makes sure that the display is updated when the image is changed
         self.img_spin.valueChanged.connect(self.change_frame)
-        self.img_slider.valueChanged.connect(self.change_frame)
-
-        # This makes it so that when the color map is changed the image changes color with it
-        self.color.currentIndexChanged.connect(self.change_color_scheme)
 
         # This makes the refresh button
         refresh_btn = QtGui.QPushButton('Refresh', self)
         refresh_btn.clicked.connect(self.refresh)
         self.tools_box.addWidget(refresh_btn)
+
+    def change_frame(self, val):
+        self.one_dim_plot.give_plot(self.key_list[val])
+        self.name_label.setText(self.key_list[val])
 
     def set_path(self):
         """
@@ -586,10 +573,17 @@ class Display2(QtGui.QMainWindow):
         if len(self.Tif.pic_list) == 0:
             print('No .tif files in directory')
         else:
-            self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
-            self.update_data(self.Tif.pic_list, self.Tif.file_list)
-            self.one_dim_plot.give_plot(self.key_list[0])
-            self.two_dim_data.draw_image(self.key_list[0], color=self.color.currentText())
+            x = self.key_list[0]
+            if x == '0':
+                del self.data_dict[self.key_list[0]]
+                self.key_list.remove(x)
+                self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
+                self.update_data(self.Tif.pic_list, self.Tif.file_list)
+                self.messenger.sl_update_image(0)
+                self.one_dim_plot.give_plot(self.key_list[0])
+            else:
+                self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
+                self.update_data(self.Tif.pic_list, self.Tif.file_list)
 
     def refresh(self):
         """
@@ -643,7 +637,6 @@ class Display2(QtGui.QMainWindow):
             self.data_dict[self.key_list[i]] = data_list[i - old_length]
         self.img_slider.setMaximum(len(self.key_list) - 1)
         self.img_spin.setMaximum(len(self.key_list) - 1)
-        self.two_dim_drawn = True
 
     def update_int_data(self, file_list, data_x, data_y):
         """
@@ -673,45 +666,6 @@ class Display2(QtGui.QMainWindow):
             self.water.get_right_shape()
             self.get_three_dim_plot()
             self.three_dim_drawn = True
-
-    def change_frame(self, index_val):
-        """
-        This method updates all display items associated with the frame of the image
-
-        Parameters
-        ----------
-        self
-        index_val : int
-            This is index of the key with the associated new image and 1D plot
-
-        Returns
-        -------
-        None
-
-        """
-        self.name_label.setText("Current: " + self.key_list[index_val])
-        self.one_dim_plot.give_plot(key=self.key_list[index_val])
-        self.two_dim_data.draw_image(key=self.key_list[index_val], color=self.color.currentText())
-        self.img_slider.setValue(index_val)
-        self.img_spin.setValue(index_val)
-
-    def change_color_scheme(self, val):
-        """
-
-        Parameters
-        ----------
-        val : int
-            this is the passed in value from the color map combo box showing the color map that was chosen
-        self
-
-        Returns
-        -------
-        None
-
-        """
-        if self.two_dim_drawn:
-            self.two_dim_data.draw_image(key=self.key_list[self.img_slider.value()],
-                                         color=self.color.currentText())
 
     def get_three_dim_plot(self):
         """
