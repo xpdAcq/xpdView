@@ -64,12 +64,20 @@ class Display2(QtGui.QMainWindow):
             this variable keeps track of whether the user wants a contour plot or a wire plot in the 3d frame
         three_dim_drawn : Bool
             this variable keeps track of whether or not the 3d plot has been drawn yet
-        two_dim_drawn : Bool
-            this variable keeps track on whether or not the 2D data has been drawn yet
         data_dict : dictionary
             stores all of the 2D image arrays as a dictionary
         int_data_dict : dictionary
             stores all of the integrated data's x and y lists in a dictionary
+        messenger : object
+            this is an instance of the 2D cross section messenger class
+        plot_dock : object
+            this object creates the floating window to hold the reduced representation plot
+        img_dock : object
+            this object creates the floating window to hold the image along with the cross section windows
+        integration_dock : object
+            this object creates the floating window to hold the 1D integrated data
+        waterfall_dock : object
+            this object creates the floating window to hold the 3D image with all the data sets
         frame : object
             creates the background frame on which all of the widgets are displayed
         main_layout : object
@@ -99,8 +107,8 @@ class Display2(QtGui.QMainWindow):
             spinbox that will control the minimum intensity value
         int_max : object
             spinbox that will control the maximum intensity value
-        two_dim_data : None
-            allows instance of the DiffractionData class later in the code
+        tools_box : object
+            creates the toolbar that will hold all of the other widgets
         rpp : None
             allows instance of the ReducedRepPlot later in the code
         one_dim_plot : None
@@ -172,7 +180,6 @@ class Display2(QtGui.QMainWindow):
         self.int_style = self.ctrls._cmbbox_intensity_behavior
         self.int_min = self.ctrls._spin_min
         self.int_max = self.ctrls._spin_max
-        self.name_label = QtGui.QLabel()
 
         # These statements add the dock widgets to the GUI
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.img_dock)
