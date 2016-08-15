@@ -727,6 +727,17 @@ class Display2(QtGui.QMainWindow):
             self.get_three_dim_plot()
 
     def reset_window_layout(self):
+        """
+        This method puts all of the dock windows containing plots back into their original positions
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
         self.integration_dock.setFloating(False)
         self.img_dock.setFloating(False)
         self.plot_dock.setFloating(False)
