@@ -127,7 +127,6 @@ class Display2(QtGui.QMainWindow):
         self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
         self.waterfall_dock.setWindowTitle("Waterfall Plot")
 
-
         # This creates the canvases that all plots within the GUI will be drawn on
         self.fig1 = plt.figure()
         self.canvas1 = FigureCanvas(self.fig1)
@@ -155,7 +154,8 @@ class Display2(QtGui.QMainWindow):
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.waterfall_dock)
 
         # These methods will set up the menu bars and the tool bars
-        self.tools_box = self.addToolBar('Image Manipulation')
+        self.tools_box = QtGui.QToolBar()
+        self.addToolBar(QtCore.Qt.BottomToolBarArea, self.tools_box)
         self.set_up_tool_bar()
         self.set_up_menu_bar()
 
