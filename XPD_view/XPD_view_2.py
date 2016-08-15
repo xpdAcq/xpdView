@@ -246,7 +246,6 @@ class Display2(QtGui.QMainWindow):
                 rpp_obj.x_stop = xstop
                 rpp_obj.y_start = ystart
                 rpp_obj.y_stop = ystop
-                rpp_obj.show()
 
     def r_rep_widget(self):
         """
@@ -276,7 +275,7 @@ class Display2(QtGui.QMainWindow):
         multi.setLayout(layout)
         self.plot_dock.setWidget(multi)
 
-    def new_r_rep(self):
+    def new_r_rep(self, selection):
         popup_window = QtGui.QDialog(self)
         # TODO make title reflect the kind of analysis is being done
         # setting up the popup window
@@ -286,9 +285,21 @@ class Display2(QtGui.QMainWindow):
         fig = plt.figure()
         canvas = FigureCanvas(fig)
         canvas.mpl_connect('button_press_event', self.click_handling)
-        self.rpp_list.append(ReducedRepPlot(self.data_dict, self.key_list, fig, canvas, self.func_dict))
+        toolbar = NavigationToolBar(canvas, self)
+        self.rpp_list.append(ReducedRepPlot(self.data_dict, self.key_list, fig, canvas, self.func_dict, selection))
+        vbox = QtGui.QVBoxLayout()
+        vbox.addStretch()
+        vbox.addWidget(toolbar)
+        vbox.addStretch()
+        vbox.addWidget(canvas)
+        popup_window.setLayout(vbox)
+        popup_window.show()
+        self.rpp_list[-1].show()
+        popup_window.exec_()
 
-
+    def update_r_rep(self, new_data):
+        for plot in self.rpp_list:
+            plot.show(new_data = new_data)
 
     def one_dim_integrate(self):
         """
@@ -546,7 +557,7 @@ class Display2(QtGui.QMainWindow):
         new_plot_btn.clicked.connect(menu.close)
         new_plot_btn.clicked.connect(lambda:
                 self.set_analysis_type(analysis_selector.currentIndex()))
-        new_plot_btn.clicked.connect(self.new_r_rep)
+        new_plot_btn.clicked.connect(lambda: self.new_r_rep(analysis_selector.currentText()))
 
         # defining layout
         vbox.addStretch()
@@ -702,7 +713,7 @@ class Display2(QtGui.QMainWindow):
             self.update_data([], [])
         elif len(new_file_names) != 0 and len(int_new_files) == 0:
             self.update_data(new_data, new_file_names)
-            self.rpp.show(new_data=new_data)
+            self.update_r_rep(new_data)
         else:
             self.update_int_data(int_new_files, int_data_x, int_data_y)
             self.update_data(new_data, new_file_names)

@@ -6,7 +6,7 @@ import multiprocessing
 
 class ReducedRepPlot:
 
-    def __init__(self, data_dict, key_list, figure, canvas, func_dict):
+    def __init__(self, data_dict, key_list, figure, canvas, func_dict, selection=None):
         """constructor for reducedRepPlot object
 
         Parameters
@@ -47,7 +47,7 @@ class ReducedRepPlot:
         self.x_stop = None
         self.y_start = None
         self.y_stop = None
-        self.selection = None
+        self.selection = selection
         self.y_data = None
         self.ax = None
         self.fig = figure
