@@ -581,6 +581,7 @@ class Display2(QtGui.QMainWindow):
                 self.update_data(self.Tif.pic_list, self.Tif.file_list)
                 self.messenger.sl_update_image(0)
                 self.one_dim_plot.give_plot(self.key_list[0])
+                self.name_label.setText(self.key_list[0])
             else:
                 self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
                 self.update_data(self.Tif.pic_list, self.Tif.file_list)
