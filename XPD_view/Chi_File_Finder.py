@@ -8,6 +8,22 @@ import os
 
 
 class ChiFileFinder(object):
+    """
+    This class handles the finding of .chi files for the user
+
+    Attributes
+    ----------
+    _directory_name : strings
+        the directory in which the program should search for chi files
+    dir_fil : list of strings
+        contains the list of all the files in general that are read in
+    file_list : list of strings
+        contains the list of chi files found in the directory
+    x_lists : list of 1D numpy arrays
+        contains the lists of x-axis data that are found in the chi files
+    y_lists : list of 1D numpy arrays
+        same as above, just for the y-axis
+    """
 
     def __init__(self):
         """
@@ -15,19 +31,6 @@ class ChiFileFinder(object):
         Parameters
         ----------
         self
-
-        Attributes
-        ----------
-        _directory_name : strings
-            the directory in which the program should search for chi files
-        dir_fil : list of strings
-            contains the list of all the files in general that are read in
-        file_list : list of strings
-            contains the list of chi files found in the directory
-        x_lists : list of 1D numpy arrays
-            contains the lists of x-axis data that are found in the chi files
-        y_lists : list of 1D numpy arrays
-            same as above, just for the y-axis
 
         Returns
         -------

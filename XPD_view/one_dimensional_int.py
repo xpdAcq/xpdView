@@ -7,6 +7,21 @@ import matplotlib.pyplot as plt
 
 
 class IntegrationPlot(object):
+    """
+    This class handles the drawing of the integrated data plots
+
+    Attributes
+    ----------
+    int_data_dict : dict
+        this dictionary holds the data to be plotted by the user; data must be stored as lists inside a list with the
+        format [x_data_list, y_data_list]
+    fig : object
+        this needs to be a matplotlib figure
+    canvas : object
+        the canvas associated in the above figure
+    ax : object
+        a subplot on the figure
+    """
 
     def __init__(self, dictionary, fig, canvas):
         """
@@ -16,17 +31,10 @@ class IntegrationPlot(object):
         ----------
         dictionary: dictionary
             contains pairs of lists [[list_x], [list_y]] from the 1D integrated data
-        fig: matplotlib figure
-        canvas: the canvas associated with the above figure
-        index: int
-            this initial plot that will be seen, kept at zero, but could be made different if so desired by the user
-
-        Attributes
-        ----------
-        int_data_dict: see dictionary
-        fig: see fig
-        canvas: see canvas
-        ax: the axis that will hold the plot and handle all redrawing
+        fig: object
+            matplotlib figure to be operated on
+        canvas: object
+            the canvas associated with the above figure
 
         Returns
         -------

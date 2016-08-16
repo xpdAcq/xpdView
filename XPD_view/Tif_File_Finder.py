@@ -9,25 +9,24 @@ import os
 
 
 class TifFileFinder(object):
+    """
+    This class finds tif and tiff files for the user and reads them in to be used later in the GUI
+
+    Attributes
+    ----------
+    _directory_name : str
+        The name of directory that contains tif files that user wants to see
+    dir_fil : list of strings
+        list of all files in directory
+    file_list : list of strings
+        list of all tif files in directory
+    pic_list : list of 2D numpy arrays
+        list of all data read in from the tif files
+    """
 
     def __init__(self):
         """
         This initializes the TifFileFinder class
-
-        Parameters
-        ----------
-        None
-
-        Attributes
-        ----------
-        _directory_name : str
-            The name of directory that contains tif files that user wants to see
-        dir_fil : list of strings
-            list of all files in directory
-        file_list : list of strings
-            list of all tif files in directory
-        pic_list : list of 2D numpy arrays
-            list of all data read in from the tif files
 
         Returns
         -------

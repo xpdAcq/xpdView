@@ -17,6 +17,23 @@ from xray_vision.messenger.mpl.cross_section_2d import CrossSection2DMessenger
 
 
 def data_gen(length):
+    """
+    This functions generates data for the home page of the Display2 class to create a home page; can also be used
+    to create practice data
+
+    Parameters
+    ----------
+    length : int
+        this should be the number of 2D data arrays wanted
+
+    Returns
+    -------
+    data : list of 2D arrays
+        list of 2D arrays that have circular data
+    keys : list of strings
+        list of strings
+
+    """
     # This will generate circular looking data
     x_length = 100
     y_length = 100
@@ -37,18 +54,12 @@ def data_gen(length):
 
 
 class Display2(QtGui.QMainWindow):
+    """
+    This class contains all of the GUI information
 
-    def __init__(self):
-        """
-        This class creates the display window that is used by users to analyze their data
-
-        Parameters
-        ----------
-        none
-
-        Attributes
-        ----------
-        analysis_type : string
+    Attributes
+    ----------
+    analysis_type : string
             determines what kind of statistical parameter will be observed
         file_path : string
             the directory that will contain the .tif and .chi files for viewing
@@ -115,6 +126,15 @@ class Display2(QtGui.QMainWindow):
             allows instance of IntegratedPlot class later in code
         water : None
             allows instance of WaterfallMaker class later in code
+    """
+
+    def __init__(self):
+        """
+        This class creates the display window that is used by users to analyze their data
+
+        Parameters
+        ----------
+        self
 
         Returns
         -------
@@ -865,7 +885,16 @@ class Display2(QtGui.QMainWindow):
             except KeyError:
                 print("There is no function matching " + func_name + " in the function dictionary")
 
+
 def main():
+    """
+    This allow the GUI to be run if the program is called as a file
+
+    Returns
+    -------
+    None
+
+    """
     app = QtGui.QApplication(sys.argv)
     viewer = Display2()
     viewer.show()

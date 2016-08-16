@@ -8,6 +8,29 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 class WaterFallMaker:
+    """
+    This class handles the creation of drawing of the waterfall 3D plots in the XPD view Gui
+
+    Attributes
+    ----------
+    fig : object
+        the matplotlib figure that this class operates on
+    canvas : object
+        the figure canvas that the class operates on
+    data : dictionary
+        the dictionary containing all of the 1D integrated data that needs to be stacked side by side
+    keys : list of string
+        the list of key names in order according to time created and read into the software
+    ax : object
+        the axes of the matplotlib figure that the 3D projection will be created on
+    X : numpy array
+        contains all of the X data for the 3D projection of the data
+    Y : numpy array
+        contains the index number of the files that are read in
+    Z : numpy array
+        contains all of the Y data for the 1D integrated patterns
+    """
+
     def __init__(self, fig, canvas, int_dict, int_key_list):
         """
         This initializes the WaterfallMaker class
@@ -23,24 +46,6 @@ class WaterFallMaker:
         int_key_list :
             must contain the keys of all data that will be observed in the 3D projection
 
-        Attributes
-        ----------
-        fig : object
-            the matplotlib figure that this class operates on
-        canvas : object
-            the figure canvas that the class operates on
-        data : dictionary
-            the dictionary containing all of the 1D integrated data that needs to be stacked side by side
-        keys : list of string
-            the list of key names in order according to time created and read into the software
-        ax : object
-            the axes of the matplotlib figure that the 3D projection will be created on
-        X : numpy array
-            contains all of the X data for the 3D projection of the data
-        Y : numpy array
-            contains the index number of the files that are read in
-        Z :
-            contains all of the Y data for the 1D integrated patterns
         Returns
         -------
         None
