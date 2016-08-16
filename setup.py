@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='xpd_view',
-    version='0.vista',
+    version='0.xp',
     packages=find_packages(),
     description='Visualization Code for Beam line',
     zip_safe=False,
