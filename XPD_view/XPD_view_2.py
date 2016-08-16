@@ -227,26 +227,6 @@ class Display2(QtGui.QMainWindow):
         self.one_dim_integrate()
         self.waterfall()
 
-    def roi_change_handler(self, axes):
-        """
-
-        Parameters
-        ----------
-        axes
-
-        Returns
-        -------
-
-        """
-        xstart, xstop = axes.get_xlim()
-        ystart, ystop = axes.get_ylim()
-        if self.is_main_rpp_plotted:
-            for rpp_obj in self.rpp_list:
-                rpp_obj.x_start = xstart
-                rpp_obj.x_stop = xstop
-                rpp_obj.y_start = ystart
-                rpp_obj.y_stop = ystop
-
     def r_rep_widget(self):
         """
         This class creates the figure and instance of the ReducedRepPlot that is used to create the plot in the
@@ -276,36 +256,29 @@ class Display2(QtGui.QMainWindow):
         self.plot_dock.setWidget(multi)
 
     def new_r_rep(self, selection):
-        """
-
-        Parameters
-        ----------
-        selection
-
-        Returns
-        -------
-
-        """
-        popup_window = QtGui.QDialog(self)
-        # TODO make title reflect the kind of analysis is being done
-        # setting up the popup window
-        # TODO fix rpp init arguments
-        popup_window.setWindowTitle("Reduced Representation")
-        popup_window.setWindowModality(QtCore.Qt.NonModal)
-        fig = plt.figure()
-        canvas = FigureCanvas(fig)
-        canvas.mpl_connect('button_press_event', self.click_handling)
-        toolbar = NavigationToolBar(canvas, self)
-        self.rpp_list.append(ReducedRepPlot(self.data_dict, self.key_list, fig, canvas, self.func_dict, selection))
-        vbox = QtGui.QVBoxLayout()
-        vbox.addStretch()
-        vbox.addWidget(toolbar)
-        vbox.addStretch()
-        vbox.addWidget(canvas)
-        popup_window.setLayout(vbox)
-        popup_window.show()
-        self.rpp_list[-1].show()
-        popup_window.exec_()
+        try:
+            popup_window = QtGui.QDialog(self)
+            popup_window.setWindowTitle(selection)
+            popup_window.setWindowModality(QtCore.Qt.NonModal)
+            fig = plt.figure()
+            canvas = FigureCanvas(fig)
+            canvas.mpl_connect('button_press_event', self.click_handling)
+            toolbar = NavigationToolBar(canvas, self)
+            self.rpp_list.append(ReducedRepPlot(self.data_dict, self.key_list, fig, canvas, self.func_dict, selection))
+            idx = len(self.rpp_list) - 1
+            vbox = QtGui.QVBoxLayout()
+            vbox.addStretch()
+            vbox.addWidget(toolbar)
+            vbox.addStretch()
+            vbox.addWidget(canvas)
+            popup_window.setLayout(vbox)
+            popup_window.show()
+            self.rpp_list[-1].show()
+            popup_window.exec_()
+        except Exception:
+            print("error creating a new rpp window")
+        finally:
+            self.rpp_list.pop(idx)
 
     def update_r_rep(self, new_data):
         """
