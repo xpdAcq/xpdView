@@ -227,32 +227,17 @@ class Display2(QtGui.QMainWindow):
         self.one_dim_integrate()
         self.waterfall()
 
-    def two_dim(self):
+    def roi_change_handler(self, axes):
         """
-        This functions creates the class that will control the 2D data tile of the display
 
         Parameters
         ----------
-        self
+        axes
 
         Returns
         -------
-        None
 
         """
-        FigureCanvas.setSizePolicy(self.canvas1, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self.canvas1)
-        self.two_dim_data = DiffractionData(self.fig1, self.canvas1, self.data_dict)
-        self.two_dim_data.ax.callbacks.connect('xlim_changed', self.roi_change_hanlder)
-        toolbar = NavigationToolBar(self.canvas1, self)
-        layout = QtGui.QVBoxLayout()
-        layout.addWidget(toolbar)
-        layout.addWidget(self.canvas1)
-        multi = QtGui.QWidget()
-        multi.setLayout(layout)
-        self.img_dock.setWidget(multi)
-
-    def roi_change_hanlder(self, axes):
         xstart, xstop = axes.get_xlim()
         ystart, ystop = axes.get_ylim()
         if self.is_main_rpp_plotted:
@@ -291,6 +276,16 @@ class Display2(QtGui.QMainWindow):
         self.plot_dock.setWidget(multi)
 
     def new_r_rep(self, selection):
+        """
+
+        Parameters
+        ----------
+        selection
+
+        Returns
+        -------
+
+        """
         popup_window = QtGui.QDialog(self)
         # TODO make title reflect the kind of analysis is being done
         # setting up the popup window
@@ -313,8 +308,18 @@ class Display2(QtGui.QMainWindow):
         popup_window.exec_()
 
     def update_r_rep(self, new_data):
+        """
+
+        Parameters
+        ----------
+        new_data
+
+        Returns
+        -------
+
+        """
         for plot in self.rpp_list:
-            plot.show(new_data = new_data)
+            plot.show(new_data=new_data)
 
     def one_dim_integrate(self):
         """
@@ -567,8 +572,7 @@ class Display2(QtGui.QMainWindow):
         new_plot_btn = QtGui.QPushButton()
         new_plot_btn.setText("Plot in new window")
         new_plot_btn.clicked.connect(menu.close)
-        new_plot_btn.clicked.connect(lambda:
-                self.set_analysis_type(analysis_selector.currentIndex()))
+        new_plot_btn.clicked.connect(lambda: self.set_analysis_type(analysis_selector.currentIndex()))
         new_plot_btn.clicked.connect(lambda: self.new_r_rep(analysis_selector.currentText()))
 
         # defining layout
@@ -652,6 +656,16 @@ class Display2(QtGui.QMainWindow):
         self.tools_box.addWidget(refresh_btn)
 
     def change_frame(self, val):
+        """
+
+        Parameters
+        ----------
+        val
+
+        Returns
+        -------
+
+        """
         self.one_dim_plot.give_plot(self.key_list[val])
         self.name_label.setText(self.key_list[val])
 
