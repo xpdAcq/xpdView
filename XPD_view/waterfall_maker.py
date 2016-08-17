@@ -1,3 +1,19 @@
+#!/usr/bin/env python
+##############################################################################
+#
+# XPD_view.waterfall_maker      SULI and HSRP
+#                               (c) 2016 Brookhaven Science Associates,
+#                               Brookhaven National Laboratory.
+#                               All rights reserved.
+#
+# File coded by:                Caleb Duff
+#                               Isabel Della Salle
+#
+# See AUTHORS.txt for a list of people who contributed.
+# See LICENSE.txt for license information.
+#
+##############################################################################
+
 """
 This will create the class that draws the waterfall plot for the Display window
 """

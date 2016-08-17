@@ -1,3 +1,19 @@
+#!/usr/bin/env python
+##############################################################################
+#
+# XPD_view.Tif_File_Finder     SULI and HSRP
+#                              (c) 2016 Brookhaven Science Associates,
+#                              Brookhaven National Laboratory.
+#                              All rights reserved.
+#
+# File coded by:               Caleb Duff
+#                              Joseph Kaming-Thanassi
+#
+# See AUTHORS.txt for a list of people who contributed.
+# See LICENSE.txt for license information.
+#
+##############################################################################
+
 """
 This class is what gets the .tif files from the directory when entered and returns the numpy arrays used
 in XPD_view. This class is designed to ensure that files are ordered according to time signature, and that

@@ -1,3 +1,18 @@
+#!/usr/bin/env python
+##############################################################################
+#
+# XPD_view.one_dimensional_int      SULI
+#                                   (c) 2016 Brookhaven Science Associates,
+#                                   Brookhaven National Laboratory.
+#                                   All rights reserved.
+#
+# File coded by:                    Caleb Duff
+#
+# See AUTHORS.txt for a list of people who contributed.
+# See LICENSE.txt for license information.
+#
+##############################################################################
+
 """
 This file will handle all of the one dimensional plotting of the lower left tile in the
 Display Window

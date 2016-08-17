@@ -1,3 +1,18 @@
+#!/usr/bin/env python
+##############################################################################
+#
+# XPD_view.Chi_File_Finder      SULI
+#                               (c) 2016 Brookhaven Science Associates,
+#                               Brookhaven National Laboratory.
+#                               All rights reserved.
+#
+# File coded by:                Caleb Duff
+#
+# See AUTHORS.txt for a list of people who contributed.
+# See LICENSE.txt for license information.
+#
+##############################################################################
+
 """
 This class will handle reading in .chi files from the directory so that XPD view can show
 the 1-D integration patterns extracted from the .chi files

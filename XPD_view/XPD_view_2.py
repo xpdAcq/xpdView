@@ -1,3 +1,19 @@
+#!/usr/bin/env python
+##############################################################################
+#
+# XPD_view.XPD_view_2      SULI and HSRP
+#                          (c) 2016 Brookhaven Science Associates,
+#                          Brookhaven National Laboratory.
+#                          All rights reserved.
+#
+# File coded by:           Caleb Duff
+#                          Joseph Kaming-Thanassi
+#
+# See AUTHORS.txt for a list of people who contributed.
+# See LICENSE.txt for license information.
+#
+##############################################################################
+
 """
 This file will contain the code that makes the XPD view GUI
 """
@@ -682,7 +698,6 @@ class Display2(QtGui.QMainWindow):
         """
         popup = QtGui.QFileDialog()
         self.file_path = str(popup.getExistingDirectory())
-        print(self.file_path)
         self.Tif._directory_name = self.file_path
         self.Chi._directory_name = self.file_path
         self.Tif.get_file_list()
