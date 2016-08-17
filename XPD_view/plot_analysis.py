@@ -1,3 +1,18 @@
+##############################################################################
+#
+# xpdView.plot_analysis     HSRP
+#                   (c) 2016 Brookhaven Science Associates,
+#                   Brookhaven National Laboratory.
+#                   All rights reserved.
+#
+# File coded by:    Joseph Kaming-Thanassi
+#
+# See AUTHORS.txt for a list of people who contributed.
+# See LICENSE.txt for license information.
+#
+##############################################################################
+
+
 """This class handles the plotting and analysis for reduced representation
 """
 
