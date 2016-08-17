@@ -255,7 +255,26 @@ class Display2(QtGui.QMainWindow):
         multi.setLayout(layout)
         self.plot_dock.setWidget(multi)
 
-    def new_r_rep(self, selection):
+    def new_r_rep(self, selection, x_min, x_max, y_min, y_max):
+        """This method will make a reduced representation graph in a new window
+
+        Parameters
+        ----------
+        selection : str
+            The name of the desired analysis function
+        x_min : int
+            the starting x value defined by the ROI
+        x_max : int
+            the stopping x value defined by the ROI
+        y_min : int
+            the starting y value defined by the ROI
+        y_max : int
+            the stopping y value defined by the ROI
+
+        Returns
+        -------
+        None
+        """
         try:
             popup_window = QtGui.QDialog(self)
             popup_window.setWindowTitle(selection)
@@ -273,12 +292,16 @@ class Display2(QtGui.QMainWindow):
             vbox.addWidget(canvas)
             popup_window.setLayout(vbox)
             popup_window.show()
-            self.rpp_list[-1].show()
+            self.rpp_list[idx].x_start = x_min
+            self.rpp_list[idx].x_stop = x_max
+            self.rpp_list[idx].y_start = y_min
+            self.rpp_list[idx].y_stop = y_max
+            self.rpp_list[idx].show()
             popup_window.exec_()
         except Exception:
             print("error creating a new rpp window")
         finally:
-            self.rpp_list.pop(idx)
+            self.rpp_list.__delitem__(idx)
 
     def update_r_rep(self, new_data):
         """
@@ -546,7 +569,9 @@ class Display2(QtGui.QMainWindow):
         new_plot_btn.setText("Plot in new window")
         new_plot_btn.clicked.connect(menu.close)
         new_plot_btn.clicked.connect(lambda: self.set_analysis_type(analysis_selector.currentIndex()))
-        new_plot_btn.clicked.connect(lambda: self.new_r_rep(analysis_selector.currentText()))
+        new_plot_btn.clicked.connect(lambda: self.new_r_rep(analysis_selector.currentText(),
+                                                            x_lim_min.value(), x_lim_max.value(),
+                                                           y_lim_min.value(), y_lim_max.value()))
 
         # defining layout
         vbox.addStretch()
