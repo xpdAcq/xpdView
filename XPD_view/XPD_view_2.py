@@ -682,6 +682,7 @@ class Display2(QtGui.QMainWindow):
         """
         popup = QtGui.QFileDialog()
         self.file_path = str(popup.getExistingDirectory())
+        print(self.file_path)
         self.Tif._directory_name = self.file_path
         self.Chi._directory_name = self.file_path
         self.Tif.get_file_list()
