@@ -258,6 +258,7 @@ class Display2(QtGui.QMainWindow):
     def new_r_rep(self, selection, x_min, x_max, y_min, y_max):
         """This method will make a reduced representation graph in a new window
 
+
         Parameters
         ----------
         selection : str
@@ -304,11 +305,12 @@ class Display2(QtGui.QMainWindow):
             self.rpp_list.__delitem__(idx)
 
     def update_r_rep(self, new_data):
-        """
+        """This method updates the reduced representation graphs when there are new files present
 
         Parameters
         ----------
-        new_data
+        new_data : list
+            a list of new images
 
         Returns
         -------
@@ -371,7 +373,7 @@ class Display2(QtGui.QMainWindow):
 
         Parameters
         ----------
-        event: object
+        event: event
             from mouse click that is used to change the image
 
         Returns
