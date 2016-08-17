@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# XPD_view.Tif_File_Finder     SULI and HSRP
+# xpdView.Tif_File_Finder      SULI and HSRP
 #                              (c) 2016 Brookhaven Science Associates,
 #                              Brookhaven National Laboratory.
 #                              All rights reserved.

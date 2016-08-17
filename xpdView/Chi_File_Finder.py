@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# XPD_view.Chi_File_Finder      SULI
+# xpdView.Chi_File_Finder       SULI
 #                               (c) 2016 Brookhaven Science Associates,
 #                               Brookhaven National Laboratory.
 #                               All rights reserved.

@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# XPD_view.one_dimensional_int      SULI
+# xpdView.one_dimensional_int       SULI
 #                                   (c) 2016 Brookhaven Science Associates,
 #                                   Brookhaven National Laboratory.
 #                                   All rights reserved.

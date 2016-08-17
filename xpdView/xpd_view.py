@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# XPD_view.XPD_view_2      SULI and HSRP
+# xpdView.xpd_view         SULI and HSRP
 #                          (c) 2016 Brookhaven Science Associates,
 #                          Brookhaven National Laboratory.
 #                          All rights reserved.
@@ -68,7 +68,7 @@ def data_gen(length):
     return data, keys
 
 
-class Display2(QtGui.QMainWindow):
+class Display(QtGui.QMainWindow):
     """
     This class contains all of the GUI information
 
@@ -925,7 +925,7 @@ def main():
 
     """
     app = QtGui.QApplication(sys.argv)
-    viewer = Display2()
+    viewer = Display()
     viewer.show()
     sys.exit(app.exec_())
 

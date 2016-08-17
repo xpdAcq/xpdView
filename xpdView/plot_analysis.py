@@ -1,11 +1,11 @@
 ##############################################################################
 #
 # xpdView.plot_analysis     HSRP
-#                   (c) 2016 Brookhaven Science Associates,
-#                   Brookhaven National Laboratory.
-#                   All rights reserved.
+#                           (c) 2016 Brookhaven Science Associates,
+#                           Brookhaven National Laboratory.
+#                           All rights reserved.
 #
-# File coded by:    Joseph Kaming-Thanassi
+# File coded by:            Joseph Kaming-Thanassi
 #
 # See AUTHORS.txt for a list of people who contributed.
 # See LICENSE.txt for license information.

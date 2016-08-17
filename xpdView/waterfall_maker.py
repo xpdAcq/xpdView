@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# XPD_view.waterfall_maker      SULI and HSRP
+# xpdView.waterfall_maker       SULI and HSRP
 #                               (c) 2016 Brookhaven Science Associates,
 #                               Brookhaven National Laboratory.
 #                               All rights reserved.
