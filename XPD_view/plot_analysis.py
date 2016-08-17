@@ -1,3 +1,18 @@
+##############################################################################
+#
+# xpdView.plot_analysis     HSRP
+#                   (c) 2016 Brookhaven Science Associates,
+#                   Brookhaven National Laboratory.
+#                   All rights reserved.
+#
+# File coded by:    Joseph Kaming-Thanassi
+#
+# See AUTHORS.txt for a list of people who contributed.
+# See LICENSE.txt for license information.
+#
+##############################################################################
+
+
 """This class handles the plotting and analysis for reduced representation
 """
 
@@ -18,19 +33,7 @@ class ReducedRepPlot:
         key_list : list
             A list where the keys for the data_dict are kept in order
 
-        x_start : int
-            The starting value for x array slicing defined by the ROI
-
-        x_stop : int
-            The stopping value for x array slicing defined by the ROI
-
-        y_start : int
-            The starting value for y array slicing defined by the ROI
-
-        y_stop : int
-            The stopping value for y array slicing defined by the ROI
-
-        selection : str
+        selection : str (optional)
             The name of the current function selected for analysis
 
         figure : matplotlib.figure
@@ -38,6 +41,7 @@ class ReducedRepPlot:
 
         canvas : FigureCanvas
             The canvas where the reduced rep plotting is drawn
+
 
         """
 
@@ -56,7 +60,10 @@ class ReducedRepPlot:
         # default func dict is simple analysis functions
 
     def analyze(self):
-        """This function will plot analysis data as a function of the number of images.
+        """this method handles the concurrent analysis of data
+        Returns
+        -------
+        None
 
         """
         p = multiprocessing.Pool()
@@ -77,6 +84,10 @@ class ReducedRepPlot:
         ----------
         data_list : list
             the list of sliced numpy arrays to be analyzed
+
+        Returns
+        -------
+        a list of y data from the analysis
         """
 
         p = multiprocessing.Pool()
@@ -96,6 +107,10 @@ class ReducedRepPlot:
         ----------
         new_data : list (optional)
             if the new data list is present, the plot will be updated with new data and not completely redrawn
+
+        Returns
+        -------
+        None
         """
 
         if new_data is None:
