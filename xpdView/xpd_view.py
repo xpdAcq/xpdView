@@ -20,11 +20,11 @@ This file will contain the code that makes the XPD view GUI
 from PyQt4 import QtGui, QtCore
 import sys
 import numpy as np
-from Tif_File_Finder import TifFileFinder
-from Chi_File_Finder import ChiFileFinder
-from plot_analysis import ReducedRepPlot
-from one_dimensional_int import IntegrationPlot
-from waterfall_maker import WaterFallMaker
+from xpdView.Tif_File_Finder import TifFileFinder
+from xpdView.Chi_File_Finder import ChiFileFinder
+from xpdView.plot_analysis import ReducedRepPlot
+from xpdView.one_dimensional_int import IntegrationPlot
+from xpdView.waterfall_maker import WaterFallMaker
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
 import matplotlib.pyplot as plt
