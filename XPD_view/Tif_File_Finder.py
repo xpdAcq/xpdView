@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ##############################################################################
 #
 # XPD_view.Tif_File_Finder     SULI and HSRP

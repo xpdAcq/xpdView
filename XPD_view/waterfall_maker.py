@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ##############################################################################
 #
 # XPD_view.waterfall_maker      SULI and HSRP
