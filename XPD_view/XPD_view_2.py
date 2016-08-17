@@ -256,6 +256,18 @@ class Display2(QtGui.QMainWindow):
         self.plot_dock.setWidget(multi)
 
     def new_r_rep(self, selection):
+        """This method will make a new plot window with reduced rep
+
+        Parameters
+        ----------
+        selection : str
+            the name of the analysis funciton
+
+        Returns
+        -------
+        None
+
+        """
         try:
             popup_window = QtGui.QDialog(self)
             popup_window.setWindowTitle(selection)
@@ -281,11 +293,12 @@ class Display2(QtGui.QMainWindow):
             self.rpp_list.pop(idx)
 
     def update_r_rep(self, new_data):
-        """
+        """This method updates the reduced representation graphs when there are new files present
 
         Parameters
         ----------
-        new_data
+        new_data : list
+            a list of new images
 
         Returns
         -------
@@ -348,7 +361,7 @@ class Display2(QtGui.QMainWindow):
 
         Parameters
         ----------
-        event: object
+        event: event
             from mouse click that is used to change the image
 
         Returns
