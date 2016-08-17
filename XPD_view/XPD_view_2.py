@@ -256,6 +256,25 @@ class Display2(QtGui.QMainWindow):
         self.plot_dock.setWidget(multi)
 
     def new_r_rep(self, selection, x_min, x_max, y_min, y_max):
+        """This method will make a reduced representation graph in a new window
+
+        Parameters
+        ----------
+        selection : str
+            The name of the desired analysis function
+        x_min : int
+            the starting x value defined by the ROI
+        x_max : int
+            the stopping x value defined by the ROI
+        y_min : int
+            the starting y value defined by the ROI
+        y_max : int
+            the stopping y value defined by the ROI
+
+        Returns
+        -------
+        None
+        """
         try:
             popup_window = QtGui.QDialog(self)
             popup_window.setWindowTitle(selection)
