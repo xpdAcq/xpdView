@@ -14,7 +14,9 @@
 
 """
 This class will handle reading in .chi files from the directory so that XPD view can show
-the 1-D integration patterns extracted from the .chi files
+the 1-D integration patterns extracted from the .chi files. You should only put this option back in if you are
+working on a Windows computer with .chi files. This is because all azimuthal integration software that has been found
+so far has had no windows equivalent and no windows configuration files.
 """
 
 import numpy as np

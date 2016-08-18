@@ -21,7 +21,7 @@ from PyQt4 import QtGui, QtCore
 import sys
 import numpy as np
 from xpdView.Tif_File_Finder import TifFileFinder
-from xpdView.Chi_File_Finder import ChiFileFinder
+from xpdView.azimuthal import Azimuthal
 from xpdView.plot_analysis import ReducedRepPlot
 from xpdView.one_dimensional_int import IntegrationPlot
 from xpdView.waterfall_maker import WaterFallMaker
@@ -84,8 +84,8 @@ class Display(QtGui.QMainWindow):
             that show when integrated data was read in
         Tif : instance of the TifFileFinder class
             that is used to search and read in tif files
-        Chi : instance of the ChiFileFinder class
-            that is used to search and read in chi files
+        Azi : instance of the Azimuthal class
+            this class is used to integrate the 2D data as it is read in
         surface : Bool
             this variable keeps track of whether the user wants a contour plot or a wire plot in the 3d frame
         three_dim_drawn : Bool
@@ -163,7 +163,7 @@ class Display(QtGui.QMainWindow):
         data_list, self.key_list = data_gen(1)
         self.int_key_list = []
         self.Tif = TifFileFinder()
-        self.Chi = ChiFileFinder()
+        self.Azi = Azimuthal()
         self.surface = True
         self.three_dim_drawn = False
         self.int_data_dict = dict()
@@ -700,9 +700,9 @@ class Display(QtGui.QMainWindow):
         popup = QtGui.QFileDialog()
         self.file_path = str(popup.getExistingDirectory())
         self.Tif._directory_name = self.file_path
-        self.Chi._directory_name = self.file_path
         self.Tif.get_file_list()
-        self.Chi.get_file_list()
+        self.Azi.get_right_names(self.Tif.file_list, self.Tif.pic_list)
+
         if len(self.Tif.pic_list) == 0:
             print('No .tif files in directory')
         else:
@@ -710,13 +710,13 @@ class Display(QtGui.QMainWindow):
             if x == '0':
                 del self.data_dict[self.key_list[0]]
                 self.key_list.remove(x)
-                self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
+                self.update_int_data(self.Azi.file_names, self.Azi.x_lists, self.Azi.y_lists)
                 self.update_data(self.Tif.pic_list, self.Tif.file_list)
                 self.messenger.sl_update_image(0)
                 self.one_dim_plot.give_plot(self.key_list[0])
                 self.name_label.setText(self.key_list[0])
             else:
-                self.update_int_data(self.Chi.file_list, self.Chi.x_lists, self.Chi.y_lists)
+                self.update_int_data(self.Azi.file_names, self.Azi.x_lists, self.Azi.y_lists)
                 self.update_data(self.Tif.pic_list, self.Tif.file_list)
 
     def refresh(self):
@@ -734,7 +734,7 @@ class Display(QtGui.QMainWindow):
 
         """
         new_file_names, new_data = self.Tif.get_new_files()
-        int_new_files, int_data_x, int_data_y = self.Chi.get_new_files()
+        int_new_files, int_data_x, int_data_y = self.Azi.refresh_time(new_file_names, new_data)
         if len(new_file_names) == 0 and len(int_new_files) == 0:
             print("No new files found")
         elif len(new_file_names) == 0 and len(int_new_files) != 0:
