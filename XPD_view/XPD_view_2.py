@@ -458,6 +458,7 @@ class Display2(QtGui.QMainWindow):
         surface_action.triggered.connect(lambda: self.waterfall_3D("surface"))
 
         twoD_action = QtGui.QAction("&Show 2D Waterfall Toolbar", self)
+        twoD_action.triggered.connect(self.twoD_plot_settings)
 
         wire_action = QtGui.QAction("&Wire", self)
         wire_action.triggered.connect(lambda: self.waterfall_3D("wire"))
@@ -470,7 +471,7 @@ class Display2(QtGui.QMainWindow):
         window_menu = mainmenu.addMenu("&Window")
         filemenu = mainmenu.addMenu("&File")
         graph_menu = mainmenu.addMenu('&Reduced Representation')
-        waterfall_menu = mainmenu.addMenu('&3D Plot style')
+        waterfall_menu = mainmenu.addMenu('&Waterfall Plots')
         filemenu.addAction(setpath)
         filemenu.addAction(refresh_path)
         graph_menu.addAction(plt_action)
@@ -478,6 +479,46 @@ class Display2(QtGui.QMainWindow):
         waterfall_menu.addAction(wire_action)
         waterfall_menu.addAction(twoD_action)
         window_menu.addAction(reset_windows)
+
+    def twoD_plot_settings(self):
+        settings_window = QtGui.QDialog(self)
+        y_offset_label = QtGui.QLabel()
+        y_offset_label.setText("Y Offset")
+        y_offset_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        y_offset_slider.setMinimum(0)
+        y_offset_slider.setMaximum(20)
+        y_offset_slider.valueChanged.connect(self.set_y_offset)
+        x_offset_label = QtGui.QLabel()
+        x_offset_label.setText("X Offset")
+        x_offset_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        x_offset_slider.setMinimum(0)
+        x_offset_slider.setMaximum(20)
+        x_offset_slider.valueChanged.connect(self.set_y_offset)
+
+        layout = QtGui.QHBoxLayout()
+        layout.addStretch()
+        layout.addWidget(y_offset_label)
+        layout.addStretch()
+        layout.addWidget(y_offset_slider)
+        layout.addStretch()
+        layout.addWidget(x_offset_label)
+        layout.addStretch()
+        layout.addWidget(x_offset_slider)
+
+        settings_window.setLayout(layout)
+        settings_window.show()
+        settings_window.exec_()
+
+    def set_x_offset(self, value):
+        self.water.x_offset = (value/10.0)
+        print(self.water.x_offset)
+        self.water.generate_waterfall()
+
+    def set_y_offset(self, value):
+        self.water.y_offset = (value/10.0)
+        print(self.water.y_offset)
+        self.water.generate_waterfall()
+
 
     def set_analysis_type(self, i):
         """
@@ -824,6 +865,8 @@ class Display2(QtGui.QMainWindow):
         for i in range(old_length, len(self.int_key_list)):
             self.int_data_dict[self.int_key_list[i]] = [data_x[i-old_length], data_y[i-old_length]]
         if len(self.int_key_list) != 0:
+            self.water.normalize_data()
+            #self.water.ax.hold(True)
             self.water.generate_waterfall()
             #self.get_three_dim_plot()
             #self.three_dim_drawn = True
@@ -844,40 +887,6 @@ class Display2(QtGui.QMainWindow):
             self.water.get_surface_plot()
         else:
             self.water.get_wire_plot()
-
-    def surface_plot_wanted(self):
-        """
-        This function simply allows the 3d style options to draw the right plot
-
-        Parameters
-        ----------
-        self
-
-        Returns
-        -------
-        None
-
-        """
-        self.surface = True
-        if self.three_dim_drawn:
-            self.get_three_dim_plot()
-
-    def wire_plot_wanted(self):
-        """
-        This function allows the 3d style option to draw the wire option
-
-        Parameters
-        ----------
-        self
-
-        Returns
-        -------
-        None
-
-        """
-        self.surface = False
-        if self.three_dim_drawn:
-            self.get_three_dim_plot()
 
     def reset_window_layout(self):
         """

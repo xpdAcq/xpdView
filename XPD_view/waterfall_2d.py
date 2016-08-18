@@ -41,25 +41,26 @@ class Waterfall2D:
         self.normalized_data = dict()
 
     def generate_waterfall(self):
-        self.normalized_data.clear()
-        self.normalized_data = self.normalize_data()
+        self.ax.cla()
+        # self.ax.hold(True)
         for i in range(0, len(self.key_list)):
-            temp_x, temp_y = self.normalized_data[self.key_list[i]]
+            temp_x = self.normalized_data[self.key_list[i]][0].copy()
+            temp_y = self.normalized_data[self.key_list[i]][1].copy()
+            print(temp_x)
+            print(temp_y)
             temp_x += self.x_offset * i
             temp_y += self.y_offset * i
             self.ax.plot(temp_x, temp_y)
-        self.ax.hold(True)
         self.ax.autoscale()
         self.canvas.draw()
 
     def normalize_data(self):
-        temp_dict = dict()
+        self.normalized_data.clear()
         for key in self.key_list:
             temp = self.data_dict[key].copy()
             temp[1] = temp[1] - temp[1].min()
             temp[1] = temp[1] / (temp[1].max() - temp[1].min())
-            temp_dict[key] = temp
-        return temp_dict
+            self.normalized_data[key] = temp
 
 
 
