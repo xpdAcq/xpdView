@@ -25,6 +25,7 @@ from Chi_File_Finder import ChiFileFinder
 from plot_analysis import ReducedRepPlot
 from one_dimensional_int import IntegrationPlot
 from waterfall_maker import WaterFallMaker
+from waterfall_2d import Waterfall2D
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
 import matplotlib.pyplot as plt
@@ -240,7 +241,7 @@ class Display2(QtGui.QMainWindow):
         self.water = None
         self.r_rep_widget()
         self.one_dim_integrate()
-        self.waterfall()
+        self.waterfall_2d()
 
     def r_rep_widget(self):
         """
@@ -359,7 +360,7 @@ class Display2(QtGui.QMainWindow):
         multi.setLayout(layout)
         self.integration_dock.setWidget(multi)
 
-    def waterfall(self):
+    def waterfall_3D(self):
         """
         This method simply creates an instance of the class that creates the waterfall plot in the bottom right corner
         Parameters
@@ -371,16 +372,33 @@ class Display2(QtGui.QMainWindow):
         None
 
         """
+        #TODO make this a popup window
         FigureCanvas.setSizePolicy(self.canvas4, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self.canvas4)
-        self.water = WaterFallMaker(self.fig4, self.canvas4, self.int_data_dict, self.int_key_list)
+        #self.water = WaterFallMaker(self.fig4, self.canvas4, self.int_data_dict, self.int_key_list)
         toolbar = NavigationToolBar(self.canvas4, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
         layout.addWidget(self.canvas4)
+        # multi = QtGui.QWidget()
+        # multi.setLayout(layout)
+        # self.waterfall_dock.setWidget(multi)
+
+    def waterfall_2d(self):
+        fig = plt.figure()
+        canvas = FigureCanvas(fig)
+        self.water = Waterfall2D(self.int_key_list, self.int_data_dict, fig, canvas)
+        self.water.y_offset = 2
+        toolbar = NavigationToolBar(canvas, self)
+        self.water.generate_waterfall()
+        layout = QtGui.QVBoxLayout()
+        layout.addStretch()
+        layout.addWidget(toolbar)
+        layout.addWidget(canvas)
         multi = QtGui.QWidget()
         multi.setLayout(layout)
         self.waterfall_dock.setWidget(multi)
+
 
     def click_handling(self, event):
         """
@@ -797,9 +815,9 @@ class Display2(QtGui.QMainWindow):
         for i in range(old_length, len(self.int_key_list)):
             self.int_data_dict[self.int_key_list[i]] = [data_x[i-old_length], data_y[i-old_length]]
         if len(self.int_key_list) != 0:
-            self.water.get_right_shape()
-            self.get_three_dim_plot()
-            self.three_dim_drawn = True
+            self.water.generate_waterfall()
+            #self.get_three_dim_plot()
+            #self.three_dim_drawn = True
 
     def get_three_dim_plot(self):
         """
