@@ -58,9 +58,8 @@ class IntegrationPlot(object):
         self.fig = fig
         self.canvas = canvas
         self.ax = self.fig.add_subplot(111)
-        self.ax.set_xlabel('Distance from Center')
+        self.ax.set_xlabel('q_A^-1')
         self.ax.set_ylabel('Total Integrated Intensity')
-        self.ax.set_title('1-D Integrated Plot')
         self.give_plot('nothing')
 
     def give_plot(self, key):
