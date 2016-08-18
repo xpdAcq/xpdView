@@ -588,7 +588,7 @@ class Display(QtGui.QMainWindow):
         new_plot_btn.clicked.connect(lambda: self.set_analysis_type(analysis_selector.currentIndex()))
         new_plot_btn.clicked.connect(lambda: self.new_r_rep(analysis_selector.currentText(),
                                                             x_lim_min.value(), x_lim_max.value(),
-                                                           y_lim_min.value(), y_lim_max.value()))
+                                                            y_lim_min.value(), y_lim_max.value()))
 
         # defining layout
         vbox.addStretch()
