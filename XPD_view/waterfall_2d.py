@@ -55,12 +55,12 @@ class Waterfall2D:
     def normalize_data(self):
         temp_dict = dict()
         for key in self.key_list:
-            temp = self.data_dict[key]
+            temp = self.data_dict[key].copy()
             temp[1] = temp[1] - temp[1].min()
             temp[1] = temp[1] / (temp[1].max() - temp[1].min())
             temp_dict[key] = temp
         return temp_dict
-    
+
 
 
 
