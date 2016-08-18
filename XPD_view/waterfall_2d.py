@@ -15,6 +15,7 @@
 """This module handles the 2d waterfall plot
 """
 import matplotlib.pyplot as plt
+import numpy as np
 
 class Waterfall2D:
 
@@ -30,18 +31,20 @@ class Waterfall2D:
         canvas : qt canvas
             the canvas that will be drawn on
         """
-        self.data_dict = data_dict.copy()
-        self.key_list = key_list.copy()
+        self.data_dict = data_dict
+        self.key_list = key_list
         self.fig = fig
         self.canvas = canvas
         self.ax = self.fig.add_subplot(111)
         self.x_offset = 0
         self.y_offset = 0
+        self.normalized_data = dict()
 
     def generate_waterfall(self):
-        self.normalize_data()
+        self.normalized_data.clear()
+        self.normalized_data = self.normalize_data()
         for i in range(0, len(self.key_list)):
-            temp_x, temp_y = self.data_dict[self.key_list[i]]
+            temp_x, temp_y = self.normalized_data[self.key_list[i]]
             temp_x += self.x_offset * i
             temp_y += self.y_offset * i
             self.ax.plot(temp_x, temp_y)
@@ -50,11 +53,14 @@ class Waterfall2D:
         self.canvas.draw()
 
     def normalize_data(self):
-        sum = 0
+        temp_dict = dict()
         for key in self.key_list:
             temp = self.data_dict[key]
-            self.data_dict[key] = (temp - temp.min()) / (temp.max() - temp.min())
-
+            temp[1] = temp[1] - temp[1].min()
+            temp[1] = temp[1] / (temp[1].max() - temp[1].min())
+            temp_dict[key] = temp
+        return temp_dict
+    
 
 
 

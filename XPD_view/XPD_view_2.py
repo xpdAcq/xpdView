@@ -388,11 +388,10 @@ class Display2(QtGui.QMainWindow):
         fig = plt.figure()
         canvas = FigureCanvas(fig)
         self.water = Waterfall2D(self.int_key_list, self.int_data_dict, fig, canvas)
-        self.water.y_offset = 2
+        self.water.y_offset = .5
         toolbar = NavigationToolBar(canvas, self)
         self.water.generate_waterfall()
         layout = QtGui.QVBoxLayout()
-        layout.addStretch()
         layout.addWidget(toolbar)
         layout.addWidget(canvas)
         multi = QtGui.QWidget()
