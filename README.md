@@ -1,3 +1,3 @@
-# xpdVie
+# xpdView
 
 https://zenodo.org/record/60479w
