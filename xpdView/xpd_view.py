@@ -477,7 +477,7 @@ class Display(QtGui.QMainWindow):
         wire_action = QtGui.QAction("&Wire", self)
         wire_action.triggered.connect(lambda: self.waterfall_3d("wire"))
 
-        reset_windows = QtGui.QAction("&Reset Window Layout", self)
+        reset_windows = QtGui.QAction('&Redock Windows', self)
         reset_windows.triggered.connect(self.reset_window_layout)
 
         # This sets up all of the menu widgets that are used in the GUI
