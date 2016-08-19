@@ -396,6 +396,17 @@ class Display(QtGui.QMainWindow):
         window.exec_()
 
     def waterfall_2d(self):
+        """
+        This handles plotting the 2d waterfall
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
         fig = plt.figure()
         canvas = FigureCanvas(fig)
         self.water = Waterfall2D(self.int_key_list, self.int_data_dict, fig, canvas)
@@ -825,6 +836,7 @@ class Display(QtGui.QMainWindow):
         else:
             self.update_int_data(int_new_files, int_data_x, int_data_y)
             self.update_data(new_data, new_file_names)
+            self.update_r_rep(new_data)
 
     def update_data(self, data_list, file_list):
         """
