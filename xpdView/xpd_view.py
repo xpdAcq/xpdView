@@ -141,7 +141,7 @@ class Display(QtGui.QMainWindow):
         one_dim_plot : None
             allows instance of IntegratedPlot class later in code
         water : None
-            allows instance of WaterfallMaker class later in code
+            allows instance of Waterfall2D class later in code
     """
 
     def __init__(self):
