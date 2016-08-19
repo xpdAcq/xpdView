@@ -493,7 +493,7 @@ class Display2(QtGui.QMainWindow):
         x_offset_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         x_offset_slider.setMinimum(0)
         x_offset_slider.setMaximum(20)
-        x_offset_slider.valueChanged.connect(self.set_y_offset)
+        x_offset_slider.valueChanged.connect(self.set_x_offset)
 
         layout = QtGui.QHBoxLayout()
         layout.addStretch()
@@ -510,13 +510,11 @@ class Display2(QtGui.QMainWindow):
         settings_window.exec_()
 
     def set_x_offset(self, value):
-        self.water.x_offset = (value/10.0)
-        print(self.water.x_offset)
+        self.water.x_offset = value
         self.water.generate_waterfall()
 
     def set_y_offset(self, value):
         self.water.y_offset = (value/10.0)
-        print(self.water.y_offset)
         self.water.generate_waterfall()
 
 
