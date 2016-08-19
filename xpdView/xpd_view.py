@@ -376,6 +376,7 @@ class Display(QtGui.QMainWindow):
         """
         window = QtGui.QDialog(self)
         window.setWindowTitle(plot_type)
+        window.setWindowModality(QtCore.Qt.NonModal)
         fig = plt.figure()
         canvas = FigureCanvas(fig)
         toolbar = NavigationToolBar(canvas, self)
@@ -391,6 +392,7 @@ class Display(QtGui.QMainWindow):
         layout.addWidget(toolbar)
         layout.addWidget(canvas)
         window.setLayout(layout)
+        window.show()
         window.exec_()
 
     def waterfall_2d(self):
@@ -609,7 +611,7 @@ class Display(QtGui.QMainWindow):
         """
         menu = QtGui.QDialog(self)
         menu.setWindowTitle("Reduced Representation Settings")
-        menu.setWindowModality(QtCore.Qt.ApplicationModal)
+        menu.setWindowModality(QtCore.Qt.NonModal)
         vbox = QtGui.QVBoxLayout()
         hbox_lim_labels = QtGui.QHBoxLayout()
         hbox_lim_widgets = QtGui.QHBoxLayout()

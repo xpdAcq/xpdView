@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# XPD_view.waterfall_2D        HSRP
+# xpdView.waterfall_2D         HSRP
 #                              (c) 2016 Brookhaven Science Associates,
 #                              Brookhaven National Laboratory.
 #                              All rights reserved.
@@ -15,8 +15,6 @@
 """
 This module handles the 2d waterfall plot
 """
-import matplotlib.pyplot as plt
-import numpy as np
 
 
 class Waterfall2D:
@@ -26,6 +24,8 @@ class Waterfall2D:
 
         Parameters
         ----------
+        key_list : list
+            the ordered list that contains the keys for the integrated data
         data_dict : dict
             the dictionary that contains the data for plotting
         fig : matplotlib figure
@@ -43,6 +43,12 @@ class Waterfall2D:
         self.normalized_data = dict()
 
     def generate_waterfall(self):
+        """This method handles the plotting of the 2d waterfall
+
+        Returns
+        -------
+        None
+        """
         self.ax.cla()
         # self.ax.hold(True)
         for i in range(0, len(self.key_list)):
@@ -55,6 +61,12 @@ class Waterfall2D:
         self.canvas.draw()
 
     def normalize_data(self):
+        """This method normalizes data for plotting
+
+        Returns
+        -------
+        None
+        """
         self.normalized_data.clear()
         for key in self.key_list:
             temp = self.data_dict[key].copy()
