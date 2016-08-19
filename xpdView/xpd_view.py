@@ -25,6 +25,7 @@ from xpdView.azimuthal import Azimuthal
 from xpdView.plot_analysis import ReducedRepPlot
 from xpdView.one_dimensional_int import IntegrationPlot
 from xpdView.waterfall_maker import WaterFallMaker
+from xpdView.waterfall_2d import Waterfall2D
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
 import matplotlib.pyplot as plt
@@ -240,7 +241,7 @@ class Display(QtGui.QMainWindow):
         self.water = None
         self.r_rep_widget()
         self.one_dim_integrate()
-        self.waterfall()
+        self.waterfall_2d()
 
     def r_rep_widget(self):
         """
@@ -359,25 +360,49 @@ class Display(QtGui.QMainWindow):
         multi.setLayout(layout)
         self.integration_dock.setWidget(multi)
 
-    def waterfall(self):
+    def waterfall_3d(self, plot_type):
         """
         This method simply creates an instance of the class that creates the waterfall plot in the bottom right corner
         Parameters
         ----------
         self
+        plot_type : str
+            name of 3d plot type to use
 
         Returns
         -------
         None
 
         """
-        FigureCanvas.setSizePolicy(self.canvas4, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self.canvas4)
-        self.water = WaterFallMaker(self.fig4, self.canvas4, self.int_data_dict, self.int_key_list)
-        toolbar = NavigationToolBar(self.canvas4, self)
+        window = QtGui.QDialog(self)
+        window.setWindowTitle(plot_type)
+        fig = plt.figure()
+        canvas = FigureCanvas(fig)
+        toolbar = NavigationToolBar(canvas, self)
+        water = WaterFallMaker(fig, canvas, self.int_data_dict, self.int_key_list)
+        water.get_right_shape()
+
+        if plot_type is "surface":
+            water.get_surface_plot()
+        elif plot_type is "wire":
+            water.get_wire_plot()
+
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
-        layout.addWidget(self.canvas4)
+        layout.addWidget(canvas)
+        window.setLayout(layout)
+        window.exec_()
+
+    def waterfall_2d(self):
+        fig = plt.figure()
+        canvas = FigureCanvas(fig)
+        self.water = Waterfall2D(self.int_key_list, self.int_data_dict, fig, canvas)
+        self.water.y_offset = .5
+        toolbar = NavigationToolBar(canvas, self)
+        self.water.generate_waterfall()
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(toolbar)
+        layout.addWidget(canvas)
         multi = QtGui.QWidget()
         multi.setLayout(layout)
         self.waterfall_dock.setWidget(multi)
@@ -431,10 +456,13 @@ class Display(QtGui.QMainWindow):
 
         # This sets up the options that control the 3d Plot style
         surface_action = QtGui.QAction("&Surface", self)
-        surface_action.triggered.connect(self.surface_plot_wanted)
+        surface_action.triggered.connect(lambda: self.waterfall_3d("surface"))
+
+        twod_action = QtGui.QAction("&Show 2D Waterfall Toolbar", self)
+        twod_action.triggered.connect(self.twod_plot_settings)
 
         wire_action = QtGui.QAction("&Wire", self)
-        wire_action.triggered.connect(self.wire_plot_wanted)
+        wire_action.triggered.connect(lambda: self.waterfall_3d("wire"))
 
         reset_windows = QtGui.QAction("&Reset Window Layout", self)
         reset_windows.triggered.connect(self.reset_window_layout)
@@ -444,13 +472,62 @@ class Display(QtGui.QMainWindow):
         window_menu = mainmenu.addMenu("&Window")
         filemenu = mainmenu.addMenu("&File")
         graph_menu = mainmenu.addMenu('&Reduced Representation')
-        three_dim = mainmenu.addMenu('&3D Plot style')
+        waterfall_menu = mainmenu.addMenu('&Waterfall Plots')
         filemenu.addAction(setpath)
         filemenu.addAction(refresh_path)
         graph_menu.addAction(plt_action)
-        three_dim.addAction(surface_action)
-        three_dim.addAction(wire_action)
+        waterfall_menu.addAction(surface_action)
+        waterfall_menu.addAction(wire_action)
+        waterfall_menu.addAction(twod_action)
         window_menu.addAction(reset_windows)
+
+    def twod_plot_settings(self):
+        """
+        This creates the pop up window that controls the settings on the 2d waterfall
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
+        settings_window = QtGui.QDialog(self)
+        y_offset_label = QtGui.QLabel()
+        y_offset_label.setText("Y Offset")
+        y_offset_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        y_offset_slider.setMinimum(0)
+        y_offset_slider.setMaximum(20)
+        y_offset_slider.valueChanged.connect(self.set_y_offset)
+        x_offset_label = QtGui.QLabel()
+        x_offset_label.setText("X Offset")
+        x_offset_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        x_offset_slider.setMinimum(0)
+        x_offset_slider.setMaximum(20)
+        x_offset_slider.valueChanged.connect(self.set_x_offset)
+
+        layout = QtGui.QHBoxLayout()
+        layout.addStretch()
+        layout.addWidget(y_offset_label)
+        layout.addStretch()
+        layout.addWidget(y_offset_slider)
+        layout.addStretch()
+        layout.addWidget(x_offset_label)
+        layout.addStretch()
+        layout.addWidget(x_offset_slider)
+
+        settings_window.setLayout(layout)
+        settings_window.show()
+        settings_window.exec_()
+
+    def set_x_offset(self, value):
+        self.water.x_offset = value
+        self.water.generate_waterfall()
+
+    def set_y_offset(self, value):
+        self.water.y_offset = (value/10.0)
+        self.water.generate_waterfall()
 
     def set_analysis_type(self, i):
         """
@@ -797,9 +874,8 @@ class Display(QtGui.QMainWindow):
         for i in range(old_length, len(self.int_key_list)):
             self.int_data_dict[self.int_key_list[i]] = [data_x[i-old_length], data_y[i-old_length]]
         if len(self.int_key_list) != 0:
-            self.water.get_right_shape()
-            self.get_three_dim_plot()
-            self.three_dim_drawn = True
+            self.water.normalize_data()
+            self.water.generate_waterfall()
 
     def get_three_dim_plot(self):
         """
@@ -817,40 +893,6 @@ class Display(QtGui.QMainWindow):
             self.water.get_surface_plot()
         else:
             self.water.get_wire_plot()
-
-    def surface_plot_wanted(self):
-        """
-        This function simply allows the 3d style options to draw the right plot
-
-        Parameters
-        ----------
-        self
-
-        Returns
-        -------
-        None
-
-        """
-        self.surface = True
-        if self.three_dim_drawn:
-            self.get_three_dim_plot()
-
-    def wire_plot_wanted(self):
-        """
-        This function allows the 3d style option to draw the wire option
-
-        Parameters
-        ----------
-        self
-
-        Returns
-        -------
-        None
-
-        """
-        self.surface = False
-        if self.three_dim_drawn:
-            self.get_three_dim_plot()
 
     def reset_window_layout(self):
         """
