@@ -65,15 +65,18 @@ class TifFileFinder(object):
         None
 
         """
-        if self._directory_name is None:
-            raise NotADirectoryError
-        if self._directory_name[-1] != '/' or '\\':
-            self._directory_name += '/'
-        self.dir_fil = os.listdir(self._directory_name)
-        self.dir_fil.sort(key=lambda x: os.path.getmtime(self._directory_name + x))
-        self.file_list = [file for file in self.dir_fil if file.endswith('.tif') and not (file.endswith('.dark.tif') or
-                                                                                          file.endswith('.raw.tif'))]
-        self.get_image_arrays()
+        try:
+            if self._directory_name is None:
+                raise NotADirectoryError
+            if self._directory_name[-1] != '/' or '\\':
+                self._directory_name += '/'
+            self.dir_fil = os.listdir(self._directory_name)
+            self.dir_fil.sort(key=lambda x: os.path.getmtime(self._directory_name + x))
+            self.file_list = [file for file in self.dir_fil if file.endswith('.tif') and not
+                              (file.endswith('.dark.tif') or file.endswith('.raw.tif'))]
+            self.get_image_arrays()
+        except IndexError:
+            pass
 
     def get_image_arrays(self):
         """
