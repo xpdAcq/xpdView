@@ -925,7 +925,7 @@ class Display(QtGui.QMainWindow):
         self.plot_dock.setFloating(False)
         self.waterfall_dock.setFloating(False)
 
-    def set_func_dict(self, func_list):
+    def add_many_func(self, func_list):
         """a setter for func_dict that takes in a list of functions
 
         creates a dictionary for them
