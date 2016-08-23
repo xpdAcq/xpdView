@@ -77,71 +77,67 @@ class Display(QtGui.QMainWindow):
     ----------
     analysis_type : string
             determines what kind of statistical parameter will be observed
-        file_path : string
-            the directory that will contain the .tif and .chi files for viewing
-        key_list : list of strings
-            that are ordered according to time data was read in for data_dict
-        int_key_list : list of strings
-            that show when integrated data was read in
-        Tif : instance of the TifFileFinder class
-            that is used to search and read in tif files
-        Azi : instance of the Azimuthal class
-            this class is used to integrate the 2D data as it is read in
-        surface : Bool
-            this variable keeps track of whether the user wants a contour plot or a wire plot in the 3d frame
-        three_dim_drawn : Bool
-            this variable keeps track of whether or not the 3d plot has been drawn yet
-        data_dict : dictionary
-            stores all of the 2D image arrays as a dictionary
-        int_data_dict : dictionary
-            stores all of the integrated data's x and y lists in a dictionary
-        messenger : object
-            this is an instance of the 2D cross section messenger class
-        plot_dock : object
-            this object creates the floating window to hold the reduced representation plot
-        img_dock : object
-            this object creates the floating window to hold the image along with the cross section windows
-        integration_dock : object
-            this object creates the floating window to hold the 1D integrated data
-        waterfall_dock : object
-            this object creates the floating window to hold the 3D image with all the data sets
-        frame : object
-            creates the background frame on which all of the widgets are displayed
-        main_layout : object
-            creates main vertical box that will store all display widgets and tools
-        display_box_1 : object
-            creates the horizontal box intended to contain the 2D cross section widget and some other plot
-        display_box_2 : object
-            creates the horizontal box that will hold two other useful plots
-        tools_box : object
-            creates the horizontal box that will contain all of the control widgets
-        fig1 : matplotlib figure
-            this allows us to change the kinds of plots shown on any of the four tiles
-        canvas1 : matplotlib canvas
-            see reasoning above
-        (same for 2 - 4)
-        name_label : object
-            widget that will display current final, UID, etc.
-        img_slider : object
-            makes slider for toolbar to change image
-        img_spin : object
-            creates spinbox that will be used to display current frame and allow more controlled steps through frames
-        color : object
-            combobox that will control color maps available to the user for the 2D data
-        int_style : object
-            combobox that contains options for controlling the intensity of the image
-        int_min : object
-            spinbox that will control the minimum intensity value
-        int_max : object
-            spinbox that will control the maximum intensity value
-        tools_box : object
-            creates the toolbar that will hold all of the other widgets
-        rpp : None
-            allows instance of the ReducedRepPlot later in the code
-        one_dim_plot : None
-            allows instance of IntegratedPlot class later in code
-        water : None
-            allows instance of Waterfall2D class later in code
+    file_path : string
+        the directory that will contain the .tif and .chi files for viewing
+    key_list : list of strings
+        that are ordered according to time data was read in for data_dict
+    int_key_list : list of strings
+        that show when integrated data was read in
+    Tif : instance of the TifFileFinder class
+        that is used to search and read in tif files
+    Azi : instance of the Azimuthal class
+        this class is used to integrate the 2D data as it is read in
+    surface : Bool
+        this variable keeps track of whether the user wants a contour plot or a wire plot in the 3d frame
+    three_dim_drawn : Bool
+        this variable keeps track of whether or not the 3d plot has been drawn yet
+    data_dict : dictionary
+        stores all of the 2D image arrays as a dictionary
+    int_data_dict : dictionary
+        stores all of the integrated data's x and y lists in a dictionary
+    is_main_rpp_plotted : bool
+        this variable keeps track of whether or not the main reduced rep plot has been created
+    messenger : object
+        this is an instance of the 2D cross section messenger class
+    rpp_list : list of objects
+        this list contains references to all of the reduced representation plots for when they update
+    three_dim_list : list of objects
+        this list contains references to all of the three dimensional plots for when they update
+    plot_dock : object
+        this object creates the floating window to hold the reduced representation plot
+    img_dock : object
+        this object creates the floating window to hold the image along with the cross section windows
+    integration_dock : object
+        this object creates the floating window to hold the 1D integrated data
+    waterfall_dock : object
+        this object creates the floating window to hold the 3D image with all the data sets
+    fig1 : matplotlib figure
+        this allows us to change the kinds of plots shown on any of the four tiles
+    canvas1 : matplotlib canvas
+        see reasoning above
+    (same for 2 - 4)
+    name_label : object
+        widget that will display current final, UID, etc.
+    img_slider : object
+        makes slider for toolbar to change image
+    img_spin : object
+        creates spinbox that will be used to display current frame and allow more controlled steps through frames
+    color : object
+        combobox that will control color maps available to the user for the 2D data
+    int_style : object
+        combobox that contains options for controlling the intensity of the image
+    int_min : object
+        spinbox that will control the minimum intensity value
+    int_max : object
+        spinbox that will control the maximum intensity value
+    tools_box : object
+        creates the toolbar that will hold all of the other widgets
+    rpp : None
+        allows instance of the ReducedRepPlot later in the code
+    one_dim_plot : None
+        allows instance of IntegratedPlot class later in code
+    water : None
+        allows instance of Waterfall2D class later in code
     """
 
     def __init__(self):
@@ -181,7 +177,10 @@ class Display(QtGui.QMainWindow):
         self.messenger.sl_update_image(0)
         self.data_dict = self.messenger._view._data_dict
 
+        # These lists will contain references to the pop up plots so that they can be updated
         self.rpp_list = list()
+        self.three_dim_list = list()
+
         self.func_dict = {np.std.__name__: np.std, np.mean.__name__: np.mean, np.amin.__name__: np.amin,
                           np.amax.__name__: np.amax, np.sum.__name__: np.sum}
         self.setDockNestingEnabled(True)
@@ -204,7 +203,6 @@ class Display(QtGui.QMainWindow):
         self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
         self.waterfall_dock.setWindowTitle("Waterfall Plot")
 
-        self.int_data_dict = dict()
         self.is_main_rpp_plotted = False
 
         # This creates the canvases that all plots within the GUI will be drawn on
