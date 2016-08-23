@@ -26,6 +26,7 @@ from xpdView.plot_analysis import ReducedRepPlot
 from xpdView.one_dimensional_int import IntegrationPlot
 from xpdView.waterfall_maker import WaterFallMaker
 from xpdView.waterfall_2d import Waterfall2D
+from xpdView.peak_finding import PeakPlot
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
 import matplotlib.pyplot as plt
@@ -103,6 +104,8 @@ class Display(QtGui.QMainWindow):
         this list contains references to all of the reduced representation plots for when they update
     three_dim_list : list of objects
         this list contains references to all of the three dimensional plots for when they update
+    peak_plots : list of objects
+        this list contains references to all created peak plots (eventually all 1D reduced rep plots)
     plot_dock : object
         this object creates the floating window to hold the reduced representation plot
     img_dock : object
@@ -180,6 +183,7 @@ class Display(QtGui.QMainWindow):
         # These lists will contain references to the pop up plots so that they can be updated
         self.rpp_list = list()
         self.three_dim_list = list()
+        self.peak_plots = list()
 
         self.func_dict = {np.std.__name__: np.std, np.mean.__name__: np.mean, np.amin.__name__: np.amin,
                           np.amax.__name__: np.amax, np.sum.__name__: np.sum}
@@ -415,6 +419,59 @@ class Display(QtGui.QMainWindow):
                 thing[0].get_right_shape()
                 thing[0].get_wire_plot()
 
+    def peak_plot(self):
+        """
+        This method creates a plot that allows the user to see the x location of all major peaks found in the integrated
+        data
+
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
+        window = QtGui.QDialog(self)
+        window.setWindowTitle('Peak Locations')
+        window.setWindowModality(QtCore.Qt.NonModal)
+        fig = plt.figure()
+        canvas = FigureCanvas(fig)
+        toolbar = NavigationToolBar(canvas, self)
+        canvas.mpl_connect('button_press_event', self.click_handling)
+        peak_graph = PeakPlot(fig, canvas, self.int_data_dict, self.int_key_list)
+        self.peak_plots.append(peak_graph)
+
+        peak_graph.get_plot()
+
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(toolbar)
+        layout.addWidget(canvas)
+        window.setLayout(layout)
+        window.show()
+        window.exec_()
+
+    def update_peak_plots(self, new_keys, new_x, new_y):
+        """
+        This method will update any of the peak plots that were created
+        Parameters
+        ----------
+        new_keys : list of strings
+            list of strings that contain the identifiers for the plots they represent
+        new_x : list of 1d numpy arrays
+            new data to be searched through
+        new_y : list of 1d numpy arrays
+            new data to be search through
+
+        Returns
+        -------
+        None
+
+        """
+        for plot in self.peak_plots:
+            plot.update_the_plot(new_keys, new_x, new_y)
+
     def waterfall_2d(self):
         """
         This handles plotting the 2d waterfall
@@ -482,12 +539,17 @@ class Display(QtGui.QMainWindow):
         refresh_path.setShortcut('Ctrl+R')
         refresh_path.triggered.connect(self.refresh)
 
-        # This sets up the option that makes the popup window
+        # This sets up the option that makes the popup window for reduced rep plot settings
         plt_action = QtGui.QAction("&Plot", self)
         plt_action.setShortcut("Ctrl+P")
         plt_action.triggered.connect(self.set_graph_settings)
 
-        # This sets up the options that control the 3d Plot style
+        # This sets ups the option that makes the peak searching plot
+        peak_action = QtGui.QAction("&Find Peaks", self)
+        peak_action.setShortcut("Ctrl+F")
+        peak_action.triggered.connect(self.peak_plot)
+
+        # This sets up the options that control the waterfall 2d settings and 3d waterfall creation
         surface_action = QtGui.QAction("&Surface", self)
         surface_action.triggered.connect(lambda: self.waterfall_3d("surface"))
 
@@ -497,6 +559,7 @@ class Display(QtGui.QMainWindow):
         wire_action = QtGui.QAction("&Wire", self)
         wire_action.triggered.connect(lambda: self.waterfall_3d("wire"))
 
+        # This creates the window redocking option in the code
         reset_windows = QtGui.QAction('&Redock Windows', self)
         reset_windows.triggered.connect(self.reset_window_layout)
 
@@ -509,6 +572,7 @@ class Display(QtGui.QMainWindow):
         filemenu.addAction(setpath)
         filemenu.addAction(refresh_path)
         graph_menu.addAction(plt_action)
+        graph_menu.addAction(peak_action)
         waterfall_menu.addAction(surface_action)
         waterfall_menu.addAction(wire_action)
         waterfall_menu.addAction(twod_action)
@@ -851,6 +915,7 @@ class Display(QtGui.QMainWindow):
             self.update_int_data(int_new_files, int_data_x, int_data_y)
             self.update_data([], [])
             self.update_waterfall_3d()
+            self.update_peak_plots(int_new_files, int_data_x, int_data_y)
         elif len(new_file_names) != 0 and len(int_new_files) == 0:
             self.update_data(new_data, new_file_names)
             self.update_r_rep(new_data)
@@ -859,6 +924,7 @@ class Display(QtGui.QMainWindow):
             self.update_data(new_data, new_file_names)
             self.update_r_rep(new_data)
             self.update_waterfall_3d()
+            self.update_peak_plots(int_new_files, int_data_x, int_data_y)
 
     def update_data(self, data_list, file_list):
         """
