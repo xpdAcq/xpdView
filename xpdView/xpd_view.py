@@ -925,21 +925,6 @@ class Display(QtGui.QMainWindow):
         self.plot_dock.setFloating(False)
         self.waterfall_dock.setFloating(False)
 
-    def add_many_func(self, func_list):
-        """a setter for func_dict that takes in a list of functions
-
-        creates a dictionary for them
-        functions should have the arguments
-        arr for the 2d image array
-
-        Parameters
-        ----------
-        func_list : a list of functions that you want to replace the current dictionary functions
-        """
-        self.func_dict.clear()
-        for func in func_list:
-            self.func_dict[func.__name__] = func
-
     def add_func(self, func):
         """adds an arbitrary function to the function dictionary
 
@@ -950,7 +935,11 @@ class Display(QtGui.QMainWindow):
         func : function
             the function to be passed in
         """
-        self.func_dict[func.__name__] = func
+        if hasattr(func, '__iter__'):
+            for fun in func:
+                self.func_dict[fun.__name__] = fun
+        else:
+            self.func_dict[func.__name__] = func
 
     def remove_func(self, func_name):
             """This function will remove a function from the function dictionary
