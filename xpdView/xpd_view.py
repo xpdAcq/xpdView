@@ -380,6 +380,8 @@ class Display(QtGui.QMainWindow):
         toolbar = NavigationToolBar(canvas, self)
         water = WaterFallMaker(fig, canvas, self.int_data_dict, self.int_key_list)
         water.get_right_shape()
+        x = plot_type
+        self.three_dim_list.append([water, x])
 
         if plot_type is "surface":
             water.get_surface_plot()
@@ -392,6 +394,26 @@ class Display(QtGui.QMainWindow):
         window.setLayout(layout)
         window.show()
         window.exec_()
+
+    def update_waterfall_3d(self):
+        """
+        This method simply updates all of the 3d plots
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
+        for thing in self.three_dim_list:
+            if thing[1] == 'surface':
+                thing[0].get_right_shape()
+                thing[0].get_surface_plot()
+            else:
+                thing[0].get_right_shape()
+                thing[0].get_wire_plot()
 
     def waterfall_2d(self):
         """
@@ -828,6 +850,7 @@ class Display(QtGui.QMainWindow):
         elif len(new_file_names) == 0 and len(int_new_files) != 0:
             self.update_int_data(int_new_files, int_data_x, int_data_y)
             self.update_data([], [])
+            self.update_waterfall_3d()
         elif len(new_file_names) != 0 and len(int_new_files) == 0:
             self.update_data(new_data, new_file_names)
             self.update_r_rep(new_data)
@@ -835,6 +858,7 @@ class Display(QtGui.QMainWindow):
             self.update_int_data(int_new_files, int_data_x, int_data_y)
             self.update_data(new_data, new_file_names)
             self.update_r_rep(new_data)
+            self.update_waterfall_3d()
 
     def update_data(self, data_list, file_list):
         """
