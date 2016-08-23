@@ -1,3 +1,17 @@
+##############################################################################
+#
+# xpdView.peak_finding      SULI
+#                           (c) 2016 Brookhaven Science Associates,
+#                           Brookhaven National Laboratory.
+#                           All rights reserved.
+#
+# File coded by:            Caleb Duff
+#
+# See AUTHORS.txt for a list of people who contributed.
+# See LICENSE.txt for license information.
+#
+##############################################################################
+
 """
 This file will hold the code to create the PeakPlot class that will be used by the code to create plots with relation
 to the peaks. This class is modeled off of Chris Wright's peak searching code found here:
