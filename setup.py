@@ -1,14 +1,17 @@
 """
-use 'python setup.py install' while in file folder and anaconda is active to install this package
+use 'python setup.py install' while in file folder and anaconda is active to install this package, also user needs to
+have the xray_vision package found here:
+https://github.com/Nikea/xray-vision
 """
 
 from setuptools import setup, find_packages
 
 setup(
     name='xpd_view',
-    version='0.xp',
+    version='0.1',
     packages=find_packages(),
     description='Visualization Code for Beam line',
     zip_safe=False,
-    url='https://github.com/cduff4464/xpdView.git'
+    url='https://github.com/cduff4464/xpdView.git',
+    install_requires=[matplotlib, pyqt, numpy, scipy, pyFAI]
 )

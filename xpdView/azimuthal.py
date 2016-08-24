@@ -75,8 +75,8 @@ class Azimuthal(object):
 
         Parameters
         ----------
-        file_names
-        data_list
+        data_list : list of 2d arrays
+            this should be the data that needs to be processed
 
         Returns
         -------
