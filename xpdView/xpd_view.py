@@ -846,17 +846,100 @@ class Display(QtGui.QMainWindow):
 
     def change_frame(self, val):
         """
-
+        This method takes care of changing the int_plot along with the file name being displayed
         Parameters
         ----------
-        val
+        val : int
+            the value that comes in from the widget
 
         Returns
         -------
+        None
 
         """
         self.one_dim_plot.give_plot(self.key_list[val])
         self.name_label.setText(self.key_list[val])
+
+    def set_integration_parameters(self):
+        """
+        This method provides the user to check if the integration parameters to be used are correct
+        Parameters
+        ----------
+        self
+
+        Returns
+        -------
+        None
+
+        """
+        # This sets up the initial parameters for the popup window
+        popup = QtGui.QDialog(self)
+        popup.setWindowTitle('Integration Parameters')
+        wavelength = 0.184320
+        poni1 = .1006793
+        poni2 = .1000774
+        dist = 0.2418217
+        vbox = QtGui.QVBoxLayout()
+        popup.setLayout(vbox)
+
+        # This sets up  the line for setting the wavelength
+        hbox1 = QtGui.QHBoxLayout()
+        vbox.addLayout(hbox1)
+        wave_label = QtGui.QLabel()
+        wave_label.setText('Wavelength (in Angstroms): ')
+        wave_number = QtGui.QDoubleSpinBox()
+        wave_number.setDecimals(12)
+        wave_number.setValue(wavelength)
+        hbox1.addWidget(wave_label)
+        hbox1.addWidget(wave_number)
+
+        # This sets up the line for setting the poni1 values
+        hbox2 = QtGui.QHBoxLayout()
+        vbox.addLayout(hbox2)
+        poni1_label = QtGui.QLabel()
+        poni1_label.setText('Poni1: ')
+        poni1_number = QtGui.QDoubleSpinBox()
+        poni1_number.setDecimals(12)
+        poni1_number.setValue(poni1)
+        hbox2.addWidget(poni1_label)
+        hbox2.addWidget(poni1_number)
+
+        # This sets up the line for setting the poni2 values
+        hbox3 = QtGui.QHBoxLayout()
+        vbox.addLayout(hbox3)
+        poni2_label = QtGui.QLabel()
+        poni2_label.setText('Poni2: ')
+        poni2_number = QtGui.QDoubleSpinBox()
+        poni2_number.setDecimals(12)
+        poni2_number.setValue(poni2)
+        hbox3.addWidget(poni2_label)
+        hbox3.addWidget(poni2_number)
+
+        # This sets up the line for setting the distance value
+        hbox4 = QtGui.QHBoxLayout()
+        vbox.addLayout(hbox4)
+        dist_label = QtGui.QLabel()
+        dist_label.setText('Distance (m): ')
+        dist_number = QtGui.QDoubleSpinBox()
+        dist_number.setValue(dist)
+        dist_number.setDecimals(12)
+        hbox4.addWidget(dist_label)
+        hbox4.addWidget(dist_number)
+
+        # This sets up the button to accept the values and close the window
+        hbox5 = QtGui.QHBoxLayout()
+        vbox.addLayout(hbox5)
+        accept_btn = QtGui.QPushButton()
+        accept_btn.setText('Accept')
+        hbox5.addWidget(accept_btn)
+        accept_btn.clicked.connect(popup.close)
+        accept_btn.clicked.connect(lambda: self.Azi.set_integration_parameters(wl=wave_number.value(),
+                                                                               poni1=poni1_number.value(),
+                                                                               poni2=poni2_number.value(),
+                                                                               dist=dist_number.value()))
+
+        popup.show()
+        popup.exec_()
 
     def set_path(self):
         """
@@ -874,6 +957,7 @@ class Display(QtGui.QMainWindow):
         popup = QtGui.QFileDialog()
         self.file_path = str(popup.getExistingDirectory())
         self.Tif._directory_name = self.file_path
+        self.set_integration_parameters()
         self.Tif.get_file_list()
         self.Azi.get_right_names(self.Tif.file_list, self.Tif.pic_list)
 

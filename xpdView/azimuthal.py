@@ -44,6 +44,34 @@ class Azimuthal(object):
         self.x_lists = []
         self.y_lists = []
         self.file_names = []
+        self.wl = None
+        self.poni1 = None
+        self.poni2 = None
+        self.dist = None
+
+    def set_integration_parameters(self, wl=0.184320, poni1=.1006793, poni2=.1000774, dist=0.2418217):
+        """
+        This method sets the integration parameters
+        Parameters
+        ----------
+        wl : float
+            this should be the wavelength in angstroms provided by the user
+        poni1 : float
+            this value is required by the pyFAI integrator
+        poni2 : float
+            this value is required by the pyFAI integrator
+        dist : float
+            This is distance to the detector
+
+        Returns
+        -------
+        None
+
+        """
+        self.wl = wl * (10**-10)
+        self.poni1 = 2*poni1
+        self.poni2 = 2*poni2
+        self.dist = dist
 
     def get_right_names(self, file_names, data_list):
         """
@@ -83,15 +111,14 @@ class Azimuthal(object):
         None
 
         """
-        # Insert pyFAI calibration parameters, can be changed if better detector parameters found
+        if self.wl is None:
+            self.set_integration_parameters()
         det = pyFAI.detectors.Perkin()
-        wl = 0.184320e-10
         ni = pyFAI.calibrant.ALL_CALIBRANTS("Ni")
-        ni.set_wavelength(wl)
-        poni1 = .1006793 * 2
-        poni2 = .1000774 * 2
-        ai = pyFAI.AzimuthalIntegrator(dist=0.2418217, poni1=poni1, poni2=poni2, rot1=0, rot2=0, detector=det)
-        ai.set_wavelength(wl)
+        ni.set_wavelength(self.wl)
+        ai = pyFAI.AzimuthalIntegrator(dist=0.2418217, poni1=self.poni1,
+                                       poni2=self.poni2, rot1=0, rot2=0, detector=det)
+        ai.set_wavelength(self.wl)
 
         for data in data_list:
             x, y = ai.integrate1d(data, 1000, unit='q_A^-1')
