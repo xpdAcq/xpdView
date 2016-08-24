@@ -116,7 +116,7 @@ class Azimuthal(object):
         det = pyFAI.detectors.Perkin()
         ni = pyFAI.calibrant.ALL_CALIBRANTS("Ni")
         ni.set_wavelength(self.wl)
-        ai = pyFAI.AzimuthalIntegrator(dist=0.2418217, poni1=self.poni1,
+        ai = pyFAI.AzimuthalIntegrator(dist=self.dist, poni1=self.poni1,
                                        poni2=self.poni2, rot1=0, rot2=0, detector=det)
         ai.set_wavelength(self.wl)
 
