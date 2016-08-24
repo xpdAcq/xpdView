@@ -27,6 +27,24 @@ class Azimuthal(object):
 
     Attributes
     ----------
+    x_lists : list of 1d numpy arrays
+        list of x data for the integration patterns to be stored in
+    y_lists : list of 1d numpy arrays
+        see above, but for y data
+    file_names : list of strings
+        list of strings unique to each integration pattern
+    wl : float
+        wavelength in angstroms
+    poni1 : float
+        required by pyFAI something to do with beam placement
+    poni2 : float
+        same as above
+    dist : float
+        distance from sample to detector
+    rot1 : float
+        rotation of the detector, required by pyFAI
+    rot2 : float
+        rotation of the detector, required by pyFAI
     """
 
     def __init__(self):
@@ -48,8 +66,10 @@ class Azimuthal(object):
         self.poni1 = None
         self.poni2 = None
         self.dist = None
+        self.rot1 = None
+        self.rot2 = None
 
-    def set_integration_parameters(self, wl=0.184320, poni1=.1006793, poni2=.1000774, dist=0.2418217):
+    def set_integration_parameters(self, wl=0.184320, poni1=.1006793, poni2=.1000774, dist=0.2418217, rot1=0, rot2=0):
         """
         This method sets the integration parameters
         Parameters
@@ -62,6 +82,10 @@ class Azimuthal(object):
             this value is required by the pyFAI integrator
         dist : float
             This is distance to the detector
+        rot1 : float
+            This is the rotation one parameter
+        rot2 : float
+            This is the rotation two parameter
 
         Returns
         -------
@@ -72,6 +96,8 @@ class Azimuthal(object):
         self.poni1 = 2*poni1
         self.poni2 = 2*poni2
         self.dist = dist
+        self.rot1 = rot1
+        self.rot2 = rot2
 
     def get_right_names(self, file_names, data_list):
         """
@@ -117,7 +143,8 @@ class Azimuthal(object):
         ni = pyFAI.calibrant.ALL_CALIBRANTS("Ni")
         ni.set_wavelength(self.wl)
         ai = pyFAI.AzimuthalIntegrator(dist=self.dist, poni1=self.poni1,
-                                       poni2=self.poni2, rot1=0, rot2=0, detector=det)
+                                       poni2=self.poni2, rot1=self.rot1,
+                                       rot2=self.rot2, detector=det)
         ai.set_wavelength(self.wl)
 
         for data in data_list:

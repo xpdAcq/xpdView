@@ -62,10 +62,10 @@ def data_gen(length):
         for x in range(x_length):
             for y in range(y_length):
                 height = idx + 1
-                if x == int(x_length/2) and y == int(y_length/2):
+                if x == int(x_length / 2) and y == int(y_length / 2):
                     array_style[x][y] = 0
                 else:
-                    array_style[x][y] = height/np.sqrt((x-int(x_length/2))**2+(y-int(y_length/2))**2)
+                    array_style[x][y] = height / np.sqrt((x - int(x_length / 2)) ** 2 + (y - int(y_length / 2)) ** 2)
         data.append(array_style)
     return data, keys
 
@@ -623,7 +623,7 @@ class Display(QtGui.QMainWindow):
         self.water.generate_waterfall()
 
     def set_y_offset(self, value):
-        self.water.y_offset = (value/10.0)
+        self.water.y_offset = (value / 10.0)
         self.water.generate_waterfall()
 
     def set_analysis_type(self, i):
@@ -879,6 +879,8 @@ class Display(QtGui.QMainWindow):
         poni1 = .1006793
         poni2 = .1000774
         dist = 0.2418217
+        rot1 = 0
+        rot2 = 0
         vbox = QtGui.QVBoxLayout()
         popup.setLayout(vbox)
 
@@ -888,7 +890,7 @@ class Display(QtGui.QMainWindow):
         wave_label = QtGui.QLabel()
         wave_label.setText('Wavelength (in Angstroms): ')
         wave_number = QtGui.QDoubleSpinBox()
-        wave_number.setDecimals(12)
+        wave_number.setDecimals(8)
         wave_number.setValue(wavelength)
         hbox1.addWidget(wave_label)
         hbox1.addWidget(wave_number)
@@ -899,7 +901,7 @@ class Display(QtGui.QMainWindow):
         poni1_label = QtGui.QLabel()
         poni1_label.setText('Poni1: ')
         poni1_number = QtGui.QDoubleSpinBox()
-        poni1_number.setDecimals(12)
+        poni1_number.setDecimals(8)
         poni1_number.setValue(poni1)
         hbox2.addWidget(poni1_label)
         hbox2.addWidget(poni1_number)
@@ -910,7 +912,7 @@ class Display(QtGui.QMainWindow):
         poni2_label = QtGui.QLabel()
         poni2_label.setText('Poni2: ')
         poni2_number = QtGui.QDoubleSpinBox()
-        poni2_number.setDecimals(12)
+        poni2_number.setDecimals(8)
         poni2_number.setValue(poni2)
         hbox3.addWidget(poni2_label)
         hbox3.addWidget(poni2_number)
@@ -922,21 +924,45 @@ class Display(QtGui.QMainWindow):
         dist_label.setText('Distance (m): ')
         dist_number = QtGui.QDoubleSpinBox()
         dist_number.setValue(dist)
-        dist_number.setDecimals(12)
+        dist_number.setDecimals(8)
         hbox4.addWidget(dist_label)
         hbox4.addWidget(dist_number)
 
-        # This sets up the button to accept the values and close the window
+        # This sets up the line for setting the rot1 value
         hbox5 = QtGui.QHBoxLayout()
         vbox.addLayout(hbox5)
+        rot1_label = QtGui.QLabel()
+        rot1_label.setText('Rotation 1 (Radians): ')
+        rot1_number = QtGui.QDoubleSpinBox()
+        rot1_number.setValue(rot1)
+        rot1_number.setDecimals(8)
+        hbox5.addWidget(rot1_label)
+        hbox5.addWidget(rot1_number)
+
+        # This sets up the line for setting the rot2 value
+        hbox6 = QtGui.QHBoxLayout()
+        vbox.addLayout(hbox6)
+        rot2_label = QtGui.QLabel()
+        rot2_label.setText('Rotation 2 (Radians): ')
+        rot2_number = QtGui.QDoubleSpinBox()
+        rot2_number.setValue(rot2)
+        rot2_number.setDecimals(8)
+        hbox6.addWidget(rot2_label)
+        hbox6.addWidget(rot2_number)
+
+        # This sets up the button to accept the values and close the window
+        hbox6 = QtGui.QHBoxLayout()
+        vbox.addLayout(hbox6)
         accept_btn = QtGui.QPushButton()
         accept_btn.setText('Accept')
-        hbox5.addWidget(accept_btn)
+        hbox6.addWidget(accept_btn)
         accept_btn.clicked.connect(popup.close)
         accept_btn.clicked.connect(lambda: self.Azi.set_integration_parameters(wl=wave_number.value(),
                                                                                poni1=poni1_number.value(),
                                                                                poni2=poni2_number.value(),
-                                                                               dist=dist_number.value()))
+                                                                               dist=dist_number.value(),
+                                                                               rot1=rot1_number.value(),
+                                                                               rot2=rot2_number.value()))
 
         popup.show()
         popup.exec_()
@@ -1058,7 +1084,7 @@ class Display(QtGui.QMainWindow):
         for file in file_list:
             self.int_key_list.append(file)
         for i in range(old_length, len(self.int_key_list)):
-            self.int_data_dict[self.int_key_list[i]] = [data_x[i-old_length], data_y[i-old_length]]
+            self.int_data_dict[self.int_key_list[i]] = [data_x[i - old_length], data_y[i - old_length]]
         if len(self.int_key_list) != 0:
             self.water.normalize_data()
             self.water.generate_waterfall()
@@ -1114,7 +1140,7 @@ class Display(QtGui.QMainWindow):
             self.func_dict[func.__name__] = func
 
     def remove_func(self, func_name):
-            """This function will remove a function from the function dictionary
+        """This function will remove a function from the function dictionary
 
             To delete the name of the function must match the name of a function currently in the dictionary
 
@@ -1126,10 +1152,10 @@ class Display(QtGui.QMainWindow):
 
             """
 
-            try:
-                self.data_dict.__delitem__(func_name)
-            except KeyError:
-                print("There is no function matching " + func_name + " in the function dictionary")
+        try:
+            self.data_dict.__delitem__(func_name)
+        except KeyError:
+            print("There is no function matching " + func_name + " in the function dictionary")
 
 
 def main():
@@ -1145,6 +1171,7 @@ def main():
     viewer = Display()
     viewer.show()
     sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     main()
