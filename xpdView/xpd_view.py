@@ -523,7 +523,7 @@ class Display(QtGui.QMainWindow):
         normalize_option_label.setText("Normalize data:")
         normalize_option_box = QtGui.QCheckBox()
         # data is normalized by default
-        normalize_option_box.setChecked(True)
+        normalize_option_box.setChecked(self.water.is_normalized)
         normalize_option_box.stateChanged.connect(self.set_normalization)
         layout = QtGui.QHBoxLayout()
         for widget in [y_offset_label, y_offset_slider, x_offset_label, x_offset_slider, normalize_option_label, normalize_option_box]:

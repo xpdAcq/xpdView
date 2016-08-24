@@ -41,7 +41,7 @@ class Waterfall2D:
         self.x_offset = 0
         self.y_offset = 0
         self.normalized_data = dict()
-        self.is_normalized = True
+        self.is_normalized = False
 
     def generate_waterfall(self):
         """This method handles the plotting of the 2d waterfall
@@ -51,28 +51,18 @@ class Waterfall2D:
         None
         """
         self.ax.cla()
+        title = 'Data not normalized'
         if self.is_normalized:
-            print("normy")
-            for i in range(0, len(self.key_list)):
-                temp_x = self.normalized_data[self.key_list[i]][0].copy()
-                temp_y = self.normalized_data[self.key_list[i]][1].copy()
-                temp_x += self.x_offset * i
-                temp_y += self.y_offset * i
-                self.ax.plot(temp_x, temp_y)
-            self.ax.title("Data Normalized")
-            self.ax.autoscale()
-            self.canvas.draw()
+            data = self.normalized_data
+            title = 'Data Normalized'
         else:
-            print("4chan")
-            for i in range(0, len(self.key_list)):
-                temp_x = self.data_dict[self.key_list[i]][0].copy()
-                temp_y = self.data_dict[self.key_list[i]][1].copy()
-                temp_x += self.x_offset * i
-                temp_y += self.y_offset * i
-                self.ax.plot(temp_x, temp_y)
-            self.ax.title("Data not normalized")
-            self.ax.autoscale()
-            self.canvas.draw()
+            data = self.data_dict
+        list_data = (data[k] for k in self.key_list)  # you can do a list comp here too
+        for i, (x, y) in enumerate(list_data):
+            self.ax.plot(x + self.x_offset * i, y + self.y_offset * i)
+        self.ax.title(title)
+        self.ax.autoscale()
+        self.canvas.draw()
 
     def normalize_data(self):
         """This method normalizes data for plotting
