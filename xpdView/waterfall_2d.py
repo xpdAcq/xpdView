@@ -36,12 +36,12 @@ class Waterfall2D:
         self.data_dict = data_dict
         self.key_list = key_list
         self.fig = fig
+        self.normalized = False
         self.canvas = canvas
         self.ax = self.fig.add_subplot(111)
         self.x_offset = 0
         self.y_offset = 0
         self.normalized_data = dict()
-        self.is_normalized = False
 
     def generate_waterfall(self):
         """This method handles the plotting of the 2d waterfall
@@ -52,7 +52,7 @@ class Waterfall2D:
         """
         self.ax.cla()
         title = 'Data not normalized'
-        if self.is_normalized:
+        if self.normalized:
             data = self.normalized_data
             title = 'Data Normalized'
         else:
@@ -63,6 +63,12 @@ class Waterfall2D:
         self.ax.title(title)
         self.ax.autoscale()
         self.canvas.draw()
+
+    def is_normalized(self):
+        return self.normalized
+
+    def set_normalized(self, state):
+        self.normalized = state
 
     def normalize_data(self):
         """This method normalizes data for plotting
