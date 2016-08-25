@@ -538,7 +538,7 @@ class Display(QtGui.QMainWindow):
         if state == 2:
             self.water.set_normalized(True)
         else:
-            self.water.set_normalized(True)
+            self.water.set_normalized(False)
 
         self.water.generate_waterfall()
 
