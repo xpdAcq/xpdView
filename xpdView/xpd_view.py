@@ -1032,9 +1032,9 @@ class Display(QtGui.QMainWindow):
         else:
             self.update_int_data(int_new_files, int_data_x, int_data_y)
             self.update_data(new_data, new_file_names)
-            self.update_r_rep(new_data)
             self.update_waterfall_3d()
             self.update_peak_plots(int_new_files, int_data_x, int_data_y)
+            self.update_r_rep(new_data)
 
     def update_data(self, data_list, file_list):
         """
