@@ -603,20 +603,28 @@ class Display(QtGui.QMainWindow):
         x_offset_slider.setMinimum(0)
         x_offset_slider.setMaximum(20)
         x_offset_slider.valueChanged.connect(self.set_x_offset)
-
+        normalize_option_label = QtGui.QLabel()
+        normalize_option_label.setText("Normalize data:")
+        normalize_option_box = QtGui.QCheckBox()
+        # data is normalized by default
+        normalize_option_box.setChecked(self.water.is_normalized())
+        normalize_option_box.stateChanged.connect(self.set_normalization)
         layout = QtGui.QHBoxLayout()
-        layout.addStretch()
-        layout.addWidget(y_offset_label)
-        layout.addStretch()
-        layout.addWidget(y_offset_slider)
-        layout.addStretch()
-        layout.addWidget(x_offset_label)
-        layout.addStretch()
-        layout.addWidget(x_offset_slider)
+        for widget in [y_offset_label, y_offset_slider, x_offset_label, x_offset_slider, normalize_option_label, normalize_option_box]:
+            layout.addStretch()
+            layout.addWidget(widget)
 
         settings_window.setLayout(layout)
         settings_window.show()
         settings_window.exec_()
+
+    def set_normalization(self, state):
+        if state == 2:
+            self.water.set_normalized(True)
+        else:
+            self.water.set_normalized(False)
+
+        self.water.generate_waterfall()
 
     def set_x_offset(self, value):
         self.water.x_offset = value
