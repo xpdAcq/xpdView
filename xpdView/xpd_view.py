@@ -225,10 +225,10 @@ class Display(QtGui.QMainWindow):
         self.int_max = self.ctrls._spin_max
 
         # These statements add the dock widgets to the GUI
-        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.img_dock)
-        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.plot_dock)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.integration_dock)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.waterfall_dock)
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.img_dock)
+        #self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.plot_dock)
+        #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.integration_dock)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.waterfall_dock)
 
         # These methods will set up the menu bars and the tool bars
         self.tools_box = QtGui.QToolBar()
@@ -242,8 +242,9 @@ class Display(QtGui.QMainWindow):
         self.one_dim_plot = None
         self.water = None
         self.r_rep_widget()
-        self.one_dim_integrate()
+        #self.one_dim_integrate()
         self.waterfall_2d()
+
 
     def r_rep_widget(self):
         """
