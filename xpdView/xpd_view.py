@@ -192,11 +192,13 @@ class Display(QtGui.QMainWindow):
 
         # setting up dockable windows
         self.plot_dock = QtGui.QDockWidget("Dockable", self)
-        self.plot_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.plot_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable |
+                                   QtGui.QDockWidget.DockWidgetMovable)
         self.plot_dock.setWindowTitle("Reduced Representation")
 
         self.img_dock = QtGui.QDockWidget("Dockable", self)
-        self.img_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.img_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable |
+                                  QtGui.QDockWidget.DockWidgetMovable)
         self.img_dock.setWindowTitle("Image")
 
         self.integration_dock = QtGui.QDockWidget("Dockable", self)
@@ -204,7 +206,8 @@ class Display(QtGui.QMainWindow):
         self.integration_dock.setWindowTitle("Integration")
 
         self.waterfall_dock = QtGui.QDockWidget("Dockable", self)
-        self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable|
+                                        QtGui.QDockWidget.DockWidgetMovable)
         self.waterfall_dock.setWindowTitle("Waterfall Plot")
 
         self.is_main_rpp_plotted = False
@@ -226,9 +229,12 @@ class Display(QtGui.QMainWindow):
 
         # These statements add the dock widgets to the GUI
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.img_dock)
-        #self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.plot_dock)
-        #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.integration_dock)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.waterfall_dock)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.plot_dock)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea,
+                           self.waterfall_dock)
+        #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea,
+        #                   self.integration_dock)
+
 
         # These methods will set up the menu bars and the tool bars
         self.tools_box = QtGui.QToolBar()
@@ -242,7 +248,7 @@ class Display(QtGui.QMainWindow):
         self.one_dim_plot = None
         self.water = None
         self.r_rep_widget()
-        #self.one_dim_integrate()
+        self.one_dim_integrate()
         self.waterfall_2d()
 
 
@@ -487,9 +493,11 @@ class Display(QtGui.QMainWindow):
         """
         fig = plt.figure()
         canvas = FigureCanvas(fig)
-        self.water = Waterfall2D(self.int_key_list, self.int_data_dict, fig, canvas)
+        self.water = Waterfall2D(self.int_key_list,
+                                 self.int_data_dict, fig, canvas)
+        toolbar = self.twod_plot_settings()
         self.water.y_offset = .5
-        toolbar = NavigationToolBar(canvas, self)
+        #toolbar = NavigationToolBar(canvas, self)
         self.water.generate_waterfall()
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
@@ -611,13 +619,17 @@ class Display(QtGui.QMainWindow):
         normalize_option_box.setChecked(self.water.is_normalized())
         normalize_option_box.stateChanged.connect(self.set_normalization)
         layout = QtGui.QHBoxLayout()
-        for widget in [y_offset_label, y_offset_slider, x_offset_label, x_offset_slider, normalize_option_label, normalize_option_box]:
+        for widget in [y_offset_label, y_offset_slider,
+                       x_offset_label, x_offset_slider,
+                       normalize_option_label, normalize_option_box]:
             layout.addStretch()
             layout.addWidget(widget)
 
         settings_window.setLayout(layout)
-        settings_window.show()
-        settings_window.exec_()
+        #settings_window.show()
+        #settings_window.exec_()
+
+        return settings_window
 
     def set_normalization(self, state):
         if state == 2:
