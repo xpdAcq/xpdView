@@ -16,7 +16,7 @@
 This file will handle all of the one dimensional plotting of the lower left tile in the
 Display Window
 """
-
+import warnings
 import matplotlib.pyplot as plt
 
 
@@ -37,14 +37,15 @@ class IntegrationPlot(object):
         a subplot on the figure
     """
 
-    def __init__(self, dictionary, fig, canvas):
+    def __init__(self, data_dict, fig, canvas):
         """
         This initializes the IntegrationPlot class
 
         Parameters
         ----------
-        dictionary: dictionary
-            contains pairs of lists [[list_x], [list_y]] from the 1D integrated data
+        data_dict: dict
+            contains pairs of lists [[list_x], [list_y]]
+            from the 1D integrated data
         fig: object
             matplotlib figure to be operated on
         canvas: object
@@ -54,7 +55,7 @@ class IntegrationPlot(object):
         -------
         None
         """
-        self.int_data_dict = dictionary
+        self.int_data_dict = data_dict
         self.fig = fig
         self.canvas = canvas
         self.ax = self.fig.add_subplot(111)
@@ -86,12 +87,8 @@ class IntegrationPlot(object):
             self.ax.hold(False)
             self.ax.autoscale()
             self.canvas.draw()
-        except KeyError:
-            self.ax.plot([], [])
-            self.ax.hold(False)
-            self.ax.autoscale()
-            self.canvas.draw()
-        except IndexError:
+        except (KeyError, IndexError):
+            warnings.warn("invalid data array", UserWarning)
             self.ax.plot([], [])
             self.ax.hold(False)
             self.ax.autoscale()
