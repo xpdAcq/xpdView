@@ -36,7 +36,7 @@ class Waterfall2D:
         self.data_dict = data_dict
         self.key_list = key_list
         self.fig = fig
-        self.normalized = False
+        self.normalized = True
         self.canvas = canvas
         self.ax = self.fig.add_subplot(111)
         self.x_offset = 0
