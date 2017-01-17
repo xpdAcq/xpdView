@@ -157,14 +157,15 @@ class Display(QtGui.QMainWindow):
         allows instance of Waterfall2D class later in code
     """
 
-    def __init__(self):
+    def __init__(self, is_callback=False):
         """
         This class creates the display window that is used by
         users to analyze their data
 
         Parameters
         ----------
-        self
+        is_callback : bool, optional
+            option to set if running with callback
 
         Returns
         -------
@@ -175,6 +176,7 @@ class Display(QtGui.QMainWindow):
         self.setWindowTitle('XPD View')
         self.analysis_type = None
         self.file_path = None
+        self.is_callback = is_callback
         data_list, self.key_list = data_gen(1)
         self.int_key_list = []
         self.Tif = TifFileFinder()
@@ -598,7 +600,8 @@ class Display(QtGui.QMainWindow):
         window_menu = mainmenu.addMenu("&Window")
         #graph_menu = mainmenu.addMenu('&Reduced Representation')
         #waterfall_menu = mainmenu.addMenu('&Waterfall Plots')
-        filemenu.addAction(setpath)
+        if self.is_callback:  # no set_path for callback
+            filemenu.addAction(setpath)
         filemenu.addAction(refresh_path)
         #graph_menu.addAction(plt_action)
         #graph_menu.addAction(peak_action)
@@ -1047,8 +1050,9 @@ class Display(QtGui.QMainWindow):
 
     def refresh(self):
         """
-        This method checks for new data using the methods available to ChiFileFinder and TifFileFinder Classes and
-        handles the new data to ensure that nothing breaks
+        This method checks for new data using the methods available
+        to ChiFileFinder and TifFileFinder Classes and handles
+        the new data to ensure that nothing breaks
 
         Parameters
         ----------
@@ -1059,6 +1063,7 @@ class Display(QtGui.QMainWindow):
         None
 
         """
+        # using refresh method from Tif and Azi container class
         new_file_names, new_data = self.Tif.get_new_files()
         int_new_files, int_data_x, int_data_y = self.Azi.refresh_time(new_file_names, new_data)
         if len(new_file_names) == 0 and len(int_new_files) == 0:
@@ -1084,7 +1089,6 @@ class Display(QtGui.QMainWindow):
 
         Parameters
         ----------
-        self
         data_list : list of 2D arrays
             data that is to be put into the dictionary
         file_list : list of stings

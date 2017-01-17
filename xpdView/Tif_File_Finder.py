@@ -20,6 +20,7 @@ all dark tifs and raw tifs are ignored as they are being read in.
 """
 
 from tifffile import imread
+from collections import OrderedDict
 import os
 
 
@@ -39,10 +40,14 @@ class TifFileFinder(object):
         list of all data read in from the tif files
     """
 
-    def __init__(self):
+    def __init__(self, is_callback=False):
         """
         This initializes the TifFileFinder class
 
+        Parameters
+        ----------
+        is_callback : bool, optional
+            option to run in callback mode
         Returns
         -------
         None
@@ -51,6 +56,8 @@ class TifFileFinder(object):
         self.dir_fil = []
         self.file_list = []
         self.pic_list = []
+        self.array_dict = OrderedDict()
+        self.is_callback = is_callback
 
     def get_file_list(self):
         """
@@ -94,34 +101,41 @@ class TifFileFinder(object):
         for i in self.file_list:
             self.pic_list.append(imread(self._directory_name + i))
 
-    def get_new_files(self):
+    def get_new_files(self, array_dict=None):
         """
         This method finds new tif files in the directory for the user
 
         Parameters
         ----------
-        self
+        array_dict : dict, optional
+            a dict holds name of image as a key and image as the value
+            it is only used for callback
 
         Returns
         -------
         all returns from the get_new_images method
 
         """
-        self.dir_fil = os.listdir(self._directory_name)
-        self.dir_fil.sort(key=lambda x: os.path.getmtime(self._directory_name + x))
-        new_file_list = [file for file in self.dir_fil if file.endswith('.tif') and not (file.endswith('.dark.tif') or
-                                                                                         file.endswith('.raw.tif'))]
-        need_read_files = []
-        for i in new_file_list:
-            add = True
-            for j in self.file_list:
-                if i == j:
-                    add = False
-                    break
-            if add:
-                self.file_list.append(i)
-                need_read_files.append(i)
-        return self.get_new_images(need_read_files)
+        if self.is_callback:
+            # method tailored to callback, holds name and array
+            self.array_dict.update(array_dict)
+            return list(array_dict.keys(), array_dict.values())
+        else:
+            self.dir_fil = os.listdir(self._directory_name)
+            self.dir_fil.sort(key=lambda x: os.path.getmtime(self._directory_name + x))
+            new_file_list = [file for file in self.dir_fil if file.endswith('.tif') and not (file.endswith('.dark.tif') or
+                                                                                             file.endswith('.raw.tif'))]
+            need_read_files = []
+            for i in new_file_list:
+                add = True
+                for j in self.file_list:
+                    if i == j:
+                        add = False
+                        break
+                if add:
+                    self.file_list.append(i)
+                    need_read_files.append(i)
+            return self.get_new_images(need_read_files)
 
     def get_new_images(self, temp_file_list):
         """

@@ -76,14 +76,17 @@ class IntegrationPlot(object):
         None
 
         """
+        # for filebased solution
         if key[-4:] == '.tif':
             use_key = key[:-4] + '.chi'
         else:
             use_key = key
 
         try:
+            # grab corresponding data based on key
             data = self.int_data_dict[use_key]
-            self.ax.plot(data[0], data[1])
+            x,y = data
+            self.ax.plot(x, y)
             self.ax.hold(False)
             self.ax.autoscale()
             self.canvas.draw()
