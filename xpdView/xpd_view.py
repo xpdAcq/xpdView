@@ -157,7 +157,7 @@ class Display(QtGui.QMainWindow):
         allows instance of Waterfall2D class later in code
     """
 
-    def __init__(self, is_callback=False):
+    def __init__(self, is_callback=True):
         """
         This class creates the display window that is used by
         users to analyze their data
@@ -598,7 +598,7 @@ class Display(QtGui.QMainWindow):
         mainmenu = self.menuBar()
         filemenu = mainmenu.addMenu("&File")
         window_menu = mainmenu.addMenu("&Window")
-        #graph_menu = mainmenu.addMenu('&Reduced Representation')
+        graph_menu = mainmenu.addMenu('&Reduced Representation')
         #waterfall_menu = mainmenu.addMenu('&Waterfall Plots')
         if self.is_callback:  # no set_path for callback
             filemenu.addAction(setpath)
@@ -1103,6 +1103,7 @@ class Display(QtGui.QMainWindow):
         for file in file_list:
             self.key_list.append(file)
         for i in range(old_length, len(self.key_list)):
+            print("UPDATE DATA DICT")
             self.data_dict[self.key_list[i]] = data_list[i - old_length]
         self.img_slider.setMaximum(len(self.key_list) - 1)
         self.img_spin.setMaximum(len(self.key_list) - 1)

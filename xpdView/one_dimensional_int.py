@@ -88,6 +88,7 @@ class IntegrationPlot(object):
             x,y = data
             self.ax.plot(x, y)
             self.ax.hold(False)
+            self.ax.legend([use_key])
             self.ax.autoscale()
             self.canvas.draw()
         except (KeyError, IndexError):

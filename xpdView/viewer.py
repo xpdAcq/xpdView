@@ -91,7 +91,7 @@ class Display(QtGui.QMainWindow):
         self.img_data_dict = dict()
         # dict to store int array: {<name> : (x, y)}
         self.int_data_dict = dict()
-        # key and data list required by x-ray vision
+        # key and data lists are required by x-ray vision
         # ref:
         ###################################
         # data_list : list
@@ -99,9 +99,7 @@ class Display(QtGui.QMainWindow):
         # key_list : list
         #    The order of keys to plot
         #################################
-        self.img_key_list = list(self.img_data_dict.keys())
-        self.img_data_list = list(self.img_data_dict.values())
-        self.img_data_list, self.img_key_list = data_gen(1)
+        self.img_data_list, self.img_key_list = data_gen(1)  # dummy val for init CrossSection2D
 
         self.int_key_list = list(self.int_data_dict.keys())
         self.int_data_list = list(self.int_data_dict.values())
@@ -117,8 +115,7 @@ class Display(QtGui.QMainWindow):
         self.ctrls = self.messenger._ctrl_widget
         self.ctrls.set_image_intensity_behavior('full range')
         self.messenger.sl_update_image(0)
-        # set img_data_dict to CrossSection2DMessenger, so that can be remembered
-        #self.data_dict = self.messenger._view._data_dict
+        # link img_data_dict to CrossSection2DMessenger, so that it can be remembered
         self.img_data_dict = self.messenger._view._data_dict
 
         # These lists will contain references to the pop up plots so that they can be updated
@@ -131,7 +128,7 @@ class Display(QtGui.QMainWindow):
 
         # setting up dockable windows
         self.setDockNestingEnabled(True)
-        self.setAnimated(True)
+        self.setAnimated(False)
 
         #self.plot_dock = QtGui.QDockWidget("Dockable", self)
         #self.plot_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
@@ -163,6 +160,7 @@ class Display(QtGui.QMainWindow):
         self.img_spin = self.ctrls._spin_img
         self.color = self.ctrls._cm_cb
         self.int_style = self.ctrls._cmbbox_intensity_behavior
+        self.int_norm = self.ctrls._cmbbox_norm
         self.int_min = self.ctrls._spin_min
         self.int_max = self.ctrls._spin_max
 
@@ -188,8 +186,9 @@ class Display(QtGui.QMainWindow):
         self.rpp = None
         self.one_dim_plot = None
         self.water = None
-        # methods to call underlying class and generate plot docks
+        # this method always creates new instance of 1DPlot
         self.one_dim_integrate()
+        # this method always creates new instance of WaterFall2D
         self.waterfall_2d()
 
     ############ method to update data contents ################
@@ -203,26 +202,21 @@ class Display(QtGui.QMainWindow):
             Expect format: {<name> : array}
         """
         # update class dict
-        self.img_data_dict.update(img_data_dict)
+        self.img_data_dict = img_data_dict
         self.img_key_list = list(self.img_data_dict.keys())
         self.img_data_list = list(self.img_data_dict.values())
-        # update plotting object
-        self.updata_img_plot_dock()
+        self.update_img_plot_dock()
 
     def update_img_plot_dock(self):
         """updates the viewer"""
 
-        ## overly-filebase code
-        #old_length = len(self.key_list)
-        #for file in file_list:
-        #    self.key_list.append(file)
-        # update dict linked to x-ray vision
-        #for i in range(old_length, len(self.key_list)):
-        #    self.data_dict[self.key_list[i]] = data_list[i - old_length]
-
-        # configure img slider
-        self.img_slider.setMaximum(len(self.key_list) - 1)
-        self.img_spin.setMaximum(len(self.key_list) - 1)
+        # configure CrossSectionViewer
+        #FIXME use public api to update data
+        self.messenger._view._data_dict = self.img_data_dict
+        self.messenger._view._key_list = self.img_key_list
+        self.img_slider.setMaximum(len(self.img_key_list) - 1)  # python starts from 0
+        self.img_spin.setMaximum(len(self.img_key_list) - 1)
+        self.messenger._view.replot()
 
     def update_int_data_dict(self, int_data_dict):
         """method to update int_data_dict (which is 1D)
@@ -237,21 +231,19 @@ class Display(QtGui.QMainWindow):
         self.int_key_list = list(self.int_data_dict.keys())
         self.int_data_list = list(self.int_data_dict.values())
 
-        # update all 1D related plot
+        # update all 1D related plots
         self.update_waterfall_dock()
 
     def update_waterfall_dock(self):
         """method to update the integrate data related docks"""
-        ## overly-filebase code
-        #old_length = len(self.int_key_list)
-        #for f in file_list:
-        #    self.int_key_list.append(f)
-        #for i in range(old_length, len(self.int_key_list)):
-        #    self.int_data_dict[self.int_key_list[i]] = [data_x[i - old_length], data_y[i - old_length]]
 
-        if len(self.int_key_list) != 0:
-            self.water.normalize_data()
-            self.water.generate_waterfall()
+        # update waterfall class
+        self.waterfall_2d()
+        # update 1-D plot class
+        self.one_dim_integrate()
+        # self.water is configured by self.waterfall2d.....
+        self.water.normalize_data()
+        self.water.generate_waterfall()
 
     def change_frame(self, ind):
         """method to change 1D plot canvas
@@ -265,8 +257,8 @@ class Display(QtGui.QMainWindow):
         None
 
         """
-        self.one_dim_plot.give_plot(self.key_list[ind])
-        self.name_label.setText(self.key_list[ind])
+        self.one_dim_plot.give_plot(self.img_key_list[ind])
+        self.name_label.setText(self.img_key_list[ind])
 
 
     def refresh(self, img_data_dict, int_data_dict):
@@ -325,8 +317,13 @@ class Display(QtGui.QMainWindow):
         self.water.generate_waterfall()  # draws 1D curves onto plot canvas
         # configure gui layout
         toolbar = self.twod_plot_settings()
+        mpl_toolbar = NavigationToolBar(canvas, self)
         layout = QtGui.QVBoxLayout()
-        layout.addWidget(toolbar)
+        grid = QtGui.QGridLayout()
+        grid.addWidget(mpl_toolbar, 0, 0)
+        grid.addWidget(toolbar, 1, 0)
+        layout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        layout.addLayout(grid)
         layout.addWidget(canvas)
         multi = QtGui.QWidget()
         multi.setLayout(layout)
@@ -374,7 +371,7 @@ class Display(QtGui.QMainWindow):
         # sets up menu refresh option
         refresh_path = QtGui.QAction('&Refresh', self)
         refresh_path.setShortcut('Ctrl+R')
-        refresh_path.triggered.connect(self.refresh)
+        #refresh_path.triggered.connect(self.refresh)
 
         # This sets up the option that makes the popup window for reduced rep plot settings
         plt_action = QtGui.QAction("&Plot", self)
@@ -391,7 +388,7 @@ class Display(QtGui.QMainWindow):
         #surface_action.triggered.connect(lambda: self.waterfall_3d("surface"))
 
         twod_action = QtGui.QAction("&Show 2D Waterfall Toolbar", self)
-        twod_action.triggered.connect(self.twod_plot_settings)
+        #twod_action.triggered.connect(self.twod_plot_settings)
 
         wire_action = QtGui.QAction("&Wire", self)
         #wire_action.triggered.connect(lambda: self.waterfall_3d("wire"))
@@ -402,12 +399,12 @@ class Display(QtGui.QMainWindow):
 
         # This sets up all of the menu widgets that are used in the GUI
         mainmenu = self.menuBar()
-        filemenu = mainmenu.addMenu("&File")
+        #filemenu = mainmenu.addMenu("&File")
         window_menu = mainmenu.addMenu("&Window")
         #graph_menu = mainmenu.addMenu('&Reduced Representation')
         #waterfall_menu = mainmenu.addMenu('&Waterfall Plots')
-        filemenu.addAction(setpath)
-        filemenu.addAction(refresh_path)
+        #filemenu.addAction(setpath)
+        #filemenu.addAction(refresh_path)
         #graph_menu.addAction(plt_action)
         #graph_menu.addAction(peak_action)
         #waterfall_menu.addAction(surface_action)
@@ -673,6 +670,7 @@ class Display(QtGui.QMainWindow):
         self.tools_box.addWidget(self.color)
         min_label = QtGui.QLabel()
         self.tools_box.addWidget(self.int_style)
+        self.tools_box.addWidget(self.int_norm)
         min_label.setText('Int Min')
         self.tools_box.addWidget(min_label)
         self.tools_box.addWidget(self.int_min)

@@ -60,7 +60,8 @@ class Waterfall2D:
         list_data = (data[k] for k in self.key_list)  # you can do a list comp here too
         for i, (x, y) in enumerate(list_data):
             self.ax.plot(x + self.x_offset * i, y + self.y_offset * i)
-        self.ax.set_title(title)
+        #self.ax.set_title(title)
+        self.ax.legend(self.key_list)
         self.ax.autoscale()
         self.canvas.draw()
 
