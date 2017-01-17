@@ -25,9 +25,9 @@ class Waterfall2D:
         Parameters
         ----------
         key_list : list
-            the ordered list that contains the keys for the integrated data
+            list contains the keys for the integrated data
         data_dict : dict
-            the dictionary that contains the data for plotting
+            dict contains the data for plotting
         fig : matplotlib figure
             the figure object for the plot
         canvas : qt canvas
@@ -53,6 +53,7 @@ class Waterfall2D:
         self.ax.cla()
         title = 'Data not normalized'
         if self.normalized:
+            self.normalize_data()
             data = self.normalized_data
             title = 'Data Normalized'
         else:
