@@ -85,10 +85,11 @@ class IntegrationPlot(object):
         try:
             # grab corresponding data based on key
             data = self.int_data_dict[use_key]
-            x,y = data
+            x = data[:, 0]
+            y = data[:, 1]
             self.ax.plot(x, y)
-            self.ax.hold(False)
-            self.ax.legend([use_key])
+            #self.ax.hold(False)
+            self.ax.legend([use_key[:10]])
             self.ax.autoscale()
             self.canvas.draw()
         except (KeyError, IndexError):

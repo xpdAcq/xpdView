@@ -242,8 +242,6 @@ class Display(QtGui.QMainWindow):
         # update 1-D plot class
         self.one_dim_integrate()
         # self.water is configured by self.waterfall2d.....
-        self.water.normalize_data()
-        self.water.generate_waterfall()
 
     def change_frame(self, ind):
         """method to change 1D plot canvas
@@ -257,8 +255,8 @@ class Display(QtGui.QMainWindow):
         None
 
         """
-        self.one_dim_plot.give_plot(self.img_key_list[ind])
-        self.name_label.setText(self.img_key_list[ind])
+        self.one_dim_plot.give_plot(self.int_key_list[ind])
+        self.name_label.setText(self.int_key_list[ind])
 
 
     def refresh(self, img_data_dict, int_data_dict):
@@ -680,7 +678,7 @@ class Display(QtGui.QMainWindow):
         self.tools_box.addWidget(self.int_max)
 
         # This makes the Label that is used to display the current key name
-        self.name_label.setText('Current File: ' + self.img_key_list[0])
+        self.name_label.setText(self.img_key_list[0])
         self.tools_box.addWidget(self.name_label)
 
         # This makes sure that the display is updated when the image is changed
