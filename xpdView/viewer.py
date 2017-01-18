@@ -216,7 +216,8 @@ class Display(QtGui.QMainWindow):
         self.messenger._view._key_list = self.img_key_list
         self.img_slider.setMaximum(len(self.img_key_list) - 1)  # python starts from 0
         self.img_spin.setMaximum(len(self.img_key_list) - 1)
-        self.messenger._view.replot()
+        self.messenger.sl_update_image(0)
+
 
     def update_int_data_dict(self, int_data_dict):
         """method to update int_data_dict (which is 1D)

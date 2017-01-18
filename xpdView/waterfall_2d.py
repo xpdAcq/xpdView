@@ -58,8 +58,7 @@ class Waterfall2D:
             data = self.data_dict
         list_data = list(data.values())  # you can do a list comp here too
         for i, meta in enumerate(list_data):
-            x = meta[:, 0]
-            y = meta[:, 1]
+            x,y = meta
             self.ax.plot(x + self.x_offset * i, y + self.y_offset * i)
         #self.ax.set_title(title)
         short_key_list = list(map(lambda x: x[:10], self.key_list))
@@ -80,11 +79,10 @@ class Waterfall2D:
         # copy dict
         self.normalized_data = dict(self.data_dict)
         # find the finest grid
-        grid_list= [el[:, 0] for el in self.data_dict.values()]
+        grid_list= [x for x, y in self.data_dict.values()]
         grid = sorted(grid_list, key=lambda x: x.shape).pop()  # finest grid
         for k, val in self.data_dict.items():
-            x = val[:, 0]
-            y = val[:, 1]
+            x,y = val
             #_y = np.interp(grid, x, y)  # don't interp, blow if necessary
             _y = (y-np.min(y))/(np.max(y)-np.min(y))
-            self.normalized_data[k] = np.vstack((x, _y)).T
+            self.normalized_data[k] = (x, _y)

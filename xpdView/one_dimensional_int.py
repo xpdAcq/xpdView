@@ -85,8 +85,7 @@ class IntegrationPlot(object):
         try:
             # grab corresponding data based on key
             data = self.int_data_dict[use_key]
-            x = data[:, 0]
-            y = data[:, 1]
+            x,y = data
             self.ax.plot(x, y)
             #self.ax.hold(False)
             self.ax.legend([use_key[:10]])
