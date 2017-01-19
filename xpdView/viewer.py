@@ -90,9 +90,9 @@ class Display(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.setWindowTitle('XPD View')
         # dict to store img arrays: {<name> : array}
-        self.img_data_dict = dict()
+        self.img_data_dict = OrderedDict()
         # dict to store int array: {<name> : (x, y)}
-        self.int_data_dict = dict()
+        self.int_data_dict = OrderedDict()
         # key and data lists are required by x-ray vision
         # ref:
         ###################################
@@ -200,7 +200,7 @@ class Display(QtGui.QMainWindow):
             Expect format: {<name> : array}
         """
         # update class dict
-        self.img_data_dict = img_data_dict
+        self.img_data_dict.update(img_data_dict)
         self.img_key_list = list(self.img_data_dict.keys())
         self.img_data_list = list(self.img_data_dict.values())
         self.update_img_plot_dock()
@@ -226,7 +226,7 @@ class Display(QtGui.QMainWindow):
             a dict stores integrated data
             Expected format : {<name> : (x, y)}
         """
-        self.int_data_dict = int_data_dict
+        self.int_data_dict.update(int_data_dict)
         self.int_key_list = list(self.int_data_dict.keys())
         self.int_data_list = list(self.int_data_dict.values())
 
