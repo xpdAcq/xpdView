@@ -58,6 +58,8 @@ class IntegrationPlot(object):
         self.int_data_dict = data_dict
         self.fig = fig
         self.canvas = canvas
+        # clean
+        self.fig.clf()
         self.ax = self.fig.add_subplot(111)
         self.ax.set_xlabel('q_A^-1')
         self.ax.set_ylabel('Total Integrated Intensity')

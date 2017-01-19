@@ -117,8 +117,6 @@ class Display(QtGui.QMainWindow):
         self.ctrls = self.messenger._ctrl_widget
         self.ctrls.set_image_intensity_behavior('full range')
         self.messenger.sl_update_image(0)
-        # link img_data_dict to CrossSection2DMessenger, so that it can be remembered
-        self.img_data_dict = self.messenger._view._data_dict
 
         # These lists will contain references to the pop up plots so that they can be updated
         #self.rpp_list = list()
@@ -258,10 +256,13 @@ class Display(QtGui.QMainWindow):
         self.name_label.setText(self.int_key_list[ind])
 
 
-    def refresh(self, img_data_dict, int_data_dict):
+    def refresh(self, img_data_dict=None, int_data_dict=None):
         """top-level method to refresh data contents and gui"""
-        self.update_img_data_dict(img_data_dict)
-        self.update_int_data_dict(int_data_dict)
+        if img_data_dict:
+            self.update_img_data_dict(img_data_dict)
+        if int_data_dict:
+            self.update_int_data_dict(int_data_dict)
+        # FIXME - better to require int_data_dict and img_data_dict the same length
     ################################################################
 
     ########## method to take care of plotting docks ###############
