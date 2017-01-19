@@ -22,6 +22,8 @@ import numpy as np
 from PyQt4 import QtGui, QtCore
 from collections import OrderedDict
 
+import matplotlib
+matplotlib.use('Qt4Agg')
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
@@ -186,10 +188,6 @@ class Display(QtGui.QMainWindow):
         self.rpp = None
         self.one_dim_plot = None
         self.water = None
-        # this method always creates new instance of 1DPlot
-        self.one_dim_integrate()
-        # this method always creates new instance of WaterFall2D
-        self.waterfall_2d()
 
     ############ method to update data contents ################
     def update_img_data_dict(self, img_data_dict):
