@@ -15,7 +15,7 @@
 """
 This module handles the 2d waterfall plot
 """
-
+import numpy as np
 
 class Waterfall2D:
 
@@ -25,9 +25,9 @@ class Waterfall2D:
         Parameters
         ----------
         key_list : list
-            the ordered list that contains the keys for the integrated data
+            list contains the keys for the integrated data
         data_dict : dict
-            the dictionary that contains the data for plotting
+            dict contains the data for plotting
         fig : matplotlib figure
             the figure object for the plot
         canvas : qt canvas
@@ -36,7 +36,7 @@ class Waterfall2D:
         self.data_dict = data_dict
         self.key_list = key_list
         self.fig = fig
-        self.normalized = False
+        self.normalized = True
         self.canvas = canvas
         self.ax = self.fig.add_subplot(111)
         self.x_offset = 0
@@ -51,19 +51,23 @@ class Waterfall2D:
         None
         """
         self.ax.cla()
-        title = 'Data not normalized'
-        if self.normalized:
+        if self.normalized and self.data_dict:
+            self.normalize_data()
             data = self.normalized_data
-            title = 'Data Normalized'
         else:
             data = self.data_dict
-        list_data = (data[k] for k in self.key_list)  # you can do a list comp here too
-        for i, (x, y) in enumerate(list_data):
+        list_data = list(data.values())  # you can do a list comp here too
+        for i, meta in enumerate(list_data):
+            x,y = meta
             self.ax.plot(x + self.x_offset * i, y + self.y_offset * i)
-        self.ax.set_title(title)
+        #self.ax.set_title(title)
+        short_key_list = list(map(lambda x: x[:10], self.key_list))
+        self.ax.legend(short_key_list)
+        self.ax.set_xlabel('a.u.')
         self.ax.autoscale()
         self.canvas.draw()
 
+    # TODO: turn into property
     def is_normalized(self):
         return self.normalized
 
@@ -71,15 +75,14 @@ class Waterfall2D:
         self.normalized = state
 
     def normalize_data(self):
-        """This method normalizes data for plotting
-
-        Returns
-        -------
-        None
-        """
-        self.normalized_data.clear()
-        for key in self.key_list:
-            temp = self.data_dict[key].copy()
-            temp[1] = temp[1] - temp[1].min()
-            temp[1] = temp[1] / (temp[1].max() - temp[1].min())
-            self.normalized_data[key] = temp
+        """normalize data grid and intensity"""
+        # copy dict
+        self.normalized_data = dict(self.data_dict)
+        # find the finest grid
+        grid_list= [x for x, y in self.data_dict.values()]
+        grid = sorted(grid_list, key=lambda x: x.shape).pop()  # finest grid
+        for k, val in self.data_dict.items():
+            x,y = val
+            #_y = np.interp(grid, x, y)  # don't interp, blow if necessary
+            _y = (y-np.min(y))/(np.max(y)-np.min(y))
+            self.normalized_data[k] = (x, _y)

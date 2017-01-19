@@ -22,8 +22,9 @@ import pyFAI.calibrant
 
 class Azimuthal(object):
     """
-    This class handles all of the azimuthal integration of the data so that it can be done automatically as long
-    as the data comes in as a list of 2D numpy arrays
+    This class handles all of the azimuthal integration of the data so
+    that it can be done automatically as long as the data comes
+    in as a list of 2D numpy arrays
 
     Attributes
     ----------
@@ -69,7 +70,9 @@ class Azimuthal(object):
         self.rot1 = None
         self.rot2 = None
 
-    def set_integration_parameters(self, wl=0.184320, poni1=.1006793, poni2=.1000774, dist=0.2418217, rot1=0, rot2=0):
+    def set_integration_parameters(self, wl=0.184320, poni1=.1006793,
+                                   poni2=.1000774, dist=0.2418217,
+                                   rot1=0, rot2=0):
         """
         This method sets the integration parameters
         Parameters
