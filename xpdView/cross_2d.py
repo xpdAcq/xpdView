@@ -459,32 +459,38 @@ class StackViewer(object):
         a list of key names carried by this class. default to None.
     img_data_list : list, optional
         a list of 2D numpy arrays, default to None
+    aux_fig : matplotlib.pyplot.Figure
+        mpl figure associate with stack viewr class
     """
-    def __init__(self, viewer, key_list=None, img_data_list=None):
+    def __init__(self, viewer, aux_fig, key_list=None,
+                 img_data_list=None, int_data_list=None):
         self.viewer = viewer
         self.key_list = key_list
         self.img_data_list = img_data_list
+        self.int_data_list = int_data_list
         self.fig = self.viewer._fig
+        self.aux_fig = aux_fig # 1d plot
+        self.aux_ax = self.aux_fig.add_subplot(111)
 
         # configure slider
         if not key_list:
             self.data_length = None   # init
         else:
             self.data_length = len(img_data_list)
-        # axis for image slider
+        # add axes
         self.slider_ax = self.fig.add_axes([0.1, 0.01, 0.8, 0.02])
         self.configure_slider()
-        self.slider.on_changed(self.update_frame_slider)
 
     def update_frame_slider(self, val):
         if not isinstance(val, int):
             self.slider.set_val(int(round(val)))
-            # sends up through 'update' again
-        self.viewer.update_image(self.images[int(val)])
-        # set legend
-        self.viewer._im_ax.legend([self.key_list[val]])
+        # grab int val from slider
+        _val = self.slider.val
+        self.viewer.update_image(self.img_data_list[_val])
+        self.viewer._im_ax.legend([self.key_list[_val]])
+        # draw 1d plot
 
-    def update_stack(self, key_list, img_data_list, refresh=False):
+    def update(self, key_list, img_data_list, refresh=False):
         """method to update data carried by stack viewr
 
         Parameters
@@ -497,12 +503,13 @@ class StackViewer(object):
         refresh: bool, optional
             option of refreshing or not
         """
-        if len(key_list) != img_data_list:
+        if len(key_list) != len(img_data_list):
             print("key and data are not in the same length")
             return
         if refresh:
             self.key_list = key_list
             self.img_data_list = img_data_list
+            self.data_length = len(img_data_list)
             self.configure_slider()
             self.update_frame_slider(0)  # refresh, display the first
         else:
@@ -510,11 +517,15 @@ class StackViewer(object):
             self.img_data_list.extend(img_data_list)
             self.configure_slider()
             self.update_frame_slider(self.slider.val+1)  # update, display next
+
     def configure_slider(self):
         """method to update upper and lower limit of slider"""
         if not self.data_length:
             max_val = 0
         else:
-            max_val = len(self.data_length)
+            max_val = self.data_length-1
+        self.slider_ax.cla()
+        # axis for image slider
         self.slider = Slider(self.slider_ax, 'Frame', 0, max_val, 0,
-                             valfmt='%d/{}'.format(max_val - 1))
+                             valfmt='%d/{}'.format(max_val))
+        self.slider.on_changed(self.update_frame_slider)

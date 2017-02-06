@@ -36,42 +36,46 @@ class XpdView(QtGui.QMainWindow):
         self.setDockNestingEnabled(True)
         self.setAnimated(False)
 
-        # set lists of data carried by this class
+        # set lists of data carried by class
         self.key_list = key_list
         self.img_data_list = img_data_list
         self.int_data_list = int_data_list
-        self.name_label = QtGui.QLabel()
 
         # init mpl figures and canvas for plotting
-        self.img_fig = plt.figure(figsize=(10, 8))
+        self.img_fig = plt.figure()
         self.img_canvas = FigureCanvas(self.img_fig)
+        self.img_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                      QtGui.QSizePolicy.Expanding)
         self._viewer = CrossSection(self.img_fig) # core 2d viewer
         self.viewer = StackViewer(self._viewer) # stack viwer
 
-        self.waterfall_fig = plt.figure(figsize=(10, 8))
+        self.waterfall_fig = plt.figure()
         self.waterfall_canvas = FigureCanvas(self.waterfall_fig)
         self.waterfall_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                             QtGui.QSizePolicy.Expanding)
         self.waterfall = Waterfall(self.waterfall_fig, self.waterfall_canvas)
+        self.water_ax = self.waterfall.ax
 
-        self.int_fig = plt.figure(figsize=(10, 8))
+        self.int_fig = plt.figure()
         self.int_canvas = FigureCanvas(self.int_fig)
         self.int_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                       QtGui.QSizePolicy.Expanding)
-        #FIXME
 
         # adding qt widgets
         self.img_dock = QtGui.QDockWidget("Dockable", self)
         self.img_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
         self.img_dock.setWindowTitle("2D Image")
+        self._configure_dock(self.img_dock, self.img_canvas)
 
-        self.integration_dock = QtGui.QDockWidget("Dockable", self)
-        self.integration_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
-        self.integration_dock.setWindowTitle("1D Integration")
+        self.int_dock = QtGui.QDockWidget("Dockable", self)
+        self.int_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
+        self.int_dock.setWindowTitle("1D Integration")
+        #self._configure_dock(self.int_dock,self.int_canvas)
 
         self.waterfall_dock = QtGui.QDockWidget("Dockable", self)
         self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
         self.waterfall_dock.setWindowTitle("Waterfall Plot")
+        self._configure_dock(self.waterfall_dock, self.waterfall_canvas)
 
         self.tools_box = QtGui.QToolBar()
         self.addToolBar(QtCore.Qt.BottomToolBarArea, self.tools_box)
@@ -82,64 +86,32 @@ class XpdView(QtGui.QMainWindow):
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
                            self.img_dock)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea,
-                           self.integration_dock)
+                           self.int_dock)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea,
                            self.waterfall_dock)
 
+    def _configure_dock(self, qt_dock, canvas):
+        """helper function to add mpl toolbar"""
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(NavigationToolBar(canvas, self))
+        layout.addWidget(canvas)
+        multi = QtGui.QWidget()
+        multi.setLayout(layout)
+        qt_dock.setWidget(multi)
+        canvas.figure.tight_layout()
 
-    ############ method to update data contents ################
-    def update_img_data_list(self, img_data_list, refresh=False):
-        """method to update img_data_dict
-
-        Parameters
-        ----------
-        img_data_list: list object
-            a dict stores 2D images.
-            Expect elements to be ndarray
-        """
-        #FIXME
-        pass
-
-
-    def update_int_data_list(self, int_data_list, refresh=False):
-        """method to update int_data_list (which is 1D)
-
-        Parameters
-        ----------
-        int_data_list : list
-            a list carries integrated data
-            Expected format of each element : (x, y)
-        """
-        #FIXME
-        pass
+    def update(self, key_list=None, img_data_list=None,
+               int_data_list=None, refresh=False):
+        """method to update data carried by class"""
+        # key_list is required
+        if not key_list:
+            print("I can't update")
+            return
+        # update method of each class
+        self.viewer.update(key_list, img_data_list, refresh)
+        #self.waterfall.update(key_list, int_data_list,
 
 
-    def change_frame(self, ind):
-        """method to change 1D plot canvas
-        Parameters
-        ----------
-        ind : int
-            the value that comes in from the widget
-
-        Returns
-        -------
-        None
-
-        """
-        #FIXME
-        pass
-
-    def refresh(self, key_list=None, img_data_list=None,
-                int_data_list=None):
-        """top-level method to refresh data contents and gui"""
-        if len(key_list) != len(img_data_list) or\
-                len(key_list) != len(int_data_list):
-            print("key and data are not in the same lenght") 
-        #FIXME
-        pass
-    ################################################################
-
-    ########## method to take care of plotting docks ###############
     def one_dim_integrate(self):
         """
         This creates the bottom left tile and also creates an instance of the IntegrationPlot class for handling
@@ -242,7 +214,6 @@ class XpdView(QtGui.QMainWindow):
 
         # This sets up all of the menu widgets that are used in the GUI
         mainmenu = self.menuBar()
-        print("CREATE menu bar")
         filemenu = mainmenu.addMenu("&File")
         window_menu = mainmenu.addMenu("&Window")
         filemenu.addAction(setpath)
@@ -297,9 +268,9 @@ class XpdView(QtGui.QMainWindow):
 
         """
         popup = QtGui.QFileDialog()
-        print("CALLED popup")
         self.file_path = str(popup.getExistingDirectory())
-        #FIXME
+        #FIXME: load method
+
 
 def main():
     """
