@@ -4,6 +4,8 @@ This file will contain the code that makes the XPD view GUI
 import sys
 import os
 import numpy as np
+from tifffile import imread
+
 # FIXME: update qt5 if it's fully compatible
 from PyQt4 import QtGui, QtCore
 import matplotlib
@@ -107,19 +109,64 @@ class XpdView(QtGui.QMainWindow):
         """method to update data carried by class"""
         # key_list is required
         if not key_list:
-            print("I can't update")
+            print("key_list = {}, I can't update".format(key_list))
             return
         # update method of each class
         self.viewer.update(key_list, img_data_list, refresh)
         self.waterfall.update(key_list, int_data_list, refresh)
 
+    def set_path(self, refresh=False):
+        """
+        This creates the dialog window that pops up to set the path
+
+        Parameters
+        ----------
+        refresh : bool, optional
+            option to set as refresh or not
+
+        Returns
+        -------
+        None
+
+        """
+        if not refresh:
+            popup = QtGui.QFileDialog()
+            self.filepath = str(popup.getExistingDirectory())
+        print(self.filepath)
+        # list files. xpdAcq logic should be required inexplicitly here
+        tif_fn_list = [f for f in os.listdir(self.filepath)
+                       if f.endswith('.tif')]
+        chi_fn_list = [f for f in os.listdir(self.filepath)
+                       if f.endswith('.txt')]
+        print(tif_fn_list)
+        print(chi_fn_list)
+        if len(tif_fn_list) != len(chi_fn_list):
+            print("number of tif files are not equal to the number of"
+                  "chi file")
+            return
+        key_list = []
+        img_data_list = []
+        int_data_list = []
+        for tif, chi in zip(tif_fn_list, chi_fn_list):
+            stem, ext = os.path.splitext(tif)
+            print("tif fn = {}, stem = {}, ext = {}"
+                  .format(tif, stem,ext))
+            key_list.append(stem)
+            img_data_list.append(imread(tif))
+            # this will block fit2d chi file
+            int_data_list.append(np.loadtxt(chi))
+        print(img_data_list)
+        print(int_data_list)
+        print("Before update: key_list = {}".format(key_list))
+        # filebased operation - always refresh
+        self.update(key_list, img_data_list, int_data_list, True)
+
     def refresh(self):
         """method to reload files in current directory. it's basically a
         set_path method operates on cwd"""
-        self.set_path(True)
+        self.set_path(refresh=True)
 
-    #####################################################################################
-
+    ######## gui btns ##############
     def set_up_menu_bar(self):
         """
         This method creates the menu bar and ties all of the actions
@@ -152,9 +199,9 @@ class XpdView(QtGui.QMainWindow):
         # This sets up all of the menu widgets that are used in the GUI
         mainmenu = self.menuBar()
         filemenu = mainmenu.addMenu("&File")
-        window_menu = mainmenu.addMenu("&Window")
         filemenu.addAction(setpath)
         filemenu.addAction(refresh_path)
+        window_menu = mainmenu.addMenu("&Window")
         window_menu.addAction(reset_windows)
 
     def set_up_tool_bar(self):
@@ -187,44 +234,6 @@ class XpdView(QtGui.QMainWindow):
         self.integration_dock.setFloating(False)
         self.img_dock.setFloating(False)
         self.waterfall_dock.setFloating(False)
-
-    def set_path(self, refresh=False):
-        """
-        This creates the dialog window that pops up to set the path
-
-        Parameters
-        ----------
-        refresh : bool, optional
-            option to set as refresh or not
-
-        Returns
-        -------
-        None
-
-        """
-        if not refresh:
-            popup = QtGui.QFileDialog()
-            self.file_path = str(popup.getExistingDirectory())
-        # list files. xpdAcq logic should be required inexplicitly here
-        tif_fn_list = [f for f in os.listdir(self.filepath)
-                       if f.endswith('.tif')]
-        chi_fn_list = [f for f in os.listdir(self.filepath)
-                       if f.endswith('.chi')]
-        if len(tif_fn_list) != len(fn_list):
-            print("number of tif files are not equal to the number of"
-                  "chi file")
-            return
-        key_list = []
-        img_data_list = []
-        int_data_list = []
-        for tif, chi in zip(tif_fn_list, chi_fn_list):
-            stem, ext = os.path.splitext(tif)
-            key_list.append(stem)
-            img_data_list.append(imread(tif))
-            # this will block fit2d chi file
-            int_data_list.append(np.loadtxt(chi))
-        # filebased operation - always refresh
-        self.update(key_list, img_data_list, int_data_list, True)
 
 def main():
     """
