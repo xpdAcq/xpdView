@@ -50,8 +50,13 @@ class XpdView(QtGui.QMainWindow):
         self.img_canvas = FigureCanvas(self.img_fig)
         self.img_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                       QtGui.QSizePolicy.Expanding)
+        self.int_fig = plt.figure()
+        self.int_canvas = FigureCanvas(self.int_fig)
+        self.int_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                      QtGui.QSizePolicy.Expanding)
         self._viewer = CrossSection(self.img_fig) # core 2d viewer
-        self.viewer = StackViewer(self._viewer) # stack viwer
+        self.viewer = StackViewer(self._viewer, self.int_fig,
+                                  self.int_canvas) # stack viwer
 
         self.waterfall_fig = plt.figure()
         self.waterfall_canvas = FigureCanvas(self.waterfall_fig)
@@ -60,10 +65,6 @@ class XpdView(QtGui.QMainWindow):
         self.waterfall = Waterfall(self.waterfall_fig, self.waterfall_canvas)
         self.water_ax = self.waterfall.ax
 
-        self.int_fig = plt.figure()
-        self.int_canvas = FigureCanvas(self.int_fig)
-        self.int_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                                      QtGui.QSizePolicy.Expanding)
 
         # adding qt widgets
         self.img_dock = QtGui.QDockWidget("Dockable", self)
@@ -74,7 +75,7 @@ class XpdView(QtGui.QMainWindow):
         self.int_dock = QtGui.QDockWidget("Dockable", self)
         self.int_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
         self.int_dock.setWindowTitle("1D Integration")
-        #self._configure_dock(self.int_dock,self.int_canvas)
+        self._configure_dock(self.int_dock,self.int_canvas)
 
         self.waterfall_dock = QtGui.QDockWidget("Dockable", self)
         self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
@@ -112,7 +113,8 @@ class XpdView(QtGui.QMainWindow):
             print("INFO: can't update without setting key_list")
             return
         # update method of each class
-        self.viewer.update(key_list, img_data_list, refresh)
+        # FIXME: abstract class to carry information
+        self.viewer.update(key_list, img_data_list, int_data_list, refresh)
         self.waterfall.update(key_list, int_data_list, refresh)
 
     def set_path(self, refresh=False):

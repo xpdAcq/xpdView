@@ -455,14 +455,20 @@ class StackViewer(object):
     ----------
     viewer : object
         expected to have update_image method and fig attribute
+    aux_fig : matplotlib.Figure
+        1d plot fig
+    aux_canvas : matplotlib.FigureCanvas
+        1d plot associate with image
     key_list: list, optional
         a list of key names carried by this class. default to None.
     img_data_list : list, optional
         a list of 2D numpy arrays, default to None
     """
-    def __init__(self, viewer, key_list=None,
+    def __init__(self, viewer, aux_fig, aux_canvas, key_list=None,
                  img_data_list=None, int_data_list=None):
         self.viewer = viewer
+        self.aux_fig = aux_fig
+        self.aux_canvas = aux_canvas
         self.key_list = key_list
         self.img_data_list = img_data_list
         self.int_data_list = int_data_list
@@ -476,23 +482,33 @@ class StackViewer(object):
         # add axes
         self.slider_ax = self.fig.add_axes([0.1, 0.01, 0.8, 0.02])
         self.configure_slider()
+        self.aux_ax = self.aux_fig.add_subplot(111)
 
     def update_frame_slider(self, val):
         if not isinstance(val, int):
             self.slider.set_val(int(round(val)))
         # grab int val from slider
         _val = self.slider.val
+        # update 2d viewer
         self.viewer.update_image(self.img_data_list[_val])
         self.viewer._im_ax.legend([self.key_list[_val]])
-        # draw 1d plot
+        # update 1d plot
+        _array = self.int_data_list[_val]
+        x,y = _array
+        self.aux_ax.cla()
+        self.aux_ax.plot(x, y)
+        self.aux_ax.legend([self.key_list[_val]])
+        self.aux_canvas.draw_idle()
 
-    def update(self, key_list, img_data_list, refresh=False):
+    def update(self, key_list, img_data_list, int_data_list, refresh=False):
         """method to update data carried by stack viewr
 
         Parameters
         ----------
         key_list : list
             list of keys is about to update. could be refresh or update
+        int_data_list : list
+            list of 1d data about to update. could be refresh or update.
         img_data_list : list
             list of images is about to update. could be refresh or
             update
@@ -505,14 +521,18 @@ class StackViewer(object):
         if refresh:
             self.key_list = key_list
             self.img_data_list = img_data_list
+            self.int_data_list = int_data_list
             self.data_length = len(img_data_list)
             self.configure_slider()
-            self.update_frame_slider(0)  # refresh, display the first
+            # refresh, display the first
+            self.update_frame_slider(0)
         else:
             self.key_list.extend(key_list)
             self.img_data_list.extend(img_data_list)
+            self.int_data_list.extend(int_data_list)
             self.configure_slider()
-            self.update_frame_slider(self.slider.val+1)  # update, display next
+            # update, display next
+            self.update_frame_slider(self.slider.val+1)
 
     def configure_slider(self):
         """method to update upper and lower limit of slider"""

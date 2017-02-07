@@ -89,6 +89,7 @@ class Waterfall:
 
     def _update_plot(self, x_offset_val=None, y_offset_val=None):
         """core method to update x-, y-offset sliders"""
+        self.ax.cla()
         if not x_offset_val:
             x_offset_val = self.x_offset_slider.val
         if not y_offset_val:
@@ -105,11 +106,9 @@ class Waterfall:
         self.canvas.draw_idle()
 
     def update_y_offset(self, val):
-        self.ax.cla()
         self._update_plot(None, val)
 
     def update_x_offset(self, val):
-        self.ax.cla()
         self._update_plot(val, None)
 
     def default_plot(self):
