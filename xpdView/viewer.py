@@ -2,6 +2,7 @@
 This file will contain the code that makes the XPD view GUI
 """
 import sys
+import os
 import numpy as np
 # FIXME: update qt5 if it's fully compatible
 from PyQt4 import QtGui, QtCore
@@ -40,6 +41,7 @@ class XpdView(QtGui.QMainWindow):
         self.key_list = key_list
         self.img_data_list = img_data_list
         self.int_data_list = int_data_list
+        self.filepath = os.getcwd()
 
         # init mpl figures and canvas for plotting
         self.img_fig = plt.figure()
@@ -109,79 +111,14 @@ class XpdView(QtGui.QMainWindow):
             return
         # update method of each class
         self.viewer.update(key_list, img_data_list, refresh)
-        #self.waterfall.update(key_list, int_data_list,
+        self.waterfall.update(key_list, int_data_list, refresh)
 
+    def refresh(self):
+        """method to reload files in current directory. it's basically a
+        set_path method operates on cwd"""
+        self.set_path(True)
 
-    def one_dim_integrate(self):
-        """
-        This creates the bottom left tile and also creates an instance of the IntegrationPlot class for handling
-        the plotting of the image
-
-        Parameters
-        ----------
-        self
-
-        Returns
-        -------
-        None
-
-        """
-        FigureCanvas.setSizePolicy(self.canvas3, QtGui.QSizePolicy.Expanding,
-                                   QtGui.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self.canvas3)
-        self.one_dim_plot = IntegrationPlot(self.int_data_dict,
-                                            self.fig3, self.canvas3)
-        toolbar = NavigationToolBar(self.canvas3, self)
-        layout = QtGui.QVBoxLayout()
-        layout.addWidget(toolbar)
-        layout.addWidget(self.canvas3)
-        multi = QtGui.QWidget()
-        multi.setLayout(layout)
-        self.integration_dock.setWidget(multi)
-
-
-    def configure_waterfall(self):
-        """
-        This handles plotting the 2d waterfall
-        Parameters
-        ----------
-        self
-
-        Returns
-        -------
-        None
-
-        """
-        # configure gui layout
-        mpl_toolbar = NavigationToolBar(self.water_canvas, self)
-        layout = QtGui.QVBoxLayout()
-        grid = QtGui.QGridLayout()
-        grid.addWidget(mpl_toolbar, 0, 0)
-        layout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-        layout.addLayout(grid)
-        layout.addWidget(self.water_canvas)
-        multi = QtGui.QWidget()
-        multi.setLayout(layout)
-        # update object in main gui frame
-        self.waterfall_dock.setWidget(multi)
     #####################################################################################
-
-    def click_handling(self, event):
-        """
-        This method simply tells the display window what to do when someone clicks on the top right tile what to do
-
-        Parameters
-        ----------
-        event: event
-            from mouse click that is used to change the image
-
-        Returns
-        -------
-        None
-
-        """
-        if (event.xdata is not None) and (event.ydata is not None):
-            self.img_slider.setValue(int(event.xdata))
 
     def set_up_menu_bar(self):
         """
@@ -222,11 +159,8 @@ class XpdView(QtGui.QMainWindow):
 
     def set_up_tool_bar(self):
         """
-        This takes all of the widgets that are put into the toolbar and puts them in there
-
-        Parameters
-        ----------
-        self
+        This takes all of the widgets that are put into the toolbar
+        puts them in there
 
         Returns
         -------
@@ -254,23 +188,43 @@ class XpdView(QtGui.QMainWindow):
         self.img_dock.setFloating(False)
         self.waterfall_dock.setFloating(False)
 
-    def set_path(self):
+    def set_path(self, refresh=False):
         """
         This creates the dialog window that pops up to set the path
 
         Parameters
         ----------
-        self
+        refresh : bool, optional
+            option to set as refresh or not
 
         Returns
         -------
         None
 
         """
-        popup = QtGui.QFileDialog()
-        self.file_path = str(popup.getExistingDirectory())
-        #FIXME: load method
-
+        if not refresh:
+            popup = QtGui.QFileDialog()
+            self.file_path = str(popup.getExistingDirectory())
+        # list files. xpdAcq logic should be required inexplicitly here
+        tif_fn_list = [f for f in os.listdir(self.filepath)
+                       if f.endswith('.tif')]
+        chi_fn_list = [f for f in os.listdir(self.filepath)
+                       if f.endswith('.chi')]
+        if len(tif_fn_list) != len(fn_list):
+            print("number of tif files are not equal to the number of"
+                  "chi file")
+            return
+        key_list = []
+        img_data_list = []
+        int_data_list = []
+        for tif, chi in zip(tif_fn_list, chi_fn_list):
+            stem, ext = os.path.splitext(tif)
+            key_list.append(stem)
+            img_data_list.append(imread(tif))
+            # this will block fit2d chi file
+            int_data_list.append(np.loadtxt(chi))
+        # filebased operation - always refresh
+        self.update(key_list, img_data_list, int_data_list, True)
 
 def main():
     """

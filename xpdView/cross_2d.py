@@ -459,18 +459,14 @@ class StackViewer(object):
         a list of key names carried by this class. default to None.
     img_data_list : list, optional
         a list of 2D numpy arrays, default to None
-    aux_fig : matplotlib.pyplot.Figure
-        mpl figure associate with stack viewr class
     """
-    def __init__(self, viewer, aux_fig, key_list=None,
+    def __init__(self, viewer, key_list=None,
                  img_data_list=None, int_data_list=None):
         self.viewer = viewer
         self.key_list = key_list
         self.img_data_list = img_data_list
         self.int_data_list = int_data_list
         self.fig = self.viewer._fig
-        self.aux_fig = aux_fig # 1d plot
-        self.aux_ax = self.aux_fig.add_subplot(111)
 
         # configure slider
         if not key_list:

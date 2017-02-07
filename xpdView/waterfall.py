@@ -31,13 +31,13 @@ class Waterfall:
         self.int_data_list = int_data_list
         self.ax = self.fig.add_subplot(111)
         # add sliders, which store informations
-        y_offset_slider_ax = self.fig.add_axes([0.1, 0.03, 0.3, 0.02])
+        y_offset_slider_ax = self.fig.add_axes([0.1, 0.97, 0.3, 0.02])
         self.y_offset_slider = Slider(y_offset_slider_ax,
                                       'y-offset', 0.0, 1.0,
                                       valinit=0.1, valfmt='%1.2f')
         self.y_offset_slider.on_changed(self.update_y_offset)
 
-        x_offset_slider_ax = self.fig.add_axes([0.6, 0.03, 0.3, 0.02])
+        x_offset_slider_ax = self.fig.add_axes([0.6, 0.97, 0.3, 0.02])
         self.x_offset_slider = Slider(x_offset_slider_ax,
                                       'x-offset', 0.0, 1.0,
                                       valinit=0.1, valfmt='%1.2f')
@@ -102,20 +102,20 @@ class Waterfall:
             self.ax.plot(x + x_dist * ind * x_offset_val,
                                y + y_dist * ind * y_offset_val)
         self.ax.autoscale()
-        plt.draw()
-        #    self.canvas.draw_idle()
+        self.canvas.draw_idle()
 
     def update_y_offset(self, val):
         self.ax.cla()
         self._update_plot(None, val)
 
     def update_x_offset(self, val):
-        ax.cla()
+        self.ax.cla()
         self._update_plot(val, None)
 
     def default_plot(self):
         """method to display only text but not plot
         called when error occurs
         """
-        self.ax.plot(np.zeros((200, 200)))
         #self.ax.text(0.3, 0.5, 'We expect standard xpdAcq data')
+        #FIXME
+        pass
