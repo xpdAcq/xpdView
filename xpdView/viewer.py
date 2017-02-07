@@ -109,7 +109,7 @@ class XpdView(QtGui.QMainWindow):
         """method to update data carried by class"""
         # key_list is required
         if not key_list:
-            print("key_list = {}, I can't update".format(key_list))
+            print("INFO: can't update without setting key_list")
             return
         # update method of each class
         self.viewer.update(key_list, img_data_list, refresh)
@@ -131,15 +131,12 @@ class XpdView(QtGui.QMainWindow):
         """
         if not refresh:
             popup = QtGui.QFileDialog()
-            self.filepath = str(popup.getExistingDirectory())
-        print(self.filepath)
+            self.filepath = popup.getExistingDirectory()
         # list files. xpdAcq logic should be required inexplicitly here
         tif_fn_list = [f for f in os.listdir(self.filepath)
-                       if f.endswith('.tif')]
+                       if os.path.splitext(f)[1] == '.tif']
         chi_fn_list = [f for f in os.listdir(self.filepath)
-                       if f.endswith('.txt')]
-        print(tif_fn_list)
-        print(chi_fn_list)
+                       if os.path.splitext(f)[1] == '.txt']
         if len(tif_fn_list) != len(chi_fn_list):
             print("number of tif files are not equal to the number of"
                   "chi file")
@@ -149,15 +146,14 @@ class XpdView(QtGui.QMainWindow):
         int_data_list = []
         for tif, chi in zip(tif_fn_list, chi_fn_list):
             stem, ext = os.path.splitext(tif)
-            print("tif fn = {}, stem = {}, ext = {}"
-                  .format(tif, stem,ext))
             key_list.append(stem)
-            img_data_list.append(imread(tif))
+            img_data_list.append(imread(os.path.join(self.filepath,
+                                                     tif)))
             # this will block fit2d chi file
-            int_data_list.append(np.loadtxt(chi))
-        print(img_data_list)
-        print(int_data_list)
-        print("Before update: key_list = {}".format(key_list))
+            _array = np.loadtxt(os.path.join(self.filepath,chi))
+            x = _array[:,0]
+            y = _array[:,1]
+            int_data_list.append((x, y))
         # filebased operation - always refresh
         self.update(key_list, img_data_list, int_data_list, True)
 

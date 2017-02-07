@@ -117,5 +117,5 @@ class Waterfall:
         called when error occurs
         """
         #self.ax.text(0.3, 0.5, 'We expect standard xpdAcq data')
-        #FIXME
+        #FIXME: words to display xpdAcq instruction
         pass
