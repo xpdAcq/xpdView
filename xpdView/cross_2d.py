@@ -451,27 +451,22 @@ class CrossSection(object):
 # class holds multiple images and keys
 class StackViewer(object):
     """
+    class to hold multiple 2d images and provide a slider to navigate
+    through the images
+
     Parameters
     ----------
     viewer : object
         expected to have update_image method and fig attribute
-    aux_fig : matplotlib.Figure
-        1d plot fig
-    aux_canvas : matplotlib.FigureCanvas
-        1d plot associate with image
     key_list: list, optional
         a list of key names carried by this class. default to None.
     img_data_list : list, optional
         a list of 2D numpy arrays, default to None
     """
-    def __init__(self, viewer, aux_fig, aux_canvas, key_list=None,
-                 img_data_list=None, int_data_list=None):
+    def __init__(self, viewer, key_list=None, img_data_list=None):
         self.viewer = viewer
-        self.aux_fig = aux_fig
-        self.aux_canvas = aux_canvas
         self.key_list = key_list
         self.img_data_list = img_data_list
-        self.int_data_list = int_data_list
         self.fig = self.viewer._fig
 
         # configure slider
@@ -482,7 +477,6 @@ class StackViewer(object):
         # add axes
         self.slider_ax = self.fig.add_axes([0.1, 0.01, 0.8, 0.02])
         self.configure_slider()
-        self.aux_ax = self.aux_fig.add_subplot(111)
 
     def update_frame_slider(self, val):
         if not isinstance(val, int):
@@ -492,23 +486,14 @@ class StackViewer(object):
         # update 2d viewer
         self.viewer.update_image(self.img_data_list[_val])
         self.viewer._im_ax.legend([self.key_list[_val]])
-        # update 1d plot
-        _array = self.int_data_list[_val]
-        x,y = _array
-        self.aux_ax.cla()
-        self.aux_ax.plot(x, y)
-        self.aux_ax.legend([self.key_list[_val]])
-        self.aux_canvas.draw_idle()
 
-    def update(self, key_list, img_data_list, int_data_list, refresh=False):
+    def update(self, key_list, img_data_list, refresh=False):
         """method to update data carried by stack viewr
 
         Parameters
         ----------
         key_list : list
             list of keys is about to update. could be refresh or update
-        int_data_list : list
-            list of 1d data about to update. could be refresh or update.
         img_data_list : list
             list of images is about to update. could be refresh or
             update
@@ -521,7 +506,6 @@ class StackViewer(object):
         if refresh:
             self.key_list = key_list
             self.img_data_list = img_data_list
-            self.int_data_list = int_data_list
             self.data_length = len(img_data_list)
             self.configure_slider()
             # refresh, display the first
@@ -529,7 +513,6 @@ class StackViewer(object):
         else:
             self.key_list.extend(key_list)
             self.img_data_list.extend(img_data_list)
-            self.int_data_list.extend(int_data_list)
             self.configure_slider()
             # update, display next
             self.update_frame_slider(self.slider.val+1)
@@ -542,6 +525,6 @@ class StackViewer(object):
             max_val = self.data_length-1
         self.slider_ax.cla()
         # axis for image slider
-        self.slider = Slider(self.slider_ax, 'Frame', 0, max_val, 0,
+        self.slider = Slider(self.slider_ax, 'image ind.', 0, max_val, 0,
                              valfmt='%d/{}'.format(max_val))
         self.slider.on_changed(self.update_frame_slider)

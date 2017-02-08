@@ -10,13 +10,14 @@ from tifffile import imread
 from PyQt4 import QtGui, QtCore
 import matplotlib
 matplotlib.use('Qt4Agg')
-import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
 
 # classes for plotting
 from xpdView.cross_2d import CrossSection, StackViewer
 from xpdView.waterfall import Waterfall
+from xpdView.one_d_plot import OneDPlot
 
 class XpdView(QtGui.QMainWindow):
     def __init__(self, key_list=None, img_data_list=None,
@@ -46,25 +47,29 @@ class XpdView(QtGui.QMainWindow):
         self.filepath = os.getcwd()
 
         # init mpl figures and canvas for plotting
-        self.img_fig = plt.figure()
+        self.img_fig = Figure(tight_layout=True)
         self.img_canvas = FigureCanvas(self.img_fig)
         self.img_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                       QtGui.QSizePolicy.Expanding)
-        self.int_fig = plt.figure()
-        self.int_canvas = FigureCanvas(self.int_fig)
-        self.int_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                                      QtGui.QSizePolicy.Expanding)
         self._viewer = CrossSection(self.img_fig) # core 2d viewer
-        self.viewer = StackViewer(self._viewer, self.int_fig,
-                                  self.int_canvas) # stack viwer
+        self.viewer = StackViewer(self._viewer) # stack viwer
 
-        self.waterfall_fig = plt.figure()
+        self.waterfall_fig = Figure(tight_layout=True)
         self.waterfall_canvas = FigureCanvas(self.waterfall_fig)
         self.waterfall_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                             QtGui.QSizePolicy.Expanding)
         self.waterfall = Waterfall(self.waterfall_fig, self.waterfall_canvas)
         self.water_ax = self.waterfall.ax
 
+        self.int_fig = Figure(tight_layout=True)
+        self.int_canvas = FigureCanvas(self.int_fig)
+        self.int_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                                      QtGui.QSizePolicy.Expanding)
+        self.int_plot = OneDPlot(self.int_fig, self.int_canvas)
+        self.int_ax = self.int_plot.ax
+        # link slider of image viewer with 1d plot
+        print("LINKED")
+        self.viewer.slider.on_changed(self.int_plot.update_by_slider)
 
         # adding qt widgets
         self.img_dock = QtGui.QDockWidget("Dockable", self)
@@ -103,7 +108,6 @@ class XpdView(QtGui.QMainWindow):
         multi = QtGui.QWidget()
         multi.setLayout(layout)
         qt_dock.setWidget(multi)
-        canvas.figure.tight_layout()
 
     def update(self, key_list=None, img_data_list=None,
                int_data_list=None, refresh=False):
@@ -112,10 +116,10 @@ class XpdView(QtGui.QMainWindow):
         if not key_list:
             print("INFO: can't update without setting key_list")
             return
-        # update method of each class
-        # FIXME: abstract class to carry information
-        self.viewer.update(key_list, img_data_list, int_data_list, refresh)
+        # call update method of each class
+        self.viewer.update(key_list, img_data_list, refresh)
         self.waterfall.update(key_list, int_data_list, refresh)
+        self.int_plot.update(key_list, int_data_list, refresh)
 
     def set_path(self, refresh=False):
         """
@@ -138,9 +142,9 @@ class XpdView(QtGui.QMainWindow):
         tif_fn_list = [f for f in os.listdir(self.filepath)
                        if os.path.splitext(f)[1] == '.tif']
         chi_fn_list = [f for f in os.listdir(self.filepath)
-                       if os.path.splitext(f)[1] == '.txt']
+                       if os.path.splitext(f)[1] == '.chi']
         if len(tif_fn_list) != len(chi_fn_list):
-            print("number of tif files are not equal to the number of"
+            print("number of tif files are not equal to the number of "
                   "chi file")
             return
         key_list = []

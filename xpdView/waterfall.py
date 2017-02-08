@@ -101,7 +101,7 @@ class Waterfall:
         for ind, el in enumerate(zip(x_array_list, y_array_list)):
             x, y = el
             self.ax.plot(x + x_dist * ind * x_offset_val,
-                               y + y_dist * ind * y_offset_val)
+                         y + y_dist * ind * y_offset_val)
         self.ax.autoscale()
         self.canvas.draw_idle()
 
