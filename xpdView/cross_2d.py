@@ -468,14 +468,12 @@ class StackViewer(object):
         self.key_list = key_list
         self.img_data_list = img_data_list
         self.fig = self.viewer._fig
-
-        # configure slider
+        # create slider
         if not key_list:
             self.data_length = None   # init
         else:
-            self.data_length = len(img_data_list)
-        # add axes
-        self.slider_ax = self.fig.add_axes([0.1, 0.01, 0.8, 0.02])
+            self.data_length = len(key_list)
+        self.slider_ax = self.fig.add_axes([0.15, 0.01, 0.7, 0.02])
         self.configure_slider()
 
     def update_frame_slider(self, val):
@@ -524,7 +522,7 @@ class StackViewer(object):
         else:
             max_val = self.data_length-1
         self.slider_ax.cla()
-        # axis for image slider
         self.slider = Slider(self.slider_ax, 'image ind.', 0, max_val, 0,
                              valfmt='%d/{}'.format(max_val))
+        # link callback
         self.slider.on_changed(self.update_frame_slider)

@@ -31,13 +31,13 @@ class Waterfall:
         self.int_data_list = int_data_list
         self.ax = self.fig.add_subplot(111)
         # add sliders, which store informations
-        y_offset_slider_ax = self.fig.add_axes([0.1, 0.97, 0.3, 0.02])
+        y_offset_slider_ax = self.fig.add_axes([0.1, 0.95, 0.3, 0.03])
         self.y_offset_slider = Slider(y_offset_slider_ax,
                                       'y-offset', 0.0, 1.0,
                                       valinit=0.1, valfmt='%1.2f')
         self.y_offset_slider.on_changed(self.update_y_offset)
 
-        x_offset_slider_ax = self.fig.add_axes([0.6, 0.97, 0.3, 0.02])
+        x_offset_slider_ax = self.fig.add_axes([0.6, 0.95, 0.3, 0.03])
         self.x_offset_slider = Slider(x_offset_slider_ax,
                                       'x-offset', 0.0, 1.0,
                                       valinit=0.1, valfmt='%1.2f')

@@ -20,31 +20,24 @@ from xpdView.waterfall import Waterfall
 from xpdView.one_d_plot import OneDPlot
 
 class XpdView(QtGui.QMainWindow):
-    def __init__(self, key_list=None, img_data_list=None,
-                 int_data_list=None):
+    def __init__(self, filepath=None):
         """
-        a class holds 2d/1d data and it's corresponding names
+        top-level GUI holds 2d/1d data visualization class
 
-        Attributes
+        Parameters
         ----------
-        key_list : list
-            list of data keys
-        img_data_list : list
-            a list of images carried by this class
-        int_data_list : list
-            a list 1d reduced data carried by this class
+        filepath : str, optional
+            default filepath when using filebased operation. default to
+            user home directory
         """
         # configure QT property
         QtGui.QMainWindow.__init__(self)
         self.setWindowTitle('XPD View')
         self.setDockNestingEnabled(True)
         self.setAnimated(False)
-
-        # set lists of data carried by class
-        self.key_list = key_list
-        self.img_data_list = img_data_list
-        self.int_data_list = int_data_list
-        self.filepath = os.getcwd()
+        if not filepath:
+            filepath=os.path.expanduser('~')
+        self.filepath = filepath
 
         # init mpl figures and canvas for plotting
         self.img_fig = Figure(tight_layout=True)
@@ -68,8 +61,7 @@ class XpdView(QtGui.QMainWindow):
         self.int_plot = OneDPlot(self.int_fig, self.int_canvas)
         self.int_ax = self.int_plot.ax
         # link slider of image viewer with 1d plot
-        print("LINKED")
-        self.viewer.slider.on_changed(self.int_plot.update_by_slider)
+        self.viewer.slider.on_changed(self.update_one_dim_plot)
 
         # adding qt widgets
         self.img_dock = QtGui.QDockWidget("Dockable", self)
@@ -87,10 +79,10 @@ class XpdView(QtGui.QMainWindow):
         self.waterfall_dock.setWindowTitle("Waterfall Plot")
         self._configure_dock(self.waterfall_dock, self.waterfall_canvas)
 
-        self.tools_box = QtGui.QToolBar()
-        self.addToolBar(QtCore.Qt.BottomToolBarArea, self.tools_box)
+        #self.tools_box = QtGui.QToolBar()
+        #self.addToolBar(QtCore.Qt.BottomToolBarArea, self.tools_box)
         self.set_up_menu_bar()
-        self.set_up_tool_bar()
+        #self.set_up_tool_bar()
 
         # These statements add the dock widgets to the GUI
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
@@ -119,7 +111,9 @@ class XpdView(QtGui.QMainWindow):
         # call update method of each class
         self.viewer.update(key_list, img_data_list, refresh)
         self.waterfall.update(key_list, int_data_list, refresh)
-        self.int_plot.update(key_list, int_data_list, refresh)
+        # re-link callback again
+        self.viewer.slider.on_changed(self.update_one_dim_plot)
+        self.update_one_dim_plot(int(round(self.viewer.slider.val)))
 
     def set_path(self, refresh=False):
         """
@@ -139,9 +133,10 @@ class XpdView(QtGui.QMainWindow):
             popup = QtGui.QFileDialog()
             self.filepath = popup.getExistingDirectory()
         # list files. xpdAcq logic should be required inexplicitly here
-        tif_fn_list = [f for f in os.listdir(self.filepath)
+        sorted_fn_list = sorted(os.listdir(self.filepath))
+        tif_fn_list = [f for f in sorted_fn_list
                        if os.path.splitext(f)[1] == '.tif']
-        chi_fn_list = [f for f in os.listdir(self.filepath)
+        chi_fn_list = [f for f in sorted_fn_list
                        if os.path.splitext(f)[1] == '.chi']
         if len(tif_fn_list) != len(chi_fn_list):
             print("number of tif files are not equal to the number of "
@@ -167,6 +162,19 @@ class XpdView(QtGui.QMainWindow):
         """method to reload files in current directory. it's basically a
         set_path method operates on cwd"""
         self.set_path(refresh=True)
+
+    def update_one_dim_plot(self, val):
+        # use the same rounding logic
+        _val = int(round(val))
+        int_data_list = self.waterfall.int_data_list  # obtain from waterfall
+        key_list = self.waterfall.key_list
+        _array = int_data_list[_val]
+        x,y = _array
+        self.int_ax.cla()
+        self.int_ax.plot(x,y)
+        self.int_ax.legend([key_list[_val]])
+        # FIXME: add x,y label
+        self.int_canvas.draw_idle()
 
     ######## gui btns ##############
     def set_up_menu_bar(self):

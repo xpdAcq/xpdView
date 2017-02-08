@@ -48,3 +48,4 @@ class OneDPlot:
         self.ax.plot(x, y)
         # FIXME: add x,y label
         self.canvas.draw_idle()
+        #self.fig.canvas.draw_idle()
