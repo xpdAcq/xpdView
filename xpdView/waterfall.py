@@ -31,20 +31,19 @@ class Waterfall:
         self.int_data_list = int_data_list
         self.ax = self.fig.add_subplot(111)
         # add sliders, which store informations
-        y_offset_slider_ax = self.fig.add_axes([0.1, 0.95, 0.3, 0.03])
+        y_offset_slider_ax = self.fig.add_axes([0.15, 0.95, 0.3, 0.035])
         self.y_offset_slider = Slider(y_offset_slider_ax,
                                       'y-offset', 0.0, 1.0,
                                       valinit=0.1, valfmt='%1.2f')
         self.y_offset_slider.on_changed(self.update_y_offset)
 
-        x_offset_slider_ax = self.fig.add_axes([0.6, 0.95, 0.3, 0.03])
+        x_offset_slider_ax = self.fig.add_axes([0.6, 0.95, 0.3, 0.035])
         self.x_offset_slider = Slider(x_offset_slider_ax,
                                       'x-offset', 0.0, 1.0,
                                       valinit=0.1, valfmt='%1.2f')
         self.x_offset_slider.on_changed(self.update_x_offset)
         # init
         self.update(self.key_list, self.int_data_list, refresh=True)
-        self.default_plot()
 
     def update(self, key_list=None, int_data_list=None, refresh=False):
         """top method to update information carried by class and plot
@@ -89,6 +88,7 @@ class Waterfall:
 
     def _update_plot(self, x_offset_val=None, y_offset_val=None):
         """core method to update x-, y-offset sliders"""
+        self.ax.set_facecolor('w')
         self.ax.cla()
         if not x_offset_val:
             x_offset_val = self.x_offset_slider.val
@@ -110,11 +110,3 @@ class Waterfall:
 
     def update_x_offset(self, val):
         self._update_plot(val, None)
-
-    def default_plot(self):
-        """method to display only text but not plot
-        called when error occurs
-        """
-        #self.ax.text(0.3, 0.5, 'We expect standard xpdAcq data')
-        #FIXME: words to display xpdAcq instruction
-        pass
