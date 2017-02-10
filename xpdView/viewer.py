@@ -21,13 +21,28 @@ from xpdView.waterfall import Waterfall
 class XpdView(QtGui.QMainWindow):
     def __init__(self, filepath=None):
         """
-        top-level GUI holds 2d/1d data visualization class
+        top-level class to configure GUI and holds 2d/1d data
+        visualization classes. Note all the data are carried by
+        visualization classes, not by this GUI class.
 
         Parameters
         ----------
         filepath : str, optional
             default filepath when using filebased operation. default to
             user home directory
+
+        Attributes
+        ----------
+        data_dict : dict, optioanl
+            a dictionary which stores 1d/2d data managed by this GUI class.
+            default keys are : "key_list", "img_data_list", "int_data_list".
+            Note real data is stored in visualization classes
+        viewer : xpdView.cross2d.StackViewer
+            instance of 2d stack viewer which carries key_list and
+            img_data_list
+        waterfall : xpdView.waterfall.Waterfall
+            instance of waterfall plotting class which carries key_list
+            and int_data_list
         """
         # configure QT property
         QtGui.QMainWindow.__init__(self)
@@ -37,6 +52,8 @@ class XpdView(QtGui.QMainWindow):
         if not filepath:
             filepath=os.path.expanduser('~')
         self.filepath = filepath
+        self.data_dict = dict(key_list=None, img_data_list=None,
+                              int_data_list=None)
 
         # init mpl figures and canvas for plotting
         self.img_fig = Figure(tight_layout=True)
@@ -110,9 +127,9 @@ class XpdView(QtGui.QMainWindow):
         """
         ax.text(.5, .5,
                 '{}'.format("xpdView is a part of xpdAcq workflow\n"
-                            "therefore it expects data generated"
-                            "from standard pipeline.\nPlease go to "
-                            "our online documentation for more details:\n"
+                            "it expects data generated from standard "
+                            "pipeline.\nPlease go to our online "
+                            "documentation for more details:\n"
                             "http://xpdacq.github.io/quickstart.html"),
                      ha='center', va='center', color='w',
                      transform= ax.transAxes, size=12)
@@ -167,8 +184,12 @@ class XpdView(QtGui.QMainWindow):
             x = _array[:,0]
             y = _array[:,1]
             int_data_list.append((x, y))
-        # filebased operation - always refresh
+        # filebased operation; always refresh
         self.update(key_list, img_data_list, int_data_list, True)
+        # update data_dict; make reference for debugging
+        for key, fn_list in zip(['key_list','img_data_list','int_data_list'],
+                                [key_list, img_data_list, int_data_list]):
+            self.data_dict.update({key:fn_list})
 
     def refresh(self):
         """method to reload files in current directory. it's basically a
@@ -178,7 +199,8 @@ class XpdView(QtGui.QMainWindow):
     def update_one_dim_plot(self, val):
         # use the same rounding logic
         _val = int(round(val))
-        int_data_list = self.waterfall.int_data_list  # obtain from waterfall
+        # obtain info from waterfall
+        int_data_list = self.waterfall.int_data_list
         key_list = self.waterfall.key_list
         _array = int_data_list[_val]
         x,y = _array

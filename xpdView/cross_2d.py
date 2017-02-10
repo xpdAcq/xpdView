@@ -475,6 +475,9 @@ class StackViewer(object):
             self.data_length = len(key_list)
         self.slider_ax = self.fig.add_axes([0.15, 0.01, 0.7, 0.02])
         self.configure_slider()
+        # give a default array
+        default_array = np.zeros((200,200))
+        self.viewer.update_image(default_array)
 
     def update_frame_slider(self, val):
         if not isinstance(val, int):
@@ -511,6 +514,7 @@ class StackViewer(object):
         else:
             self.key_list.extend(key_list)
             self.img_data_list.extend(img_data_list)
+            self.data_length = len(img_data_list)
             self.configure_slider()
             # update, display next
             self.update_frame_slider(self.slider.val+1)

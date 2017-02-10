@@ -63,7 +63,7 @@ class Waterfall:
             self.int_data_list = int_data_list
         else:
             self.key_list.extend(key_list)
-            self.int_data_list.extend(int_data_lit)
+            self.int_data_list.extend(int_data_list)
         # generate plot
         if self.int_data_list:
             self._update_plot()# use current value
