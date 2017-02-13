@@ -5,14 +5,18 @@ import sys
 import os
 import numpy as np
 from tifffile import imread
+from collections import Iterable
+from functools import partial
 
 # FIXME: update qt5 if it's fully compatible
 from PyQt4 import QtGui, QtCore
 import matplotlib
 matplotlib.use('Qt4Agg')
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolBar
+from matplotlib.backends.backend_qt4agg import\
+        FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt4agg import\
+        NavigationToolbar2QT as NavigationToolBar
 
 # classes for plotting
 from xpdView.cross_2d import CrossSection, StackViewer
@@ -28,15 +32,20 @@ class XpdView(QtGui.QMainWindow):
         Parameters
         ----------
         filepath : str, optional
-            default filepath when using filebased operation. default to
+            filepath when using filebased operation. default to
             user home directory
 
         Attributes
         ----------
-        data_dict : dict, optioanl
-            a dictionary which stores 1d/2d data managed by this GUI class.
-            default keys are : "key_list", "img_data_list", "int_data_list".
-            Note real data is stored in visualization classes
+        img_data_ext : str, optional
+            extention of 2d image data will be read. options are '.tif'
+            or '.npy'. default to '.tif'
+        int_data_ext : str, optional
+            extention of 1d reduced data will be read. options are
+            '.chi' or '.gr'. default to '.chi'
+        img_handler : object
+            function to load 2d image from different library options
+            are tifffile.imread or numpy.load. default to tifffile.imread
         viewer : xpdView.cross2d.StackViewer
             instance of 2d stack viewer which carries key_list and
             img_data_list
@@ -52,8 +61,9 @@ class XpdView(QtGui.QMainWindow):
         if not filepath:
             filepath=os.path.expanduser('~')
         self.filepath = filepath
-        self.data_dict = dict(key_list=None, img_data_list=None,
-                              int_data_list=None)
+        self.img_data_ext = '.tif'
+        self.int_data_ext = '.chi'
+        self.img_handler = partial(imread)  # default to tifffile.imread
 
         # init mpl figures and canvas for plotting
         self.img_fig = Figure(tight_layout=True)
@@ -100,9 +110,9 @@ class XpdView(QtGui.QMainWindow):
 
         # add gui buttons
         self.set_up_menu_bar()
-        #self.tools_box = QtGui.QToolBar()
-        #self.addToolBar(QtCore.Qt.TopToolBarArea, self.tools_box)
-        #self.set_up_tool_bar()
+        self.tools_box = QtGui.QToolBar()
+        self.addToolBar(QtCore.Qt.BottomToolBarArea, self.tools_box)
+        self.set_up_tool_bar()
 
         # These statements add the dock widgets to the GUI
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
@@ -123,25 +133,22 @@ class XpdView(QtGui.QMainWindow):
 
     def _default_plot(self, ax):
         """method to display only text but not plot
-        called when error occurs
         """
+        ax.cla()
         ax.text(.5, .5,
                 '{}'.format("xpdView is a part of xpdAcq workflow\n"
                             "it expects data generated from standard "
                             "pipeline.\nPlease go to our online "
                             "documentation for more details:\n"
                             "http://xpdacq.github.io/quickstart.html"),
-                     ha='center', va='center', color='w',
-                     transform= ax.transAxes, size=12)
+                ha='center', va='center', color='w',
+                transform= ax.transAxes, size=11)
         ax.set_facecolor('k')
 
     def update(self, key_list=None, img_data_list=None,
                int_data_list=None, refresh=False):
         """method to update data carried by class"""
         # key_list is required
-        if not key_list:
-            print("INFO: can't update without setting key_list")
-            return
         # call update methods of each class
         self.viewer.update(key_list, img_data_list, refresh)
         self.waterfall.update(key_list, int_data_list, refresh)
@@ -161,35 +168,67 @@ class XpdView(QtGui.QMainWindow):
         if not refresh:
             popup = QtGui.QFileDialog()
             self.filepath = popup.getExistingDirectory()
-        # list files. xpdAcq logic should be required inexplicitly here
+        # listing files. xpdAcq logic should be required inexplicitly here
         sorted_fn_list = sorted(os.listdir(self.filepath))
-        tif_fn_list = [f for f in sorted_fn_list
-                       if os.path.splitext(f)[1] == '.tif']
-        chi_fn_list = [f for f in sorted_fn_list
-                       if os.path.splitext(f)[1] == '.chi']
-        if len(tif_fn_list) != len(chi_fn_list):
-            print("number of tif files are not equal to the number of "
-                  "chi file")
+        img_data_fn_list = [f for f in sorted_fn_list
+                            if os.path.splitext(f)[1] ==\
+                            self.img_data_ext]
+        int_data_fn_list = [f for f in sorted_fn_list
+                            if os.path.splitext(f)[1] ==\
+                            self.int_data_ext]
+        img_key_list = list(map(lambda x: os.path.splitext(x)[0],
+                                img_data_fn_list))
+        int_key_list = list(map(lambda x: os.path.splitext(x)[0],
+                                int_data_fn_list))
+        if not img_data_fn_list:
+            print("INFO: can't find 2d image data in {} format in"
+                  "directory = {}".format(self.img_data_ext,
+                                          self.filepath))
+            print("INFO: update can't be executed")
+            self.viewer.no_image_plot()
+            # call update to turn 2d and 1d plot into black screen
+            self.waterfall.update([], [], True)
+            self.update_one_dim_plot(0)
             return
-        key_list = []
+        if not int_data_fn_list:
+            print("INFO: can't find reduced data in {} format in"
+                  "directory = {}".format(self.int_data_ext,
+                                        self.filepath))
+            operation_list = img_data_fn_list
+        else:
+            # find a list of reduced data -> check if they are valid
+            if img_key_list == int_key_list:
+                # number of img_key and int_key match -> valid operation
+                operation_list = zip(img_data_fn_list, int_data_fn_list)
+            else:
+                # number of img_key != int_key -> plot img_data only
+                operation_list = img_data_fn_list
+
+        key_list = img_key_list  # always use key_list based on img
         img_data_list = []
         int_data_list = []
-        for tif, chi in zip(tif_fn_list, chi_fn_list):
-            stem, ext = os.path.splitext(tif)
-            key_list.append(stem)
-            img_data_list.append(imread(os.path.join(self.filepath,
-                                                     tif)))
-            # this will block fit2d chi file
-            _array = np.loadtxt(os.path.join(self.filepath,chi))
-            x = _array[:,0]
-            y = _array[:,1]
-            int_data_list.append((x, y))
-        # filebased operation; always refresh
+        for meta in operation_list:
+            if not isinstance(meta, str):
+                # iterable -> comes from zip(...)
+                img_data, int_data = meta
+                # shold we block fit2d?
+                try:
+                    _array =np.loadtxt(os.path.join(self.filepath,
+                                                    int_data))
+                except OSError:
+                    # fit2d format
+                    _array = np.loadtxt(os.path.join(self.filepath,
+                                                     int_data), skiprows=4)
+                x = _array[:,0]
+                y = _array[:,1]
+                int_data_list.append((x, y))
+            else:
+                img_data = meta
+            # always load img data
+            img_data_list.append(self.img_handler(os.path.join\
+                    (self.filepath,img_data)))
+        # filebase operation; always refresh
         self.update(key_list, img_data_list, int_data_list, True)
-        # update data_dict; make reference for debugging
-        for key, fn_list in zip(['key_list','img_data_list','int_data_list'],
-                                [key_list, img_data_list, int_data_list]):
-            self.data_dict.update({key:fn_list})
 
     def refresh(self):
         """method to reload files in current directory. it's basically a
@@ -197,19 +236,24 @@ class XpdView(QtGui.QMainWindow):
         self.set_path(refresh=True)
 
     def update_one_dim_plot(self, val):
-        # use the same rounding logic
-        _val = int(round(val))
+        """method to display auxiliary 1d plot"""
         # obtain info from waterfall
-        int_data_list = self.waterfall.int_data_list
-        key_list = self.waterfall.key_list
-        _array = int_data_list[_val]
-        x,y = _array
-        self.int_ax.set_facecolor('w')
-        self.int_ax.cla()
-        self.int_ax.plot(x,y)
-        self.int_ax.set_title(key_list[_val], fontsize=10)
-        # FIXME: add x,y label
-        self.int_canvas.draw_idle()
+        if self.waterfall.halt:
+            self.waterfall.no_int_data_plot(self.int_ax, self.int_canvas)
+            return
+        else:
+            # use the same rounding logic
+            _val = int(round(val))
+            int_data_list = self.waterfall.int_data_list
+            key_list = self.waterfall.key_list
+            _array = int_data_list[_val]
+            x,y = _array
+            self.int_ax.set_facecolor('w')
+            self.int_ax.cla()
+            self.int_ax.plot(x,y)
+            self.int_ax.set_title(key_list[_val], fontsize=10)
+            # FIXME: add x,y label
+            self.int_canvas.draw_idle()
 
     ######## gui btns ##############
     def set_up_menu_bar(self):
@@ -264,6 +308,43 @@ class XpdView(QtGui.QMainWindow):
         refresh_btn.clicked.connect(self.refresh)
         self.tools_box.addWidget(refresh_btn)
 
+        img_data_ext_label = QtGui.QLabel('2d image file extention')
+        self.img_data_ext_cbox = QtGui.QComboBox()
+        self.img_data_ext_cbox.addItem(".tif")
+        self.img_data_ext_cbox.addItem(".npy")
+        self.img_data_ext_cbox.activated[str].\
+                connect(self.change_img_data_ext)
+
+        int_data_ext_label = QtGui.QLabel('1d reduced data file extention')
+        self.int_data_ext_cbox = QtGui.QComboBox()
+        self.int_data_ext_cbox.addItem(".chi")
+        self.int_data_ext_cbox.addItem(".gr")
+        self.int_data_ext_cbox.activated[str].\
+                connect(self.change_int_data_ext)
+
+        widget_list = [img_data_ext_label, self.img_data_ext_cbox,
+                       int_data_ext_label, self.int_data_ext_cbox]
+        for widget in widget_list:
+            self.tools_box.addWidget(widget)
+
+    def change_int_data_ext(self, txt):
+        if self.int_data_ext_cbox.currentText() == '.chi':
+            print("INFO: change 1d reduced data default extention to .chi")
+            self.int_data_ext = '.chi'
+        elif self.int_data_ext_cbox.currentText() == '.gr':
+            print("INFO: change 1d reduced data default extention to .gr")
+            self.int_data_ext = '.gr'
+
+    def change_img_data_ext(self, txt):
+        if self.img_data_ext_cbox.currentText() == '.tif':
+            print("INFO: change 2d img data default extention to .tif")
+            self.img_data_ext = '.tif'
+            self.img_handler = partial(imread)
+        elif self.img_data_ext_cbox.currentText() == '.npy':
+            print("INFO: change 2d img data default extention to .npy")
+            self.img_data_ext = '.npy'
+            self.img_handler = partial(np.load)
+
     def reset_window_layout(self):
         """This method puts all of the dock windows containing plots
         back into their original positions
@@ -271,6 +352,7 @@ class XpdView(QtGui.QMainWindow):
         self.int_dock.setFloating(False)
         self.img_dock.setFloating(False)
         self.waterfall_dock.setFloating(False)
+
 
 def main():
     """

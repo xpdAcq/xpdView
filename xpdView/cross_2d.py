@@ -475,9 +475,7 @@ class StackViewer(object):
             self.data_length = len(key_list)
         self.slider_ax = self.fig.add_axes([0.15, 0.01, 0.7, 0.02])
         self.configure_slider()
-        # give a default array
-        default_array = np.zeros((200,200))
-        self.viewer.update_image(default_array)
+        self.no_image_plot()
 
     def update_frame_slider(self, val):
         if not isinstance(val, int):
@@ -518,6 +516,12 @@ class StackViewer(object):
             self.configure_slider()
             # update, display next
             self.update_frame_slider(self.slider.val+1)
+
+    def no_image_plot(self):
+        """method to call when no valid image files are found"""
+        # give a default array
+        default_array = np.zeros((200,200))
+        self.viewer.update_image(default_array)
 
     def configure_slider(self):
         """method to update upper and lower limit of slider"""
