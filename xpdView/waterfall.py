@@ -64,13 +64,12 @@ class Waterfall:
             self.halt = True
             self.no_int_data_plot(self.ax, self.canvas)
             return
-        # update/refresh list
+        # refresh list
         if refresh:
-            self.key_list = key_list
-            self.int_data_list = int_data_list
-        else:
-            self.key_list.extend(key_list)
-            self.int_data_list.extend(int_data_list)
+            self.key_list = []
+            self.int_data_list = []
+        self.key_list.extend(key_list)
+        self.int_data_list.extend(int_data_list)
         # generate plot
         self.halt = False
         self._update_plot()# use current value

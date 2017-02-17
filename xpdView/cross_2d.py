@@ -9,7 +9,6 @@ from matplotlib.colors import Normalize
 from matplotlib.widgets import Slider
 import numpy as np
 
-
 def auto_redraw(func):
     def inner(self, *args, **kwargs):
         if self._fig.canvas is None:
@@ -500,22 +499,21 @@ class StackViewer(object):
             option of refreshing or not
         """
         if len(key_list) != len(img_data_list):
-            print("key and data are not in the same length")
+            print("length of key_list = {} and length of image_data_list"
+                  "= {} are not qual".format(len(key_list),
+                                             len(img_data_list)))
             return
+        update_ind = self.slider.val+1
         if refresh:
-            self.key_list = key_list
-            self.img_data_list = img_data_list
-            self.data_length = len(img_data_list)
-            self.configure_slider()
-            # refresh, display the first
-            self.update_frame_slider(0)
-        else:
-            self.key_list.extend(key_list)
-            self.img_data_list.extend(img_data_list)
-            self.data_length = len(img_data_list)
-            self.configure_slider()
-            # update, display next
-            self.update_frame_slider(self.slider.val+1)
+            self.key_list = []
+            self.img_data_list = []
+            update_ind = 0
+        self.key_list.extend(key_list)
+        self.img_data_list.extend(img_data_list)
+        self.data_length = len(self.img_data_list)
+        self.configure_slider()
+        # udpate plots
+        self.update_frame_slider(update_ind)
 
     def no_image_plot(self):
         """method to call when no valid image files are found"""

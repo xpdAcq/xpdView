@@ -10,6 +10,7 @@ from functools import partial
 
 # FIXME: update qt5 if it's fully compatible
 from PyQt4 import QtGui, QtCore
+import copy
 import matplotlib
 matplotlib.use('Qt4Agg')
 from matplotlib.figure import Figure
@@ -150,6 +151,9 @@ class XpdView(QtGui.QMainWindow):
         """method to update data carried by class"""
         # key_list is required
         # call update methods of each class
+        print("IN GUI, new key len = {}, img_data len = {}"
+              .format(len(key_list), len(img_data_list)))
+        # FIXME: detailed flag about update status in each class
         self.viewer.update(key_list, img_data_list, refresh)
         self.waterfall.update(key_list, int_data_list, refresh)
         # re-link callback again
@@ -204,14 +208,14 @@ class XpdView(QtGui.QMainWindow):
                 # number of img_key != int_key -> plot img_data only
                 operation_list = img_data_fn_list
 
-        key_list = img_key_list  # always use key_list based on img
+        key_list = img_key_list  # always use key_list from img data
         img_data_list = []
         int_data_list = []
         for meta in operation_list:
             if not isinstance(meta, str):
                 # iterable -> comes from zip(...)
                 img_data, int_data = meta
-                # shold we block fit2d?
+                # should we block fit2d?
                 try:
                     _array =np.loadtxt(os.path.join(self.filepath,
                                                     int_data))
@@ -237,8 +241,9 @@ class XpdView(QtGui.QMainWindow):
 
     def update_one_dim_plot(self, val):
         """method to display auxiliary 1d plot"""
-        # obtain info from waterfall
+        # obtain state from waterfall plot class
         if self.waterfall.halt:
+            # no int_data_list passed to update -> turn 1D fig to black
             self.waterfall.no_int_data_plot(self.int_ax, self.int_canvas)
             return
         else:
@@ -308,14 +313,14 @@ class XpdView(QtGui.QMainWindow):
         refresh_btn.clicked.connect(self.refresh)
         self.tools_box.addWidget(refresh_btn)
 
-        img_data_ext_label = QtGui.QLabel('2d image file extention')
+        img_data_ext_label = QtGui.QLabel('2D image file extention')
         self.img_data_ext_cbox = QtGui.QComboBox()
         self.img_data_ext_cbox.addItem(".tif")
         self.img_data_ext_cbox.addItem(".npy")
         self.img_data_ext_cbox.activated[str].\
                 connect(self.change_img_data_ext)
 
-        int_data_ext_label = QtGui.QLabel('1d reduced data file extention')
+        int_data_ext_label = QtGui.QLabel('1D reduced data file extention')
         self.int_data_ext_cbox = QtGui.QComboBox()
         self.int_data_ext_cbox.addItem(".chi")
         self.int_data_ext_cbox.addItem(".gr")
