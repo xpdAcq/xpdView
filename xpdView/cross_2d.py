@@ -464,6 +464,7 @@ class StackViewer(object):
     """
     def __init__(self, viewer, key_list=None, img_data_list=None):
         self.viewer = viewer
+        self.viewer.update_cmap('inferno')
         self.key_list = key_list
         self.img_data_list = img_data_list
         self.fig = self.viewer._fig
