@@ -9,11 +9,13 @@ For tifffile installation instructions are on their website.
 from setuptools import setup, find_packages
 
 setup(
-    name='xpd_view',
-    version='0.2',
+    name='xpdview',
+    version='0.1.0',
     packages=find_packages(),
     description='Visualization Code for Beam line',
     zip_safe=False,
-    url='https://github.com/cduff4464/xpdView.git',
-    install_requires=['matplotlib', 'numpy', 'scipy', 'pyFAI']
+    url='https://github.com/chiahaoliu/xpdView.git',
+    install_requires=['numpy', 'tifffile',
+                      'matplotlib>=2.0.0',
+                      'pyqt>=4.11.4']
 )
