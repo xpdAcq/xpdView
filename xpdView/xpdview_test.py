@@ -3,7 +3,7 @@ import sys
 import numpy as np
 from PyQt4 import QtGui
 import matplotlib
-from xpdView.viewer import XpdView
+from xpdview.viewer import XpdView
 
 app = QtGui.QApplication(sys.argv)
 viewer = XpdView()

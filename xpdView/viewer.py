@@ -20,8 +20,8 @@ from matplotlib.backends.backend_qt4agg import\
         NavigationToolbar2QT as NavigationToolBar
 
 # classes for plotting
-from xpdView.cross_2d import CrossSection, StackViewer
-from xpdView.waterfall import Waterfall
+from xpdview.cross_2d import CrossSection, StackViewer
+from xpdview.waterfall import Waterfall
 
 
 def chi_read(fn):
