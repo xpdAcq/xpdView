@@ -23,6 +23,33 @@ from matplotlib.backends.backend_qt4agg import\
 from xpdView.cross_2d import CrossSection, StackViewer
 from xpdView.waterfall import Waterfall
 
+
+def chi_read(fn):
+    """wrapper for reading .chi files
+
+    Parameters
+    ----------
+    fn : str
+        filename of .chi files
+
+    Return
+    ------
+    array : ndarray
+        n by 2 array. first row is data grid, second row is data values
+    """
+    try:
+        array =np.loadtxt(fn)
+    except OSError:
+        # fit2d format
+        array = np.loadtxt(fn, skiprows=4)
+    return array
+
+# top definitions for IO handlers
+TIF_READER = partial(imread)
+NPY_READER = partial(np.load)
+CHI_READER = partial(chi_read) # special as we still take fit2d
+GR_READER = partial(np.loadtxt, skiprows=27)  # skiprows=27 -> xPDFsuite
+
 class XpdView(QtGui.QMainWindow):
     def __init__(self, filepath=None):
         """
@@ -64,7 +91,8 @@ class XpdView(QtGui.QMainWindow):
         self.filepath = filepath
         self.img_data_ext = '.tif'
         self.int_data_ext = '.chi'
-        self.img_handler = partial(imread)  # default to tifffile.imread
+        self.img_handler = TIF_READER  # default to tifffile.imread
+        self.int_data_handler = CHI_READER
 
         # init mpl figures and canvas for plotting
         self.img_fig = Figure(tight_layout=True)
@@ -151,12 +179,12 @@ class XpdView(QtGui.QMainWindow):
         """method to update data carried by class"""
         # key_list is required
         # call update methods of each class
-        print("IN GUI, new key len = {}, img_data len = {}"
+        print("INFO: new key len = {}, img_data len = {}"
               .format(len(key_list), len(img_data_list)))
         # FIXME: detailed flag about update status in each class
         self.viewer.update(key_list, img_data_list, refresh)
         self.waterfall.update(key_list, int_data_list, refresh)
-        # re-link callback again
+        # link callback again
         self.viewer.slider.on_changed(self.update_one_dim_plot)
         self.update_one_dim_plot(int(round(self.viewer.slider.val)))
 
@@ -214,23 +242,17 @@ class XpdView(QtGui.QMainWindow):
         for meta in operation_list:
             if not isinstance(meta, str):
                 # iterable -> comes from zip(...)
-                img_data, int_data = meta
-                # should we block fit2d?
-                try:
-                    _array =np.loadtxt(os.path.join(self.filepath,
-                                                    int_data))
-                except OSError:
-                    # fit2d format
-                    _array = np.loadtxt(os.path.join(self.filepath,
-                                                     int_data), skiprows=4)
+                img_fn, int_fn = meta
+                _array = self.int_data_handler(os.path.join(self.filepath,
+                                                            int_fn))
                 x = _array[:,0]
                 y = _array[:,1]
                 int_data_list.append((x, y))
             else:
-                img_data = meta
-            # always load img data
+                # always load img data
+                img_fn = meta
             img_data_list.append(self.img_handler(os.path.join\
-                    (self.filepath,img_data)))
+                    (self.filepath,img_fn)))
         # filebase operation; always refresh
         self.update(key_list, img_data_list, int_data_list, True)
 
@@ -336,19 +358,26 @@ class XpdView(QtGui.QMainWindow):
         if self.int_data_ext_cbox.currentText() == '.chi':
             print("INFO: change 1d reduced data default extention to .chi")
             self.int_data_ext = '.chi'
+            self.int_data_handler = CHI_READER
+            self.refresh()
         elif self.int_data_ext_cbox.currentText() == '.gr':
             print("INFO: change 1d reduced data default extention to .gr")
             self.int_data_ext = '.gr'
+            self.int_data_handler = GR_READER
+            self.refresh()
 
     def change_img_data_ext(self, txt):
         if self.img_data_ext_cbox.currentText() == '.tif':
             print("INFO: change 2d img data default extention to .tif")
             self.img_data_ext = '.tif'
-            self.img_handler = partial(imread)
+            self.img_handler = TIF_READER
+            self.refresh()
+
         elif self.img_data_ext_cbox.currentText() == '.npy':
             print("INFO: change 2d img data default extention to .npy")
             self.img_data_ext = '.npy'
-            self.img_handler = partial(np.load)
+            self.img_handler = NPY_READER
+            self.refresh()
 
     def reset_window_layout(self):
         """This method puts all of the dock windows containing plots
