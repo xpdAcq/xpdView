@@ -1,11 +1,10 @@
 import os
 import sys
 import numpy as np
-from PyQt4 import QtGui
-import matplotlib
+from PyQt5 import QtWidgets
 from xpdview.viewer import XpdView
 
-app = QtGui.QApplication(sys.argv)
+app = QtWidgets.QApplication(sys.argv)
 viewer = XpdView()
 viewer.show()
 

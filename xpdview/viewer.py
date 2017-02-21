@@ -1,22 +1,23 @@
 """
 This file will contain the code that makes the XPD view GUI
 """
-import sys
 import os
+import sys
+from functools import partial
+from collections import Iterable
+
 import numpy as np
 from tifffile import imread
-from collections import Iterable
-from functools import partial
 
 # FIXME: update qt5 if it's fully compatible
-from PyQt4 import QtGui, QtCore
+
 import copy
 import matplotlib
-matplotlib.use('Qt4Agg')
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt4agg import\
+from PyQt5 import QtGui, QtCore, QtWidgets
+from matplotlib.backends.backend_qt5agg import\
         FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import\
+from matplotlib.backends.backend_qt5agg import\
         NavigationToolbar2QT as NavigationToolBar
 
 # classes for plotting
@@ -50,7 +51,7 @@ NPY_READER = partial(np.load)
 CHI_READER = partial(chi_read) # special as we still take fit2d
 GR_READER = partial(np.loadtxt, skiprows=27)  # skiprows=27 -> xPDFsuite
 
-class XpdView(QtGui.QMainWindow):
+class XpdView(QtWidgets.QMainWindow):
     def __init__(self, filepath=None):
         """
         top-level class to configure GUI and holds 2d/1d data
@@ -82,7 +83,7 @@ class XpdView(QtGui.QMainWindow):
             and int_data_list
         """
         # configure QT property
-        QtGui.QMainWindow.__init__(self)
+        QtWidgets.QMainWindow.__init__(self)
         self.setWindowTitle('XPD View')
         self.setDockNestingEnabled(True)
         self.setAnimated(False)
@@ -97,15 +98,15 @@ class XpdView(QtGui.QMainWindow):
         # init mpl figures and canvas for plotting
         self.img_fig = Figure(tight_layout=True)
         self.img_canvas = FigureCanvas(self.img_fig)
-        self.img_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                                      QtGui.QSizePolicy.Expanding)
+        self.img_canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                      QtWidgets.QSizePolicy.Expanding)
         self._viewer = CrossSection(self.img_fig) # core 2d viewer
         self.viewer = StackViewer(self._viewer) # stack viwer
 
         self.waterfall_fig = Figure(tight_layout=True)
         self.waterfall_canvas = FigureCanvas(self.waterfall_fig)
-        self.waterfall_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                                            QtGui.QSizePolicy.Expanding)
+        self.waterfall_canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Expanding)
         self.waterfall = Waterfall(self.waterfall_fig, self.waterfall_canvas)
         self.water_ax = self.waterfall.ax
         self._default_plot(self.water_ax)
@@ -113,8 +114,8 @@ class XpdView(QtGui.QMainWindow):
         # create 1d plot axes in place
         self.int_fig = Figure(tight_layout=True)
         self.int_canvas = FigureCanvas(self.int_fig)
-        self.int_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                                      QtGui.QSizePolicy.Expanding)
+        self.int_canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                      QtWidgets.QSizePolicy.Expanding)
         self.int_ax = self.int_fig.add_subplot(111)
         self.int_ax.set_autoscale_on(False)
         self._default_plot(self.int_ax)
@@ -122,24 +123,24 @@ class XpdView(QtGui.QMainWindow):
         self.viewer.slider.on_changed(self.update_one_dim_plot)
 
         # adding qt widgets
-        self.img_dock = QtGui.QDockWidget("Dockable", self)
-        self.img_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
+        self.img_dock = QtWidgets.QDockWidget("Dockable", self)
+        self.img_dock.setFeatures(QtWidgets.QDockWidget.DockWidgetMovable)
         self.img_dock.setWindowTitle("2D Image")
         self._configure_dock(self.img_dock, self.img_canvas)
 
-        self.int_dock = QtGui.QDockWidget("Dockable", self)
-        self.int_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
+        self.int_dock = QtWidgets.QDockWidget("Dockable", self)
+        self.int_dock.setFeatures(QtWidgets.QDockWidget.DockWidgetMovable)
         self.int_dock.setWindowTitle("1D Integration")
         self._configure_dock(self.int_dock,self.int_canvas)
 
-        self.waterfall_dock = QtGui.QDockWidget("Dockable", self)
-        self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
+        self.waterfall_dock = QtWidgets.QDockWidget("Dockable", self)
+        self.waterfall_dock.setFeatures(QtWidgets.QDockWidget.DockWidgetMovable)
         self.waterfall_dock.setWindowTitle("Waterfall Plot")
         self._configure_dock(self.waterfall_dock, self.waterfall_canvas)
 
         # add gui buttons
         self.set_up_menu_bar()
-        self.tools_box = QtGui.QToolBar()
+        self.tools_box = QtWidgets.QToolBar()
         self.addToolBar(QtCore.Qt.BottomToolBarArea, self.tools_box)
         self.set_up_tool_bar()
 
@@ -153,10 +154,10 @@ class XpdView(QtGui.QMainWindow):
 
     def _configure_dock(self, qt_dock, canvas):
         """helper function to add mpl toolbar"""
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(NavigationToolBar(canvas, self))
         layout.addWidget(canvas)
-        multi = QtGui.QWidget()
+        multi = QtWidgets.QWidget()
         multi.setLayout(layout)
         qt_dock.setWidget(multi)
 
@@ -198,7 +199,7 @@ class XpdView(QtGui.QMainWindow):
             option to set as refresh or not
         """
         if not refresh:
-            popup = QtGui.QFileDialog()
+            popup = QtWidgets.QFileDialog()
             self.filepath = popup.getExistingDirectory()
         # listing files. xpdAcq logic should be required inexplicitly here
         sorted_fn_list = sorted(os.listdir(self.filepath))
@@ -298,18 +299,18 @@ class XpdView(QtGui.QMainWindow):
 
         """
         # set path option
-        setpath = QtGui.QAction("&Set Directory", self)
+        setpath = QtWidgets.QAction("&Set Directory", self)
         setpath.setShortcut("Ctrl+O")
         setpath.setStatusTip("Set image directory")
         setpath.triggered.connect(self.set_path)
 
         # sets up menu refresh option
-        refresh_path = QtGui.QAction('&Refresh', self)
+        refresh_path = QtWidgets.QAction('&Refresh', self)
         refresh_path.setShortcut('Ctrl+R')
         refresh_path.triggered.connect(self.refresh)
 
         # This creates the window redocking option in the code
-        reset_windows = QtGui.QAction('&Redock Windows', self)
+        reset_windows = QtWidgets.QAction('&Redock Windows', self)
         reset_windows.triggered.connect(self.reset_window_layout)
 
         # This sets up all of the menu widgets that are used in the GUI
@@ -331,19 +332,19 @@ class XpdView(QtGui.QMainWindow):
 
         """
         # All these commands will add the widgets in
-        refresh_btn = QtGui.QPushButton('Refresh', self)
+        refresh_btn = QtWidgets.QPushButton('Refresh', self)
         refresh_btn.clicked.connect(self.refresh)
         self.tools_box.addWidget(refresh_btn)
 
-        img_data_ext_label = QtGui.QLabel('2D image file extention')
-        self.img_data_ext_cbox = QtGui.QComboBox()
+        img_data_ext_label = QtWidgets.QLabel('2D image file extention')
+        self.img_data_ext_cbox = QtWidgets.QComboBox()
         self.img_data_ext_cbox.addItem(".tif")
         self.img_data_ext_cbox.addItem(".npy")
         self.img_data_ext_cbox.activated[str].\
                 connect(self.change_img_data_ext)
 
-        int_data_ext_label = QtGui.QLabel('1D reduced data file extention')
-        self.int_data_ext_cbox = QtGui.QComboBox()
+        int_data_ext_label = QtWidgets.QLabel('1D reduced data file extention')
+        self.int_data_ext_cbox = QtWidgets.QComboBox()
         self.int_data_ext_cbox.addItem(".chi")
         self.int_data_ext_cbox.addItem(".gr")
         self.int_data_ext_cbox.activated[str].\
@@ -397,7 +398,7 @@ def main():
     None
 
     """
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     viewer = XpdView()
     viewer.show()
     sys.exit(app.exec_())
