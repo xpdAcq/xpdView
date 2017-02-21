@@ -1,10 +1,14 @@
 import os
 import sys
 import numpy as np
-from PyQt5 import QtWidgets
-from xpdview.viewer import XpdView
-
-app = QtWidgets.QApplication(sys.argv)
+try:
+    from PyQt5 import QtWidgets
+    from xpdview.viewer_qt5 import XpdView
+    app = QtWidgets.QApplication(sys.argv)
+except:
+    from PyQt4 import QtGui
+    from xpdview.viewer_qt4 import XpdView
+    app = QtGui.QApplication(sys.argv) 
 viewer = XpdView()
 viewer.show()
 
