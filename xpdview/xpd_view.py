@@ -77,7 +77,7 @@ class Display(QtGui.QMainWindow):
     Attributes
     ----------
     analysis_type : string
-            determines what kind of statistical parameter will be observed
+        determines what kind of statistical parameter will be observed
     file_path : string
         the directory that will contain the .tif and .chi files for viewing
     key_list : list of strings
@@ -89,33 +89,44 @@ class Display(QtGui.QMainWindow):
     Azi : instance of the Azimuthal class
         this class is used to integrate the 2D data as it is read in
     surface : Bool
-        this variable keeps track of whether the user wants a contour plot or a wire plot in the 3d frame
+        this variable keeps track of whether the user wants a contour
+        plot or a wire plot in the 3d frame
     three_dim_drawn : Bool
-        this variable keeps track of whether or not the 3d plot has been drawn yet
+        this variable keeps track of whether or not the 3d plot has
+        been drawn yet
     data_dict : dictionary
         stores all of the 2D image arrays as a dictionary
     int_data_dict : dictionary
         stores all of the integrated data's x and y lists in a dictionary
     is_main_rpp_plotted : bool
-        this variable keeps track of whether or not the main reduced rep plot has been created
+        this variable keeps track of whether or not the main reduced
+        rep plot has been created
     messenger : object
         this is an instance of the 2D cross section messenger class
     rpp_list : list of objects
-        this list contains references to all of the reduced representation plots for when they update
+        this list contains references to all of the reduced
+        representation plots for when they update
     three_dim_list : list of objects
-        this list contains references to all of the three dimensional plots for when they update
+        this list contains references to all of the three dimensional
+        plots for when they update
     peak_plots : list of objects
-        this list contains references to all created peak plots (eventually all 1D reduced rep plots)
+        this list contains references to all created peak plots
+        (eventually all 1D reduced rep plots)
     plot_dock : object
-        this object creates the floating window to hold the reduced representation plot
+        this object creates the floating window to hold the reduced
+        representation plot
     img_dock : object
-        this object creates the floating window to hold the image along with the cross section windows
+        this object creates the floating window to hold the image
+        along with the cross section windows
     integration_dock : object
-        this object creates the floating window to hold the 1D integrated data
+        this object creates the floating window to hold the 1D
+        integrated data
     waterfall_dock : object
-        this object creates the floating window to hold the 3D image with all the data sets
+        this object creates the floating window to hold the 3D image
+        with all the data sets
     fig1 : matplotlib figure
-        this allows us to change the kinds of plots shown on any of the four tiles
+        this allows us to change the kinds of plots shown on any of
+        the four tiles
     canvas1 : matplotlib canvas
         see reasoning above
     (same for 2 - 4)
@@ -124,11 +135,14 @@ class Display(QtGui.QMainWindow):
     img_slider : object
         makes slider for toolbar to change image
     img_spin : object
-        creates spinbox that will be used to display current frame and allow more controlled steps through frames
+        creates spinbox that will be used to display current
+        frame and allow more controlled steps through frames
     color : object
-        combobox that will control color maps available to the user for the 2D data
+        combobox that will control color maps available to the
+        user for the 2D data
     int_style : object
-        combobox that contains options for controlling the intensity of the image
+        combobox that contains options for controlling the
+        intensity of the image
     int_min : object
         spinbox that will control the minimum intensity value
     int_max : object
@@ -143,13 +157,15 @@ class Display(QtGui.QMainWindow):
         allows instance of Waterfall2D class later in code
     """
 
-    def __init__(self):
+    def __init__(self, is_callback=True):
         """
-        This class creates the display window that is used by users to analyze their data
+        This class creates the display window that is used by
+        users to analyze their data
 
         Parameters
         ----------
-        self
+        is_callback : bool, optional
+            option to set if running with callback
 
         Returns
         -------
@@ -160,6 +176,7 @@ class Display(QtGui.QMainWindow):
         self.setWindowTitle('XPD View')
         self.analysis_type = None
         self.file_path = None
+        self.is_callback = is_callback
         data_list, self.key_list = data_gen(1)
         self.int_key_list = []
         self.Tif = TifFileFinder()
@@ -192,11 +209,13 @@ class Display(QtGui.QMainWindow):
 
         # setting up dockable windows
         self.plot_dock = QtGui.QDockWidget("Dockable", self)
-        self.plot_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.plot_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable |
+                                   QtGui.QDockWidget.DockWidgetMovable)
         self.plot_dock.setWindowTitle("Reduced Representation")
 
         self.img_dock = QtGui.QDockWidget("Dockable", self)
-        self.img_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.img_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable |
+                                  QtGui.QDockWidget.DockWidgetMovable)
         self.img_dock.setWindowTitle("Image")
 
         self.integration_dock = QtGui.QDockWidget("Dockable", self)
@@ -204,7 +223,8 @@ class Display(QtGui.QMainWindow):
         self.integration_dock.setWindowTitle("Integration")
 
         self.waterfall_dock = QtGui.QDockWidget("Dockable", self)
-        self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetMovable)
+        self.waterfall_dock.setFeatures(QtGui.QDockWidget.DockWidgetFloatable|
+                                        QtGui.QDockWidget.DockWidgetMovable)
         self.waterfall_dock.setWindowTitle("Waterfall Plot")
 
         self.is_main_rpp_plotted = False
@@ -225,10 +245,15 @@ class Display(QtGui.QMainWindow):
         self.int_max = self.ctrls._spin_max
 
         # These statements add the dock widgets to the GUI
-        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.img_dock)
-        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.plot_dock)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.integration_dock)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.waterfall_dock)
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea,
+                           self.img_dock)
+        #self.addDockWidget(QtCore.Qt.RightDockWidgetArea,
+        #                   self.plot_dock)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea,
+                           self.integration_dock)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea,
+                           self.waterfall_dock)
+
 
         # These methods will set up the menu bars and the tool bars
         self.tools_box = QtGui.QToolBar()
@@ -244,6 +269,7 @@ class Display(QtGui.QMainWindow):
         self.r_rep_widget()
         self.one_dim_integrate()
         self.waterfall_2d()
+
 
     def r_rep_widget(self):
         """
@@ -351,9 +377,11 @@ class Display(QtGui.QMainWindow):
         None
 
         """
-        FigureCanvas.setSizePolicy(self.canvas3, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvas.setSizePolicy(self.canvas3, QtGui.QSizePolicy.Expanding,
+                                   QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self.canvas3)
-        self.one_dim_plot = IntegrationPlot(self.int_data_dict, self.fig3, self.canvas3)
+        self.one_dim_plot = IntegrationPlot(self.int_data_dict,
+                                            self.fig3, self.canvas3)
         toolbar = NavigationToolBar(self.canvas3, self)
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
@@ -382,7 +410,8 @@ class Display(QtGui.QMainWindow):
         fig = plt.figure()
         canvas = FigureCanvas(fig)
         toolbar = NavigationToolBar(canvas, self)
-        water = WaterFallMaker(fig, canvas, self.int_data_dict, self.int_key_list)
+        water = WaterFallMaker(fig, canvas, self.int_data_dict,
+                               self.int_key_list)
         water.get_right_shape()
         x = plot_type
         self.three_dim_list.append([water, x])
@@ -486,9 +515,11 @@ class Display(QtGui.QMainWindow):
         """
         fig = plt.figure()
         canvas = FigureCanvas(fig)
-        self.water = Waterfall2D(self.int_key_list, self.int_data_dict, fig, canvas)
+        self.water = Waterfall2D(self.int_key_list,
+                                 self.int_data_dict, fig, canvas)
+        toolbar = self.twod_plot_settings()
         self.water.y_offset = .5
-        toolbar = NavigationToolBar(canvas, self)
+        #toolbar = NavigationToolBar(canvas, self)
         self.water.generate_waterfall()
         layout = QtGui.QVBoxLayout()
         layout.addWidget(toolbar)
@@ -565,17 +596,18 @@ class Display(QtGui.QMainWindow):
 
         # This sets up all of the menu widgets that are used in the GUI
         mainmenu = self.menuBar()
-        window_menu = mainmenu.addMenu("&Window")
         filemenu = mainmenu.addMenu("&File")
+        window_menu = mainmenu.addMenu("&Window")
         graph_menu = mainmenu.addMenu('&Reduced Representation')
-        waterfall_menu = mainmenu.addMenu('&Waterfall Plots')
-        filemenu.addAction(setpath)
+        #waterfall_menu = mainmenu.addMenu('&Waterfall Plots')
+        if self.is_callback:  # no set_path for callback
+            filemenu.addAction(setpath)
         filemenu.addAction(refresh_path)
-        graph_menu.addAction(plt_action)
-        graph_menu.addAction(peak_action)
-        waterfall_menu.addAction(surface_action)
-        waterfall_menu.addAction(wire_action)
-        waterfall_menu.addAction(twod_action)
+        #graph_menu.addAction(plt_action)
+        #graph_menu.addAction(peak_action)
+        #waterfall_menu.addAction(surface_action)
+        #waterfall_menu.addAction(wire_action)
+        #waterfall_menu.addAction(twod_action)
         window_menu.addAction(reset_windows)
 
     def twod_plot_settings(self):
@@ -610,13 +642,17 @@ class Display(QtGui.QMainWindow):
         normalize_option_box.setChecked(self.water.is_normalized())
         normalize_option_box.stateChanged.connect(self.set_normalization)
         layout = QtGui.QHBoxLayout()
-        for widget in [y_offset_label, y_offset_slider, x_offset_label, x_offset_slider, normalize_option_label, normalize_option_box]:
+        for widget in [y_offset_label, y_offset_slider,
+                       x_offset_label, x_offset_slider,
+                       normalize_option_label, normalize_option_box]:
             layout.addStretch()
             layout.addWidget(widget)
 
         settings_window.setLayout(layout)
-        settings_window.show()
-        settings_window.exec_()
+        #settings_window.show()
+        #settings_window.exec_()
+
+        return settings_window
 
     def set_normalization(self, state):
         if state == 2:
@@ -965,15 +1001,16 @@ class Display(QtGui.QMainWindow):
         accept_btn.setText('Accept')
         hbox6.addWidget(accept_btn)
         accept_btn.clicked.connect(popup.close)
-        accept_btn.clicked.connect(lambda: self.Azi.set_integration_parameters(wl=wave_number.value(),
-                                                                               poni1=poni1_number.value(),
-                                                                               poni2=poni2_number.value(),
-                                                                               dist=dist_number.value(),
-                                                                               rot1=rot1_number.value(),
-                                                                               rot2=rot2_number.value()))
+        accept_btn.clicked.connect(lambda: self.Azi.set_integration_parameter
+                                           (wl=wave_number.value(),
+                                            poni1=poni1_number.value(),
+                                            poni2=poni2_number.value(),
+                                            dist=dist_number.value(),
+                                            rot1=rot1_number.value(),
+                                            rot2=rot2_number.value()))
 
-        popup.show()
-        popup.exec_()
+        #popup.show()
+        #popup.exec_()
 
     def set_path(self):
         """
@@ -991,7 +1028,7 @@ class Display(QtGui.QMainWindow):
         popup = QtGui.QFileDialog()
         self.file_path = str(popup.getExistingDirectory())
         self.Tif._directory_name = self.file_path
-        self.set_integration_parameters()
+        #self.set_integration_parameters()
         self.Tif.get_file_list()
         self.Azi.get_right_names(self.Tif.file_list, self.Tif.pic_list)
 
@@ -1013,8 +1050,9 @@ class Display(QtGui.QMainWindow):
 
     def refresh(self):
         """
-        This method checks for new data using the methods available to ChiFileFinder and TifFileFinder Classes and
-        handles the new data to ensure that nothing breaks
+        This method checks for new data using the methods available
+        to ChiFileFinder and TifFileFinder Classes and handles
+        the new data to ensure that nothing breaks
 
         Parameters
         ----------
@@ -1025,6 +1063,7 @@ class Display(QtGui.QMainWindow):
         None
 
         """
+        # using refresh method from Tif and Azi container class
         new_file_names, new_data = self.Tif.get_new_files()
         int_new_files, int_data_x, int_data_y = self.Azi.refresh_time(new_file_names, new_data)
         if len(new_file_names) == 0 and len(int_new_files) == 0:
@@ -1050,7 +1089,6 @@ class Display(QtGui.QMainWindow):
 
         Parameters
         ----------
-        self
         data_list : list of 2D arrays
             data that is to be put into the dictionary
         file_list : list of stings
@@ -1065,6 +1103,7 @@ class Display(QtGui.QMainWindow):
         for file in file_list:
             self.key_list.append(file)
         for i in range(old_length, len(self.key_list)):
+            print("UPDATE DATA DICT")
             self.data_dict[self.key_list[i]] = data_list[i - old_length]
         self.img_slider.setMaximum(len(self.key_list) - 1)
         self.img_spin.setMaximum(len(self.key_list) - 1)
@@ -1077,11 +1116,14 @@ class Display(QtGui.QMainWindow):
         ----------
         self
         file_list : list of strings
-            key names that are the same as the 2D arrays but associated with the 1D plots
+            key names that are the same as the 2D arrays but
+            associated with the 1D plots
         data_x : list of 1D numpy arrays
-            x-axis data for the 1D plot associated with corresponding key name
+            x-axis data for the 1D plot associated with
+            corresponding key name
         data_y : list of 1D numpy arrays
-            y-axis data for the 1D plot associated with corresponding key name
+            y-axis data for the 1D plot associated with
+            corresponding key name
 
         Returns
         -------
@@ -1089,8 +1131,8 @@ class Display(QtGui.QMainWindow):
 
         """
         old_length = len(self.int_key_list)
-        for file in file_list:
-            self.int_key_list.append(file)
+        for f in file_list:
+            self.int_key_list.append(f)
         for i in range(old_length, len(self.int_key_list)):
             self.int_data_dict[self.int_key_list[i]] = [data_x[i - old_length], data_y[i - old_length]]
         if len(self.int_key_list) != 0:
