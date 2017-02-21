@@ -13,6 +13,7 @@ from tifffile import imread
 
 import copy
 import matplotlib
+matplotlib.use('qt4Agg')
 from matplotlib.figure import Figure
 from PyQt4 import QtGui, QtCore
 from matplotlib.backends.backend_qt4agg import\
