@@ -38,6 +38,8 @@ class Waterfall2D:
         self.fig = fig
         self.normalized = True
         self.canvas = canvas
+        # clean
+        self.fig.clf()
         self.ax = self.fig.add_subplot(111)
         self.x_offset = 0
         self.y_offset = 0
