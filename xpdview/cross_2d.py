@@ -498,11 +498,6 @@ class StackViewer(object):
         refresh: bool, optional
             option of refreshing or not
         """
-        if len(key_list) != len(img_data_list):
-            print("length of key_list = {} and length of image_data_list"
-                  "= {} are not qual".format(len(key_list),
-                                             len(img_data_list)))
-            return
         update_ind = self.slider.val+1
         if refresh:
             self.key_list = []

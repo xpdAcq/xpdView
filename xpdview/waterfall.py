@@ -23,8 +23,11 @@ class Waterfall:
     int_data_list : list, optional
         list of 1D reduced data. expect each element to be in (x,y)
         format. default to None
+    unit : tuple, optional
+        a tuple containing strings of x and y labels
     """
-    def __init__(self, fig, canvas, key_list=None, int_data_list=None):
+    def __init__(self, fig, canvas, key_list=None, int_data_list=None,
+                 *, unit=None):
         self.fig = fig
         self.canvas = canvas
         self.key_list = key_list
@@ -72,7 +75,7 @@ class Waterfall:
         self.int_data_list.extend(int_data_list)
         # generate plot
         self.halt = False
-        self._update_plot()# use current value
+        self._update_plot()# use current value of x,y offset
 
     def _adapt_data_list(self, int_data_list):
         """method to return statefull information of 1D data list"""

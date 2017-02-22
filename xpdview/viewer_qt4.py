@@ -95,6 +95,7 @@ class XpdView(QtGui.QMainWindow):
         self.int_data_ext = '.chi'
         self.img_handler = TIF_READER  # default to tifffile.imread
         self.int_data_handler = CHI_READER
+        self.int_data_unit = 'Q'  # or r for Gr
 
         # init mpl figures and canvas for plotting
         self.img_fig = Figure(tight_layout=True)
@@ -236,6 +237,9 @@ class XpdView(QtGui.QMainWindow):
                 operation_list = zip(img_data_fn_list, int_data_fn_list)
             else:
                 # number of img_key != int_key -> plot img_data only
+                print("INFO: number of image files and number of "
+                      "number of reduced files are not eqaul\n"
+                      "software will only update images")
                 operation_list = img_data_fn_list
 
         key_list = img_key_list  # always use key_list from img data
