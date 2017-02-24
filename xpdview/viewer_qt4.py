@@ -3,6 +3,7 @@ This file will contain the code that makes the XPD view GUI
 """
 import os
 import sys
+import glob
 from functools import partial
 from collections import Iterable
 
@@ -95,7 +96,7 @@ class XpdView(QtGui.QMainWindow):
         self.int_data_ext = '.chi'
         self.img_handler = TIF_READER  # default to tifffile.imread
         self.int_data_handler = CHI_READER
-        self.int_data_unit = 'Q'  # or r for Gr
+        self.int_data_prefix = 'Q_'  # NO ROOM FOR CHANGE, HAHAHA
 
         # init mpl figures and canvas for plotting
         self.img_fig = Figure(tight_layout=True)
@@ -203,45 +204,77 @@ class XpdView(QtGui.QMainWindow):
         if not refresh:
             popup = QtGui.QFileDialog()
             self.filepath = popup.getExistingDirectory()
-        # listing files. xpdAcq logic should be required inexplicitly here
         sorted_fn_list = sorted(os.listdir(self.filepath))
-        img_data_fn_list = [f for f in sorted_fn_list
-                            if os.path.splitext(f)[1] ==\
-                            self.img_data_ext]
-        int_data_fn_list = [f for f in sorted_fn_list
-                            if os.path.splitext(f)[1] ==\
-                            self.int_data_ext]
-        img_key_list = list(map(lambda x: os.path.splitext(x)[0],
-                                img_data_fn_list))
-        int_key_list = list(map(lambda x: os.path.splitext(x)[0],
-                                int_data_fn_list))
+        img_data_fn_list = [f for f in sorted_fn_list\
+                            if os.path.splitext(f)[1] == self.img_data_ext]
         if not img_data_fn_list:
-            print("INFO: can't find 2d image data in {} format in"
-                  "directory = {}".format(self.img_data_ext,
-                                          self.filepath))
+            print("INFO: can't find 2d image data with extension = {} "
+                  "in directory = {}".format(self.img_data_ext,
+                                             self.filepath))
             print("INFO: update can't be executed")
             self.viewer.no_image_plot()
-            # call update to turn 2d and 1d plot into black screen
+            # call update method to turn 2d and 1d plot into black screen
             self.waterfall.update([], [], True)
             self.update_one_dim_plot(0)
             return
-        if not int_data_fn_list:
-            print("INFO: can't find reduced data in {} format in"
+        img_key_list = list(map(lambda x: os.path.splitext(x)[0],
+                                img_data_fn_list))
+        # construct valid chi file name assuming xpdAn/xpdAcq logic
+        # Note: we only read "Q_" as prefix
+        int_data_fn_list_Q = []
+        int_data_fn_list_fit2d = []
+        for fn in img_key_list:
+            Q_fn = ''.join([self.int_data_prefix, fn, self.int_data_ext])
+            if os.path.isfile(os.path.join(self.filepath, Q_fn)):
+                int_data_fn_list_Q.append(Q_fn)
+            fit2d_fn = ''.join([fn, self.int_data_ext])
+            if os.path.isfile(os.path.join(self.filepath, fit2d_fn)):
+                int_data_fn_list_fit2d.append(fit2d_fn)
+        if not int_data_fn_list_Q and not int_data_fn_list_fit2d:
+            # no 1d data, only update image
+            print("INFO: can't find reduced data with extension = {} in"
                   "directory = {}".format(self.int_data_ext,
-                                        self.filepath))
+                                          self.filepath))
+            print("INFO: only 2d image viewer will be updated")
             operation_list = img_data_fn_list
         else:
-            # find a list of reduced data -> check if they are valid
-            if img_key_list == int_key_list:
-                # number of img_key and int_key match -> valid operation
-                operation_list = zip(img_data_fn_list, int_data_fn_list)
+            # find lists of reduced data -> check if they are valid
+            if len(int_data_fn_list_Q) == len(img_data_fn_list):
+                # xpdAn logic first
+                operation_list = zip(img_data_fn_list,
+                                     int_data_fn_list_Q)
+                # further determine y label
+                if self.int_data_ext == '.chi':
+                    self.waterfall.unit = ('Q, nm^-1', 'I(Q), a.u.')
+                elif self.int_data_ext == '.gr':
+                    self.waterfall.unit = ('r, A^-2', 'G(r), a.u.')
+            elif len(int_data_fn_list_fit2d) == len(img_data_fn_list):
+                # fit2d logic later
+                operation_list = zip(img_data_fn_list,
+                                     int_data_fn_list_fit2d)
+                # further determine y label
+                if self.int_data_ext == '.chi':
+                    self.waterfall.unit = ('Q, A^-1', 'I(Q), a.u.')
+                elif self.int_data_ext == '.gr':
+                    self.waterfall.unit = ('r, A^-2', 'G(r), a.u.')
             else:
-                # number of img_key != int_key -> plot img_data only
-                print("INFO: number of image files and number of "
-                      "number of reduced files are not eqaul\n"
-                      "software will only update images")
+                # number of data are not the same, can't update
+                print("INFO: the number of reduced data files found with "
+                      "xpdView standard format {} is {}\n"
+                      "INFO: the number of reduced data files found with "
+                      "xpdView standard format {} is {}\n"
+                      "None of them equal to the number of image data"
+                      "files = {}"
+                      .format('Q_<image_name>'+self.int_data_ext,
+                              len(int_data_fn_list_Q),
+                              '<image_name>'+self.int_data_ext,
+                              len(int_data_fn_list_fit2d),
+                              len(img_data_fn_list)
+                              )
+                      )
+                print("INFO: Please make sure you follow standard workflow")
+                print("INFO: only 2d image viewer will be updated")
                 operation_list = img_data_fn_list
-
         key_list = img_key_list  # always use key_list from img data
         img_data_list = []
         int_data_list = []
@@ -257,9 +290,9 @@ class XpdView(QtGui.QMainWindow):
             else:
                 # always load img data
                 img_fn = meta
-            img_data_list.append(self.img_handler(os.path.join\
-                    (self.filepath,img_fn)))
-        # filebase operation; always refresh
+            img_data_list.append(self.img_handler(os.path.join(self.filepath,
+                                                               img_fn)))
+        # file-based operation; always refresh
         self.update(key_list, img_data_list, int_data_list, True)
 
     def refresh(self):
@@ -283,6 +316,9 @@ class XpdView(QtGui.QMainWindow):
             x,y = _array
             self.int_ax.set_facecolor('w')
             self.int_ax.cla()
+            xlabel, ylabel = self.waterfall.unit
+            self.int_ax.set_xlabel(xlabel)
+            self.int_ax.set_ylabel(ylabel)
             self.int_ax.plot(x,y)
             self.int_ax.set_title(key_list[_val], fontsize=10)
             # FIXME: add x,y label
@@ -392,22 +428,3 @@ class XpdView(QtGui.QMainWindow):
         self.int_dock.setFloating(False)
         self.img_dock.setFloating(False)
         self.waterfall_dock.setFloating(False)
-
-
-def main():
-    """
-    This allow the GUI to be run if the program is called as a file
-
-    Returns
-    -------
-    None
-
-    """
-    app = QtGui.QApplication(sys.argv)
-    viewer = XpdView()
-    viewer.show()
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()

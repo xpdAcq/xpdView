@@ -483,7 +483,9 @@ class StackViewer(object):
         _val = self.slider.val
         # update 2d viewer
         self.viewer.update_image(self.img_data_list[_val])
-        self.fig.suptitle(self.key_list[_val], fontsize=10)
+        # give title if key_list is available
+        if self.key_list:
+            self.fig.suptitle(self.key_list[_val], fontsize=10)
 
     def update(self, key_list, img_data_list, refresh=False):
         """method to update data carried by stack viewr

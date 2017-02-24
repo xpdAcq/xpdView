@@ -62,7 +62,7 @@ class Waterfall:
             option to set refresh or not. default to False.
         """
         if not int_data_list:
-            print("INFO: no reduced data is feeded in "
+            print("INFO: no reduced data is feeded in, "
                   "waterfall plot can't be updated")
             self.halt = True
             self.no_int_data_plot(self.ax, self.canvas)
@@ -109,7 +109,17 @@ class Waterfall:
             x, y = el
             self.ax.plot(x + x_dist * ind * x_offset_val,
                          y + y_dist * ind * y_offset_val)
+        # display legends if it's not too many
+        if len(self.key_list) <= 5:
+            self.ax.legend(self.key_list)
+        else:
+            self.ax.legend(["{} file selected"
+                            .format(len(self.key_list))])
         self.ax.autoscale()
+        if self.unit:
+            xlabel, ylabel = self.unit
+            self.ax.set_xlabel = xlabel
+            self.ax.set_ylabel = ylabel
         self.canvas.draw_idle()
 
     def update_y_offset(self, val):
