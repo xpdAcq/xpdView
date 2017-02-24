@@ -6,9 +6,6 @@ def _normalize(self, array, max_val, min_val):
     """core function to normalize a ndarray"""
     return np.subtract(array, min_val) / np.subtract(max_val, min_val)
 
-# needed by init
-#canvas = FigureCanvas(fig)
-#water_fig = plt.figure()
 class Waterfall:
     """class holds data and generate watefall plot
 
