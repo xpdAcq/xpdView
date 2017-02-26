@@ -182,7 +182,7 @@ class XpdView(QtWidgets.QMainWindow):
             self.filepath = popup.getExistingDirectory()
         fn_meta = load_files(self.filepath, self.img_data_ext,
                           self.int_data_ext, self.int_data_prefix)
-        if not fn_meta:
+        if not all(fn_meta):
             self.viewer.no_image_plot()
             # call update method to turn 2d and 1d plot into black screen
             self.waterfall.update([], [], True)

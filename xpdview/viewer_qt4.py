@@ -167,7 +167,7 @@ class XpdView(QtGui.QMainWindow):
         # call update methods of each class
         print("INFO: new key len = {}, img_data len = {}"
               .format(len(key_list), len(img_data_list)))
-        # FIXME: detailed flag about update status in each class
+        # TODO: detailed flag about update status in each class
         self.viewer.update(key_list, img_data_list, refresh)
         self.waterfall.update(key_list, int_data_list, refresh)
         # link callback again
@@ -188,7 +188,7 @@ class XpdView(QtGui.QMainWindow):
             self.filepath = popup.getExistingDirectory()
         fn_meta = load_files(self.filepath, self.img_data_ext,
                           self.int_data_ext, self.int_data_prefix)
-        if not fn_meta:
+        if not all(fn_meta):
             self.viewer.no_image_plot()
             # call update method to turn 2d and 1d plot into black screen
             self.waterfall.update([], [], True)
