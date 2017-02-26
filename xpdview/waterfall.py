@@ -27,10 +27,14 @@ class Waterfall:
                  *, unit=None):
         self.fig = fig
         self.canvas = canvas
+        # callback for showing legend
+        self.canvas.mpl_connect('pick_event', self.on_plot_hover)
         self.key_list = key_list
         self.int_data_list = int_data_list
         self.ax = self.fig.add_subplot(111)
-        self.halt = False  # flag to prevent update
+        self.unit = unit
+        # flag to prevent update
+        self.halt = False
         # add sliders, which store informations
         y_offset_slider_ax = self.fig.add_axes([0.15, 0.95, 0.3, 0.035])
         self.y_offset_slider = Slider(y_offset_slider_ax,
@@ -90,6 +94,18 @@ class Waterfall:
         return (x_array_list, y_array_list, y_min, y_max,
                 y_dist, x_min, x_max, x_dist)
 
+    def on_plot_hover(self, event):
+        """callback to show legend when click on one of curves"""
+        line = event.artist
+        name = line.get_gid()
+        if len(name) >=50:
+            _name = name[:50]+'...'
+        else:
+            _name = name
+        line.axes.legend([_name],handlelength=0,
+                         handletextpad=0, fancybox=True)
+        line.figure.canvas.draw_idle()
+
     def _update_plot(self, x_offset_val=None, y_offset_val=None):
         """core method to update x-, y-offset sliders"""
         self.ax.set_facecolor('w')
@@ -105,13 +121,8 @@ class Waterfall:
         for ind, el in enumerate(zip(x_array_list, y_array_list)):
             x, y = el
             self.ax.plot(x + x_dist * ind * x_offset_val,
-                         y + y_dist * ind * y_offset_val)
-        # display legends if it's not too many
-        if len(self.key_list) <= 5:
-            self.ax.legend(self.key_list)
-        else:
-            self.ax.legend(["{} file selected"
-                            .format(len(self.key_list))])
+                         y + y_dist * ind * y_offset_val,
+                         gid=self.key_list[ind], picker=5)
         self.ax.autoscale()
         if self.unit:
             xlabel, ylabel = self.unit
