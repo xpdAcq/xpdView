@@ -79,10 +79,12 @@ class XpdView(QtWidgets.QMainWindow):
         self.img_canvas = FigureCanvas(self.img_fig)
         self.img_canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                       QtWidgets.QSizePolicy.Expanding)
-        self._viewer = CrossSection(self.img_fig) # core 2d viewer
-        self.viewer = StackViewer(self._viewer) # stack viwer
+        # core 2d viewer
+        self._viewer = CrossSection(self.img_fig, cmap='CMRmap')
+        # stack viwer
+        self.viewer = StackViewer(self._viewer)
 
-        self.waterfall_fig = Figure(tight_layout=True)
+        self.waterfall_fig = Figure(tight_layout=False)
         self.waterfall_canvas = FigureCanvas(self.waterfall_fig)
         self.waterfall_canvas.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Expanding)
@@ -151,7 +153,7 @@ class XpdView(QtWidgets.QMainWindow):
                             "documentation for more details:\n"
                             "http://xpdacq.github.io/quickstart.html"),
                 ha='center', va='center', color='w',
-                transform= ax.transAxes, size=11)
+                transform= ax.transAxes, size=10)
         ax.set_facecolor('k')
 
     def update(self, key_list=None, img_data_list=None,
@@ -178,7 +180,7 @@ class XpdView(QtWidgets.QMainWindow):
             option to set as refresh or not
         """
         if not refresh:
-            popup = QtGui.QFileDialog()
+            popup = QtWidgets.QFileDialog()
             self.filepath = popup.getExistingDirectory()
         fn_meta = load_files(self.filepath, self.img_data_ext,
                           self.int_data_ext, self.int_data_prefix)
