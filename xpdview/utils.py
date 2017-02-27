@@ -45,6 +45,7 @@ def load_files(filepath, img_data_ext, int_data_ext,
     -------
     (img_key_list, operation_list, unit)
     """
+    unit = None # will be updated later
     sorted_fn_list = sorted(os.listdir(filepath))
     img_data_fn_list = [f for f in sorted_fn_list\
                         if os.path.splitext(f)[1] == img_data_ext]
@@ -68,7 +69,7 @@ def load_files(filepath, img_data_ext, int_data_ext,
             int_data_fn_list_fit2d.append(fit2d_fn)
     if not int_data_fn_list_Q and not int_data_fn_list_fit2d:
         # no 1d data, only update image
-        print("INFO: can't find reduced data with extension = {} in"
+        print("INFO: can't find reduced data with extension = {} in "
               "directory = {}".format(int_data_ext, filepath))
         print("INFO: only 2d image viewer will be updated")
         operation_list = img_data_fn_list

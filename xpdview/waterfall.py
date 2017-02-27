@@ -98,11 +98,7 @@ class Waterfall:
         """callback to show legend when click on one of curves"""
         line = event.artist
         name = line.get_gid()
-        if len(name) >=50:
-            _name = name[:50]+'...'
-        else:
-            _name = name
-        line.axes.legend([_name],handlelength=0,
+        line.axes.legend([name],handlelength=0,
                          handletextpad=0, fancybox=True)
         line.figure.canvas.draw_idle()
 
