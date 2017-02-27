@@ -52,41 +52,49 @@ def load_files(filepath, img_data_ext, int_data_ext,
     if not img_data_fn_list:
         print("INFO: can't find 2d image data with extension = {} "
               "in directory = {}".format(img_data_ext, filepath))
-        return (None, None)
+        return (None, None, None)
 
     img_key_list = list(map(lambda x: os.path.splitext(x)[0],
                             img_data_fn_list))
-    # construct valid chi file name assuming xpdAn/xpdAcq logic
-    # Note: we only read "Q_" as prefix
-    int_data_fn_list_Q = []
-    int_data_fn_list_fit2d = []
-    for fn in img_key_list:
-        Q_fn = ''.join([int_data_prefix, fn, int_data_ext])
-        if os.path.isfile(os.path.join(filepath, Q_fn)):
-            int_data_fn_list_Q.append(Q_fn)
-        fit2d_fn = ''.join([fn, int_data_ext])
-        if os.path.isfile(os.path.join(filepath, fit2d_fn)):
-            int_data_fn_list_fit2d.append(fit2d_fn)
-    if not int_data_fn_list_Q and not int_data_fn_list_fit2d:
-        # no 1d data, only update image
-        print("INFO: can't find reduced data with extension = {} in "
-              "directory = {}".format(int_data_ext, filepath))
-        print("INFO: only 2d image viewer will be updated")
-        operation_list = img_data_fn_list
-    else:
-        # find lists of reduced data -> check if they are valid
-        if len(int_data_fn_list_Q) == len(img_data_fn_list):
-            # xpdAn logic first
-            operation_list = zip(img_data_fn_list,
-                                 int_data_fn_list_Q)
-            # further determine y label
-            unit = ('Q(nm$^{-1}$)', 'I(Q), a.u.)')
-        elif len(int_data_fn_list_fit2d) == len(img_data_fn_list):
-            # fit2d logic later
-            operation_list = zip(img_data_fn_list,
-                                 int_data_fn_list_fit2d)
+    if int_data_ext == '.gr':
+        unit = ('r($\mathrm{\AA}$)',
+                'G($\mathrm{\AA}$$^{-2}$)')
+        gr_fn_list = []
+        for fn in img_key_list:
+            gr_fn = ''.join([fn, int_data_ext])
+            if os.path.isfile(os.path.join(filepath, gr_fn)):
+                gr_fn_list.append(gr_fn)
+        # check if valid
+        if len(gr_fn_list) == len(img_key_list):
+            int_data_fn_list = gr_fn_list
+        else:
+            int_data_fn_list = None
+    elif int_data_ext == '.chi':
+        # construct valid chi file name assuming xpdAn/xpdAcq logic
+        # Note: we only read "Q_" as prefix
+        unit = ('Q(nm$^{-1}$)', 'I(Q), a.u.)') # flip if reads in fit2d
+        Q_fn_list = []
+        fit2d_fn_list = []
+        for fn in img_key_list:
+            Q_fn = ''.join([int_data_prefix, fn, int_data_ext])
+            if os.path.isfile(os.path.join(filepath, Q_fn)):
+                Q_fn_list.append(Q_fn)
+            fit2d_fn = ''.join([fn, int_data_ext])
+            if os.path.isfile(os.path.join(filepath, fit2d_fn)):
+                fit2d_fn_list.append(fit2d_fn)
+        # check if 1d data list is valid
+        if not Q_fn_list and not fit2d_fn_list:
+            # no 1d data, only update image
+            print("INFO: can't find reduced data with extension = {} in "
+                  "directory = {}".format(int_data_ext, filepath))
+            print("INFO: only 2d image viewer will be updated")
+            int_data_fn_list = None
+        elif len(Q_fn_list) == len(img_data_fn_list):
+            int_data_fn_list = Q_fn_list
+        elif len(fit2d_fn_list) == len(img_data_fn_list):
             # further determine y label
             unit = ('Q($\mathrm{\AA}$$^{-1}$)', 'I(Q), a.u.')
+            int_data_fn_list = fit2d_fn_list
         else:
             # number of data are not the same, can't update
             print("INFO: the number of reduced data files found with "
@@ -96,17 +104,19 @@ def load_files(filepath, img_data_ext, int_data_ext,
                   "None of them equal to the number of image data"
                   "files = {}"
                   .format('Q_<image_name>'+int_data_ext,
-                          len(int_data_fn_list_Q),
+                          len(Q_fn_list),
                           '<image_name>'+int_data_ext,
-                          len(int_data_fn_list_fit2d),
+                          len(fit2d_fn_list),
                           len(img_data_fn_list)
                           )
                   )
             print("INFO: Please make sure you follow standard workflow")
             print("INFO: only 2d image viewer will be updated")
-            operation_list = img_data_fn_list
-    if int_data_ext == '.gr':
-            unit = ('r($\mathrm{\AA}$)',
-                    'G($\mathrm{\AA}$$^{-2}$)')
+            int_data_list = None
+
+    if int_data_fn_list:
+        operation_list = zip(img_data_fn_list, int_data_fn_list)
+    else:
+        operation_list = img_data_fn_list
 
     return (img_key_list, operation_list, unit)
