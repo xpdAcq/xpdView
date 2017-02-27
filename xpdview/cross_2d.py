@@ -500,6 +500,8 @@ class StackViewer(object):
         refresh: bool, optional
             option of refreshing or not
         """
+        #TODO: figure out origin of this weird flipping logic
+        img_data_list = list(map(lambda x: np.flipud(x), img_data_list))
         update_ind = self.slider.val+1
         if refresh:
             self.key_list = []
