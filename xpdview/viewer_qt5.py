@@ -183,7 +183,7 @@ class XpdView(QtWidgets.QMainWindow):
             popup = QtWidgets.QFileDialog()
             self.filepath = popup.getExistingDirectory()
         fn_meta = load_files(self.filepath, self.img_data_ext,
-                          self.int_data_ext, self.int_data_prefix)
+                             self.int_data_ext, self.int_data_prefix)
         if not all(fn_meta):
             self.viewer.no_image_plot()
             # call update method to turn 2d and 1d plot into black screen
@@ -239,7 +239,6 @@ class XpdView(QtWidgets.QMainWindow):
             self.int_ax.set_ylabel(ylabel)
             self.int_ax.plot(x,y)
             self.int_ax.set_title(key_list[_val], fontsize=10)
-            # FIXME: add x,y label
             self.int_canvas.draw_idle()
 
     ######## gui btns ##############
