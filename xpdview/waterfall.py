@@ -6,9 +6,6 @@ def _normalize(self, array, max_val, min_val):
     """core function to normalize a ndarray"""
     return np.subtract(array, min_val) / np.subtract(max_val, min_val)
 
-# needed by init
-#canvas = FigureCanvas(fig)
-#water_fig = plt.figure()
 class Waterfall:
     """class holds data and generate watefall plot
 
@@ -30,10 +27,14 @@ class Waterfall:
                  *, unit=None):
         self.fig = fig
         self.canvas = canvas
+        # callback for showing legend
+        self.canvas.mpl_connect('pick_event', self.on_plot_hover)
         self.key_list = key_list
         self.int_data_list = int_data_list
         self.ax = self.fig.add_subplot(111)
-        self.halt = False  # flag to prevent update
+        self.unit = unit
+        # flag to prevent update
+        self.halt = False
         # add sliders, which store informations
         y_offset_slider_ax = self.fig.add_axes([0.15, 0.95, 0.3, 0.035])
         self.y_offset_slider = Slider(y_offset_slider_ax,
@@ -62,7 +63,7 @@ class Waterfall:
             option to set refresh or not. default to False.
         """
         if not int_data_list:
-            print("INFO: no reduced data is feeded in "
+            print("INFO: no reduced data is feeded in, "
                   "waterfall plot can't be updated")
             self.halt = True
             self.no_int_data_plot(self.ax, self.canvas)
@@ -93,6 +94,14 @@ class Waterfall:
         return (x_array_list, y_array_list, y_min, y_max,
                 y_dist, x_min, x_max, x_dist)
 
+    def on_plot_hover(self, event):
+        """callback to show legend when click on one of curves"""
+        line = event.artist
+        name = line.get_gid()
+        line.axes.legend([name],handlelength=0,
+                         handletextpad=0, fancybox=True)
+        line.figure.canvas.draw_idle()
+
     def _update_plot(self, x_offset_val=None, y_offset_val=None):
         """core method to update x-, y-offset sliders"""
         self.ax.set_facecolor('w')
@@ -108,8 +117,13 @@ class Waterfall:
         for ind, el in enumerate(zip(x_array_list, y_array_list)):
             x, y = el
             self.ax.plot(x + x_dist * ind * x_offset_val,
-                         y + y_dist * ind * y_offset_val)
+                         y + y_dist * ind * y_offset_val,
+                         gid=self.key_list[ind], picker=5)
         self.ax.autoscale()
+        if self.unit:
+            xlabel, ylabel = self.unit
+            self.ax.set_xlabel = xlabel
+            self.ax.set_ylabel = ylabel
         self.canvas.draw_idle()
 
     def update_y_offset(self, val):

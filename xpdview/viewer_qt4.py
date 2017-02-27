@@ -3,6 +3,7 @@ This file will contain the code that makes the XPD view GUI
 """
 import os
 import sys
+import glob
 from functools import partial
 from collections import Iterable
 
@@ -24,27 +25,7 @@ from matplotlib.backends.backend_qt4agg import\
 # classes for plotting
 from xpdview.cross_2d import CrossSection, StackViewer
 from xpdview.waterfall import Waterfall
-
-
-def chi_read(fn):
-    """wrapper for reading .chi files
-
-    Parameters
-    ----------
-    fn : str
-        filename of .chi files
-
-    Return
-    ------
-    array : ndarray
-        n by 2 array. first row is data grid, second row is data values
-    """
-    try:
-        array =np.loadtxt(fn)
-    except OSError:
-        # fit2d format
-        array = np.loadtxt(fn, skiprows=4)
-    return array
+from xpdview.utils import load_files, chi_read
 
 # top definitions for IO handlers
 TIF_READER = partial(imread)
@@ -95,17 +76,19 @@ class XpdView(QtGui.QMainWindow):
         self.int_data_ext = '.chi'
         self.img_handler = TIF_READER  # default to tifffile.imread
         self.int_data_handler = CHI_READER
-        self.int_data_unit = 'Q'  # or r for Gr
+        self.int_data_prefix = 'Q_'  # NO ROOM FOR CHANGE, HAHAHA
 
         # init mpl figures and canvas for plotting
         self.img_fig = Figure(tight_layout=True)
         self.img_canvas = FigureCanvas(self.img_fig)
         self.img_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                       QtGui.QSizePolicy.Expanding)
-        self._viewer = CrossSection(self.img_fig) # core 2d viewer
-        self.viewer = StackViewer(self._viewer) # stack viwer
+        # core 2d viewer
+        self._viewer = CrossSection(self.img_fig, cmap='CMRmap')
+        # stack viwer
+        self.viewer = StackViewer(self._viewer)
 
-        self.waterfall_fig = Figure(tight_layout=True)
+        self.waterfall_fig = Figure(tight_layout=False)
         self.waterfall_canvas = FigureCanvas(self.waterfall_fig)
         self.waterfall_canvas.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                             QtGui.QSizePolicy.Expanding)
@@ -174,7 +157,7 @@ class XpdView(QtGui.QMainWindow):
                             "documentation for more details:\n"
                             "http://xpdacq.github.io/quickstart.html"),
                 ha='center', va='center', color='w',
-                transform= ax.transAxes, size=11)
+                transform= ax.transAxes, size=10)
         ax.set_facecolor('k')
 
     def update(self, key_list=None, img_data_list=None,
@@ -184,7 +167,7 @@ class XpdView(QtGui.QMainWindow):
         # call update methods of each class
         print("INFO: new key len = {}, img_data len = {}"
               .format(len(key_list), len(img_data_list)))
-        # FIXME: detailed flag about update status in each class
+        # TODO: detailed flag about update status in each class
         self.viewer.update(key_list, img_data_list, refresh)
         self.waterfall.update(key_list, int_data_list, refresh)
         # link callback again
@@ -203,45 +186,17 @@ class XpdView(QtGui.QMainWindow):
         if not refresh:
             popup = QtGui.QFileDialog()
             self.filepath = popup.getExistingDirectory()
-        # listing files. xpdAcq logic should be required inexplicitly here
-        sorted_fn_list = sorted(os.listdir(self.filepath))
-        img_data_fn_list = [f for f in sorted_fn_list
-                            if os.path.splitext(f)[1] ==\
-                            self.img_data_ext]
-        int_data_fn_list = [f for f in sorted_fn_list
-                            if os.path.splitext(f)[1] ==\
-                            self.int_data_ext]
-        img_key_list = list(map(lambda x: os.path.splitext(x)[0],
-                                img_data_fn_list))
-        int_key_list = list(map(lambda x: os.path.splitext(x)[0],
-                                int_data_fn_list))
-        if not img_data_fn_list:
-            print("INFO: can't find 2d image data in {} format in"
-                  "directory = {}".format(self.img_data_ext,
-                                          self.filepath))
-            print("INFO: update can't be executed")
+        fn_meta = load_files(self.filepath, self.img_data_ext,
+                          self.int_data_ext, self.int_data_prefix)
+        if not all(fn_meta):
             self.viewer.no_image_plot()
-            # call update to turn 2d and 1d plot into black screen
+            # call update method to turn 2d and 1d plot into black screen
             self.waterfall.update([], [], True)
             self.update_one_dim_plot(0)
             return
-        if not int_data_fn_list:
-            print("INFO: can't find reduced data in {} format in"
-                  "directory = {}".format(self.int_data_ext,
-                                        self.filepath))
-            operation_list = img_data_fn_list
-        else:
-            # find a list of reduced data -> check if they are valid
-            if img_key_list == int_key_list:
-                # number of img_key and int_key match -> valid operation
-                operation_list = zip(img_data_fn_list, int_data_fn_list)
-            else:
-                # number of img_key != int_key -> plot img_data only
-                print("INFO: number of image files and number of "
-                      "number of reduced files are not eqaul\n"
-                      "software will only update images")
-                operation_list = img_data_fn_list
-
+        # unpack results
+        img_key_list, operation_list, unit = fn_meta
+        self.waterfall.unit = unit
         key_list = img_key_list  # always use key_list from img data
         img_data_list = []
         int_data_list = []
@@ -257,9 +212,9 @@ class XpdView(QtGui.QMainWindow):
             else:
                 # always load img data
                 img_fn = meta
-            img_data_list.append(self.img_handler(os.path.join\
-                    (self.filepath,img_fn)))
-        # filebase operation; always refresh
+            img_data_list.append(self.img_handler(os.path.join(self.filepath,
+                                                               img_fn)))
+        # file-based operation; always refresh
         self.update(key_list, img_data_list, int_data_list, True)
 
     def refresh(self):
@@ -283,9 +238,11 @@ class XpdView(QtGui.QMainWindow):
             x,y = _array
             self.int_ax.set_facecolor('w')
             self.int_ax.cla()
+            xlabel, ylabel = self.waterfall.unit
+            self.int_ax.set_xlabel(xlabel)
+            self.int_ax.set_ylabel(ylabel)
             self.int_ax.plot(x,y)
             self.int_ax.set_title(key_list[_val], fontsize=10)
-            # FIXME: add x,y label
             self.int_canvas.draw_idle()
 
     ######## gui btns ##############
@@ -392,22 +349,3 @@ class XpdView(QtGui.QMainWindow):
         self.int_dock.setFloating(False)
         self.img_dock.setFloating(False)
         self.waterfall_dock.setFloating(False)
-
-
-def main():
-    """
-    This allow the GUI to be run if the program is called as a file
-
-    Returns
-    -------
-    None
-
-    """
-    app = QtGui.QApplication(sys.argv)
-    viewer = XpdView()
-    viewer.show()
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()
