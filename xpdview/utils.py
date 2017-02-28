@@ -2,13 +2,16 @@
 import os
 import numpy as np
 
-def chi_read(fn):
+def chi_read(fn, skiprows=4):
     """wrapper for reading .chi files
 
     Parameters
     ----------
     fn : str
         filename of .chi files
+    skiprows : int, optional
+        number of rows will be skipped.
+        default to 4 for fit2d format
 
     Return
     ------
@@ -17,9 +20,8 @@ def chi_read(fn):
     """
     try:
         array =np.loadtxt(fn)
-    except OSError:
-        # fit2d format
-        array = np.loadtxt(fn, skiprows=4)
+    except:
+        array = np.loadtxt(fn, skiprows=skiprows)
     return array
 
 
@@ -45,7 +47,8 @@ def load_files(filepath, img_data_ext, int_data_ext,
     -------
     (img_key_list, operation_list, unit)
     """
-    unit = None # will be updated later
+    unit = None # update later
+    int_data_fn_list = None # update later
     sorted_fn_list = sorted(os.listdir(filepath))
     img_data_fn_list = [f for f in sorted_fn_list\
                         if os.path.splitext(f)[1] == img_data_ext]
@@ -67,8 +70,6 @@ def load_files(filepath, img_data_ext, int_data_ext,
         # check if valid
         if len(gr_fn_list) == len(img_key_list):
             int_data_fn_list = gr_fn_list
-        else:
-            int_data_fn_list = None
     elif int_data_ext == '.chi':
         # construct valid chi file name assuming xpdAn/xpdAcq logic
         # Note: we only read "Q_" as prefix
@@ -112,7 +113,6 @@ def load_files(filepath, img_data_ext, int_data_ext,
                   )
             print("INFO: Please make sure you follow standard workflow")
             print("INFO: only 2d image viewer will be updated")
-            int_data_list = None
 
     if int_data_fn_list:
         operation_list = zip(img_data_fn_list, int_data_fn_list)
