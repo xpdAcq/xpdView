@@ -97,7 +97,7 @@ class Waterfall:
     def on_plot_hover(self, event):
         """callback to show legend when click on one of curves"""
         line = event.artist
-        name = line.get_gid()
+        name = line.get_label()
         line.axes.legend([name],handlelength=0,
                          handletextpad=0, fancybox=True)
         line.figure.canvas.draw_idle()
@@ -118,7 +118,7 @@ class Waterfall:
             x, y = el
             self.ax.plot(x + x_dist * ind * x_offset_val,
                          y + y_dist * ind * y_offset_val,
-                         gid=self.key_list[ind], picker=5)
+                         label=self.key_list[ind], picker=5)
         self.ax.autoscale()
         if self.unit:
             xlabel, ylabel = self.unit
