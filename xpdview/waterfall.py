@@ -68,6 +68,16 @@ class Waterfall:
             self.halt = True
             self.no_int_data_plot(self.ax, self.canvas)
             return
+        # validate shape
+        array_shape_list = list(map(lambda x: np.shape(x[0]),
+                                    int_data_list))
+        array_shape_num = np.unique(array_shape_list)
+        if len(array_shape_num)> 1:
+            print("INFO: there are reduced data with different length, "
+                  "they might come from different calibrations or "
+                  "experiment setups. Please check if your data files\n"
+                  "INFO: waterfall plot won't be updated")
+            return
         # refresh list
         if refresh:
             self.key_list = []
