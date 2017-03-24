@@ -68,6 +68,16 @@ class Waterfall:
             self.halt = True
             self.no_int_data_plot(self.ax, self.canvas)
             return
+        # validate shape
+        array_shape_list = list(map(lambda x: np.shape(x[0]),
+                                    int_data_list))
+        array_shape_num = np.unique(array_shape_list)
+        if len(array_shape_num)> 1:
+            print("INFO: there are reduced data with different length, "
+                  "they might come from different calibrations or "
+                  "experiment setups. Please check if your data files\n"
+                  "INFO: waterfall plot won't be updated")
+            return
         # refresh list
         if refresh:
             self.key_list = []
@@ -97,7 +107,7 @@ class Waterfall:
     def on_plot_hover(self, event):
         """callback to show legend when click on one of curves"""
         line = event.artist
-        name = line.get_gid()
+        name = line.get_label()
         line.axes.legend([name],handlelength=0,
                          handletextpad=0, fancybox=True)
         line.figure.canvas.draw_idle()
@@ -118,7 +128,7 @@ class Waterfall:
             x, y = el
             self.ax.plot(x + x_dist * ind * x_offset_val,
                          y + y_dist * ind * y_offset_val,
-                         gid=self.key_list[ind], picker=5)
+                         label=self.key_list[ind], picker=5)
         self.ax.autoscale()
         if self.unit:
             xlabel, ylabel = self.unit
