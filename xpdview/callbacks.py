@@ -1,7 +1,9 @@
-from bluesky.callbacks.core import CallbackBase
+from bluesky.callbacks.broker import BrokerCallbackBase
 from .waterfall import Waterfall
+import matplotlib.pyplot as plt
 
-class LiveWaterfall(CallbackBase):
+
+class LiveWaterfall(BrokerCallbackBase):
     """
     Stream 2D images in a cross-section viewer.
 
@@ -11,27 +13,20 @@ class LiveWaterfall(CallbackBase):
         name of data field in an Event
     """
 
-    def __init__(self, field, *, fs=None):
+    def __init__(self, field, fs=None):
         import matplotlib.pyplot as plt
-        super().__init__()
+        super().__init__((field, ), fs=fs)
         self.field = field
         self.fig = plt.figure()
         self.wf = Waterfall(fig=self.fig)
-        if fs is None:
-            import filestore.api as fs
         self.fs = fs
         self.i = 0
 
     def event(self, doc):
-        if 'filled' not in doc.keys() or \
-                        doc['filled'].get(self.field, False) is False:
-            uid = doc['data'][self.field]
-            data = self.fs.retrieve(uid)
-        else:
-            data = doc['data'][self.field]
-        self.update(data)
         super().event(doc)
+        data = doc['data'][self.field]
+        self.update(data)
 
     def update(self, data):
-        self.wf.update([self.i], [data])
+        self.wf.update(key_list=[self.i], int_data_list=[data])
         self.i += 1
