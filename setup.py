@@ -6,11 +6,9 @@ setup(
     packages=find_packages(),
     description='Visualization Code for Beam line',
     zip_safe=False,
-    url='https://github.com/chiahaoliu/xpdView.git', install_requires=['numpy',
-                                                                       'six',
-                                                                       'matplotlib',
-                                                                       'PyQt5',
-                                                                       'PyQt4',
-                                                                       'scipy',
-                                                                       'tifffile']
+    url='https://github.com/chiahaoliu/xpdView.git',
+    install_requires=['numpy', 'six', 'matplotlib',
+                      # 'PyQt5', 'PyQt4',
+                      'scipy',
+                      'tifffile']
 )
