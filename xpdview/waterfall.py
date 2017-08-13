@@ -26,8 +26,13 @@ class Waterfall:
         a tuple containing strings of x and y labels
     """
 
-    def __init__(self, fig=None, canvas=None, key_list=None, int_data_list=None,
+    def __init__(self, fig=None, canvas=None,
+                 key_list=None, int_data_list=None,
                  *, unit=None):
+        if int_data_list is None:
+            int_data_list = []
+        if key_list is None:
+            key_list = []
         if not fig:
             fig = plt.figure()
         self.fig = fig
@@ -106,7 +111,7 @@ class Waterfall:
     def on_plot_hover(self, event):
         """callback to show legend when click on one of curves"""
         line = event.artist
-        name = line.get_gid()
+        name = line.get_label()
         line.axes.legend([name], handlelength=0,
                          handletextpad=0, fancybox=True)
         line.figure.canvas.draw_idle()
