@@ -13,19 +13,21 @@ class LiveWaterfall(BrokerCallbackBase):
         name of data field in an Event
     """
 
-    def __init__(self, field, fs=None):
+    def __init__(self, x_name, y_name, db=None, units=None):
         import matplotlib.pyplot as plt
-        super().__init__((field, ), fs=fs)
-        self.field = field
+        super().__init__((x_name, y_name,), db=db)
+        self.x_name = x_name
+        self.y_name = y_name
         self.fig = plt.figure()
-        self.wf = Waterfall(fig=self.fig)
-        self.fs = fs
+        self.wf = Waterfall(fig=self.fig, unit=units)
+        self.db = db
         self.i = 0
 
     def event(self, doc):
         super().event(doc)
-        data = doc['data'][self.field]
-        self.update(data)
+        y = doc['data'][self.y_name]
+        x = doc['data'][self.x_name]
+        self.update((x, y))
 
     def update(self, data):
         self.wf.update(key_list=[self.i], int_data_list=[data])
