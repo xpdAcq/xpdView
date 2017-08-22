@@ -132,7 +132,7 @@ class Waterfall:
             x, y = el
             self.ax.plot(x + x_dist * ind * x_offset_val,
                          y + y_dist * ind * y_offset_val,
-                         gid=self.key_list[ind], picker=5)
+                         label=self.key_list[ind], picker=5)
         self.ax.autoscale()
         if self.unit:
             xlabel, ylabel = self.unit
