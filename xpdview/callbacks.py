@@ -19,7 +19,6 @@ class LiveWaterfall(BrokerCallbackBase):
     """
 
     def __init__(self, x_name, y_name, db=None, units=None):
-        import matplotlib.pyplot as plt
         super().__init__((x_name, y_name,), db=db)
         self.db = db
         self.x_name = x_name
