@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 
 
@@ -33,8 +34,7 @@ class Waterfall:
         if key_list is None:
             key_list = []
         if not fig:
-            from matplotlib.figure import Figure
-            fig = Figure()
+            fig = plt.figure()
         self.fig = fig
         if not canvas:
             canvas = self.fig.canvas

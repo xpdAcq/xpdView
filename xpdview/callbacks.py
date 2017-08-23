@@ -1,5 +1,6 @@
 from bluesky.callbacks.broker import BrokerCallbackBase
 from .waterfall import Waterfall
+import matplotlib.pyplot as plt
 
 
 class LiveWaterfall(BrokerCallbackBase):
@@ -25,8 +26,7 @@ class LiveWaterfall(BrokerCallbackBase):
         self.y_name = y_name
         self.units = units
 
-        from matplotlib.figure import Figure
-        self.fig = Figure()
+        self.fig = plt.figure()
 
         self.wf = Waterfall(fig=self.fig, unit=self.units)
         self.i = 0
