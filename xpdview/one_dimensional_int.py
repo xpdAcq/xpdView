@@ -13,8 +13,8 @@
 ##############################################################################
 
 """
-This file will handle all of the one dimensional plotting of the lower left tile in the
-Display Window
+This file will handle all of the one dimensional plotting of the lower left
+tile in the Display Window
 """
 import warnings
 import matplotlib.pyplot as plt
@@ -27,7 +27,8 @@ class IntegrationPlot(object):
     Attributes
     ----------
     int_data_dict : dict
-        this dictionary holds the data to be plotted by the user; data must be stored as lists inside a list with the
+        this dictionary holds the data to be plotted by the user; data must be
+        stored as lists inside a list with the
         format [x_data_list, y_data_list]
     fig : object
         this needs to be a matplotlib figure
@@ -87,9 +88,9 @@ class IntegrationPlot(object):
         try:
             # grab corresponding data based on key
             data = self.int_data_dict[use_key]
-            x,y = data
+            x, y = data
             self.ax.plot(x, y)
-            #self.ax.hold(False)
+            # self.ax.hold(False)
             self.ax.legend([use_key[:10]])
             self.ax.autoscale()
             self.canvas.draw()

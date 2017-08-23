@@ -2,9 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 
+
 def _normalize(self, array, max_val, min_val):
     """core function to normalize a ndarray"""
     return np.subtract(array, min_val) / np.subtract(max_val, min_val)
+
 
 class Waterfall:
     """class holds data and generate watefall plot
@@ -23,19 +25,31 @@ class Waterfall:
     unit : tuple, optional
         a tuple containing strings of x and y labels
     """
-    def __init__(self, fig, canvas, key_list=None, int_data_list=None,
+
+    def __init__(self, fig=None, canvas=None,
+                 key_list=None, int_data_list=None,
                  *, unit=None):
+        if int_data_list is None:
+            int_data_list = []
+        if key_list is None:
+            key_list = []
+        if not fig:
+            fig = plt.figure()
         self.fig = fig
+        if not canvas:
+            canvas = self.fig.canvas
         self.canvas = canvas
+
         # callback for showing legend
         self.canvas.mpl_connect('pick_event', self.on_plot_hover)
         self.key_list = key_list
         self.int_data_list = int_data_list
         self.ax = self.fig.add_subplot(111)
         self.unit = unit
+
         # flag to prevent update
         self.halt = False
-        # add sliders, which store informations
+        # add sliders, which store information
         y_offset_slider_ax = self.fig.add_axes([0.15, 0.95, 0.3, 0.035])
         self.y_offset_slider = Slider(y_offset_slider_ax,
                                       'y-offset', 0.0, 1.0,
@@ -63,20 +77,10 @@ class Waterfall:
             option to set refresh or not. default to False.
         """
         if not int_data_list:
-            print("INFO: no reduced data is feeded in, "
+            print("INFO: no reduced data was fed in, "
                   "waterfall plot can't be updated")
             self.halt = True
             self.no_int_data_plot(self.ax, self.canvas)
-            return
-        # validate shape
-        array_shape_list = list(map(lambda x: np.shape(x[0]),
-                                    int_data_list))
-        array_shape_num = np.unique(array_shape_list)
-        if len(array_shape_num)> 1:
-            print("INFO: there are reduced data with different length, "
-                  "they might come from different calibrations or "
-                  "experiment setups. Please check if your data files\n"
-                  "INFO: waterfall plot won't be updated")
             return
         # refresh list
         if refresh:
@@ -86,13 +90,13 @@ class Waterfall:
         self.int_data_list.extend(int_data_list)
         # generate plot
         self.halt = False
-        self._update_plot()# use current value of x,y offset
+        self._update_plot()  # use current value of x,y offset
 
     def _adapt_data_list(self, int_data_list):
         """method to return statefull information of 1D data list"""
         x_array_list = []
         y_array_list = []
-        for x,y in int_data_list:
+        for x, y in int_data_list:
             x_array_list.append(x)
             y_array_list.append(y)
         y_max = np.max(y_array_list)
@@ -108,7 +112,7 @@ class Waterfall:
         """callback to show legend when click on one of curves"""
         line = event.artist
         name = line.get_label()
-        line.axes.legend([name],handlelength=0,
+        line.axes.legend([name], handlelength=0,
                          handletextpad=0, fancybox=True)
         line.figure.canvas.draw_idle()
 
@@ -122,8 +126,8 @@ class Waterfall:
             y_offset_val = self.y_offset_slider.val
         # get stateful info
         state = self._adapt_data_list(self.int_data_list)
-        x_array_list, y_array_list,\
-                y_min, y_max, y_dist, x_min, x_max, x_dist = state
+        x_array_list, y_array_list, \
+        y_min, y_max, y_dist, x_min, x_max, x_dist = state
         for ind, el in enumerate(zip(x_array_list, y_array_list)):
             x, y = el
             self.ax.plot(x + x_dist * ind * x_offset_val,
@@ -156,7 +160,7 @@ class Waterfall:
                             "by proper calibration and integration.\n"
                             "Please go to our documentation for more details:\n"
                             "http://xpdacq.github.io/quickstart.html"),
-                     ha='center', va='center', color='w',
-                     transform=ax.transAxes, size=11)
+                ha='center', va='center', color='w',
+                transform=ax.transAxes, size=11)
         ax.set_facecolor('k')
         canvas.draw_idle()
