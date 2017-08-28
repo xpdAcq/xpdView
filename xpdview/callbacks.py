@@ -30,6 +30,7 @@ class LiveWaterfall(BrokerCallbackBase):
 
         self.wf = Waterfall(fig=self.fig, unit=self.units)
         self.i = 0
+        self.fig.show()
 
     def start(self, doc):
         self.i = 0
