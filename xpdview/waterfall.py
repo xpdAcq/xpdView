@@ -1,6 +1,14 @@
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
+from .utils import conf_label_size, conf_tick_size
+from cycler import cycler
+simonCycle2 = ["#0B3C5D", "#B82601",  "#1c6b0a",
+               "#328CC1", "#062F4F", "#D9B310",
+               "#984B43", "#76323F", "#626E60",
+               "#AB987A", "#C09F80", "#b0b0b0ff"]
+mpl.rcParams['axes.prop_cycle'] = cycler(color=simonCycle2)
 
 class Waterfall:
     """class holds data and generate watefall plot
@@ -18,11 +26,18 @@ class Waterfall:
         format. default to None
     unit : tuple, optional
         a tuple containing strings of x and y labels
+    label_size : int, optional
+        size of x-, y-label. default is 16
+    tick_size : int, optional
+        size of x-, y-tick. default is 14
+    kwargs :
+        keyword arguments for plotting
     """
 
     def __init__(self, fig=None, canvas=None,
                  key_list=None, int_data_list=None,
-                 *, unit=None):
+                 *, unit=None, label_size=16, tick_size=14,
+                 **kwargs):
         if int_data_list is None:
             int_data_list = []
         if key_list is None:
@@ -40,6 +55,8 @@ class Waterfall:
         self.int_data_list = int_data_list
         self.ax = self.fig.add_subplot(111)
         self.unit = unit
+        self.label_size = label_size
+        self.tick_size = tick_size
         # flag to prevent update
         self.halt = False
         # add sliders, which store information
@@ -130,6 +147,8 @@ class Waterfall:
             xlabel, ylabel = self.unit
             self.ax.set_xlabel(xlabel)
             self.ax.set_ylabel(ylabel)
+        conf_tick_size(self.ax, self.tick_size)
+        conf_label_size(self.ax, self.label_size)
         self.canvas.draw_idle()
 
     def update_y_offset(self, val):

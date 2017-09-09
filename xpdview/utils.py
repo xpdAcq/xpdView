@@ -2,6 +2,19 @@
 import os
 import numpy as np
 
+
+def conf_label_size(ax, label_size):
+    ax.xaxis.label.set_size(label_size)
+    ax.yaxis.label.set_size(label_size)
+
+
+def conf_tick_size(ax, tick_size):
+    for tick in ax.xaxis.get_major_ticks():
+                tick.label.set_fontsize(tick_size)
+    for tick in ax.yaxis.get_major_ticks():
+                tick.label.set_fontsize(tick_size)
+
+
 def chi_read(fn, skiprows=4):
     """wrapper for reading .chi files
 
