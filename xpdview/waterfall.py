@@ -48,6 +48,7 @@ class Waterfall:
         if not canvas:
             canvas = self.fig.canvas
         self.canvas = canvas
+        self.kwargs = kwargs
 
         # callback for showing legend
         self.canvas.mpl_connect('pick_event', self.on_plot_hover)
@@ -142,7 +143,7 @@ class Waterfall:
             self.ax.plot(x + self.x_dist * ind * x_offset_val,
                          y + self.y_dist * ind * y_offset_val,
                          label=self.key_list[ind], picker=5,
-                         **kwargs)
+                         **self.kwargs)
         self.ax.autoscale()
         if self.unit:
             xlabel, ylabel = self.unit
