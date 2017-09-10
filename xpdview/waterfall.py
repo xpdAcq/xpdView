@@ -168,7 +168,7 @@ class Waterfall:
         """
         ax.cla()
         ax.text(.5, .5,
-                '{}'.format("No reduced data can be generated.\n"
+                '{}'.format("No reduced data was generated.\n"
                             "Proper calibration is required for "
                             "data reduction.\n"
                             "Please refer to our documentation for more details:\n"

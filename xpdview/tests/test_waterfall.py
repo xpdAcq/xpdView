@@ -8,7 +8,7 @@ int_data_list = []
 key_list = []
 
 x = np.linspace(0, 4*np.pi, 200)
-for i in range(3):
+for i in range(5):
     key_list.append(str(i))
     int_data_list.append((x, np.sin(x)))
 
