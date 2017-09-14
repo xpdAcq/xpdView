@@ -100,7 +100,7 @@ class Waterfall:
             self.int_data_list = []
         self.key_list.extend(key_list)
         self.int_data_list.extend(int_data_list)
-        self._adapt_data_list(int_data_list)
+        self._adapt_data_list(self.int_data_list)
         # generate plot
         self.halt = False
         self._update_plot()  # use current value of x,y offset
