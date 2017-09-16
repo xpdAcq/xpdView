@@ -60,10 +60,11 @@ install:
   - pip install codecov pytest-env python-coveralls
   - git clean -xfd
 
-#script:
+script:
 #  - coverage run run_tests.py
 #  - coverage report -m
 #  - flake8 xpdview
+  - true
 
 #after_success:
 #  - codecov
