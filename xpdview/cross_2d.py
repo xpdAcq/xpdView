@@ -9,6 +9,7 @@ from matplotlib.colors import Normalize
 from matplotlib.widgets import Slider
 import numpy as np
 
+
 def auto_redraw(func):
     def inner(self, *args, **kwargs):
         if self._fig.canvas is None:
@@ -60,6 +61,7 @@ class CrossSection(object):
         Interpolation method to use. List of valid options can be found in
         CrossSection2DView.interpolation
     """
+
     def __init__(self, fig, cmap=None, norm=None,
                  limit_func=None, auto_redraw=True, interpolation=None):
 
@@ -116,7 +118,7 @@ class CrossSection(object):
         self._im_ax.yaxis.set_major_locator(NullLocator())
         self._imdata = None
         self._im = self._im_ax.imshow([[]], cmap=self._cmap, norm=self._norm,
-                        interpolation=self._interpolation,
+                                      interpolation=self._interpolation,
                                       aspect='equal', vmin=0,
                                       vmax=1)
 
@@ -462,6 +464,7 @@ class StackViewer(object):
     img_data_list : list, optional
         a list of 2D numpy arrays, default to None
     """
+
     def __init__(self, viewer, key_list=None, img_data_list=None):
         self.viewer = viewer
         self.key_list = key_list
@@ -469,7 +472,7 @@ class StackViewer(object):
         self.fig = self.viewer._fig
         # create slider
         if not key_list:
-            self.data_length = None   # init
+            self.data_length = None  # init
         else:
             self.data_length = len(key_list)
         self.slider_ax = self.fig.add_axes([0.15, 0.01, 0.7, 0.02])
@@ -500,9 +503,9 @@ class StackViewer(object):
         refresh: bool, optional
             option of refreshing or not
         """
-        #TODO: figure out origin of this weird flipping logic
+        # TODO: figure out origin of this weird flipping logic
         img_data_list = list(map(lambda x: np.flipud(x), img_data_list))
-        update_ind = self.slider.val+1
+        update_ind = self.slider.val + 1
         if refresh:
             self.key_list = []
             self.img_data_list = []
@@ -517,7 +520,7 @@ class StackViewer(object):
     def no_image_plot(self):
         """method to call when no valid image files are found"""
         # give a default array
-        default_array = np.zeros((200,200))
+        default_array = np.zeros((200, 200))
         self.viewer.update_image(default_array)
 
     def configure_slider(self):
@@ -525,7 +528,7 @@ class StackViewer(object):
         if not self.data_length:
             max_val = 0
         else:
-            max_val = self.data_length-1
+            max_val = self.data_length - 1
         self.slider_ax.cla()
         self.slider = Slider(self.slider_ax, 'image ind.', 0, max_val, 0,
                              valfmt='%d/{}'.format(max_val))

@@ -63,7 +63,8 @@ install:
 script:
 #  - coverage run run_tests.py
 #  - coverage report -m
-  - flake8 xpdview
+#  - flake8 xpdview
+  - true
 
 #after_success:
 #  - codecov

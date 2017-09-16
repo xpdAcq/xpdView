@@ -19,14 +19,15 @@ class LiveWaterfall(BrokerCallbackBase):
         The units for the x and y axes
     """
 
-    def __init__(self, x_name, y_name, db=None, units=None):
+    def __init__(self, x_name, y_name, db=None, units=None,
+                 window_title=None):
         super().__init__((x_name, y_name,), db=db)
         self.db = db
         self.x_name = x_name
         self.y_name = y_name
         self.units = units
 
-        self.fig = plt.figure()
+        self.fig = plt.figure(window_title)
 
         self.wf = Waterfall(fig=self.fig, unit=self.units)
         self.i = 0

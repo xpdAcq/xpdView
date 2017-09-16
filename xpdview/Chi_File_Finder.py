@@ -13,10 +13,12 @@
 ##############################################################################
 
 """
-This class will handle reading in .chi files from the directory so that XPD view can show
-the 1-D integration patterns extracted from the .chi files. You should only put this option back in if you are
-working on a Windows computer with .chi files. This is because all azimuthal integration software that has been found
-so far has had no windows equivalent and no windows configuration files.
+This class will handle reading in .chi files from the directory so that XPD
+view can show the 1-D integration patterns extracted from the .chi files.
+You should only put this option back in if you are working on a Windows
+computer with .chi files. This is because all azimuthal integration
+software that has been found so far has had no windows equivalent and no
+windows configuration files.
 """
 
 import numpy as np
@@ -61,8 +63,8 @@ class ChiFileFinder(object):
 
     def get_file_list(self):
         """
-        This method gets all of the chi files from the directory and organizes them according to the time they were
-        made
+        This method gets all of the chi files from the directory and organizes
+        them according to the time they were made
 
         Parameters
         ----------
@@ -78,13 +80,16 @@ class ChiFileFinder(object):
         if self._directory_name[-1] != '/' or '\\':
             self._directory_name += '/'
         self.dir_fil = os.listdir(self._directory_name)
-        self.dir_fil.sort(key=lambda x: os.path.getmtime(self._directory_name + x))
-        self.file_list = [file for file in self.dir_fil if file.endswith('.chi')]
+        self.dir_fil.sort(key=lambda x: os.path.getmtime(self._directory_name
+                                                         + x))
+        self.file_list = [file for file in self.dir_fil if
+                          file.endswith('.chi')]
         self.get_data_lists()
 
     def get_data_lists(self):
         """
-        This method reads in the data from the files and then splits it up into the x and y data
+        This method reads in the data from the files and then splits it up
+        into the x and y data
 
         Parameters
         ----------
@@ -117,8 +122,10 @@ class ChiFileFinder(object):
 
         """
         self.dir_fil = os.listdir(self._directory_name)
-        self.dir_fil.sort(key=lambda x: os.path.getmtime(self._directory_name + x))
-        new_file_list = [file for file in self.dir_fil if file.endswith('.chi')]
+        self.dir_fil.sort(key=lambda x: os.path.getmtime(
+            self._directory_name + x))
+        new_file_list = [file for file in self.dir_fil if file.endswith(
+            '.chi')]
         need_read_files = []
         for i in new_file_list:
             add = True
@@ -133,12 +140,14 @@ class ChiFileFinder(object):
 
     def get_new_data(self, temp_file_list):
         """
-        This method gets the new data from the files that get_new_files determined had not been read in yet
+        This method gets the new data from the files that get_new_files
+        determined had not been read in yet
 
         Parameters
         ----------
         temp_file_list : list of strings
-            a list of strings that correspond to all of the new files that need to be read in
+            a list of strings that correspond to all of the new files that
+            need to be read in
 
         Returns
         -------
