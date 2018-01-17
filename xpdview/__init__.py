@@ -1,1 +1,1 @@
-#This is a dummy file to initiate the installation process
+__version__ = '0.3.0'
