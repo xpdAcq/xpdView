@@ -42,14 +42,9 @@ before_install:
 
 install:
   - export GIT_FULL_HASH=`git rev-parse HEAD`
-  - conda create --yes -n testenv numpy scipy flake8 matplotlib python=$TRAVIS_PYTHON_VERSION pytest coverage pip databroker ophyd historydict boltons doct pyepics super_state_machine mock xlrd scikit-beam bluesky pyFAI pyxdameraulevenshtein pyqt=4 -c lightsource2 -c conda-forge -c soft-matter
+  - conda create --yes -n testenv numpy scipy flake8 matplotlib python=$TRAVIS_PYTHON_VERSION pytest coverage pip bluesky -c conda-forge
   - source activate testenv
   - python setup.py install
-  # Need to clean the python build directory (and other cruft) or pytest is
-  # going to find the build directory and get confused why there are two sets
-  # of every test file
-  - python -c "from filestore import utils, conf; utils.install_sentinels(conf.connection_config, 1)"
-  # make sure the sqlite file exists to avoid race conditions
   - python -c "from bluesky.utils import get_history; get_history()"
   - pip install codecov pytest-env python-coveralls
   - git clean -xfd
