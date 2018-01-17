@@ -65,3 +65,6 @@ Duke_data/
 *.pyc
 
 .vscode/
+
+# Rever
+rever/

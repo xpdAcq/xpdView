@@ -4,11 +4,13 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 from .utils import conf_label_size, conf_tick_size
 from cycler import cycler
-simonCycle2 = ["#0B3C5D", "#B82601",  "#1c6b0a",
+
+simonCycle2 = ["#0B3C5D", "#B82601", "#1c6b0a",
                "#328CC1", "#062F4F", "#D9B310",
                "#984B43", "#76323F", "#626E60",
                "#AB987A", "#C09F80", "#b0b0b0ff"]
 mpl.rcParams['axes.prop_cycle'] = cycler(color=simonCycle2)
+
 
 class Waterfall:
     """class holds data and generate watefall plot
@@ -74,7 +76,6 @@ class Waterfall:
         self.x_offset_slider.on_changed(self.update_x_offset)
         # init
         self.update(self.key_list, self.int_data_list, refresh=True)
-
 
     def update(self, key_list=None, int_data_list=None, refresh=False):
         """top method to update information carried by class and plot
@@ -171,7 +172,8 @@ class Waterfall:
                 '{}'.format("No reduced data was generated.\n"
                             "Proper calibration is required for "
                             "data reduction.\n"
-                            "Please refer to our documentation for more details:\n"
+                            "Please refer to our documentation for more "
+                            "details:\n"
                             "http://xpdacq.github.io/quickstart.html"),
                 ha='center', va='center', color='w',
                 transform=ax.transAxes, size=11)
