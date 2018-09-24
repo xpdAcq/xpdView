@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
-from .utils import conf_label_size, conf_tick_size
 from cycler import cycler
 
 simonCycle2 = ["#0B3C5D", "#B82601", "#1c6b0a",
@@ -11,6 +10,10 @@ simonCycle2 = ["#0B3C5D", "#B82601", "#1c6b0a",
                "#AB987A", "#C09F80", "#b0b0b0ff"]
 mpl.rcParams['axes.prop_cycle'] = cycler(color=simonCycle2)
 
+plt.rcParams['axes.linewidth'] = 3.0
+plt.rcParams['figure.dpi'] = 150
+plt.rcParams['lines.linewidth'] = 2.5
+plt.rcParams['font.size'] = 14
 
 class Waterfall:
     """class holds data and generate watefall plot
@@ -28,23 +31,13 @@ class Waterfall:
         format. default to None
     unit : tuple, optional
         a tuple containing strings of x and y labels
-    label_size : int, optional
-        size of x-, y-label. default is 16
-    tick_size : int, optional
-        size of x-, y-tick. default is 14
-    size : int, optional
-        number of lines to show at once, only the latest are shown,
-        defaults to 100
     kwargs :
         keyword arguments for plotting
     """
 
     def __init__(self, fig=None, canvas=None,
                  key_list=None, int_data_list=None,
-                 *, unit=None, label_size=16, tick_size=14,
-                 size=100,
-                 **kwargs):
-        self.size = size
+                 *, unit=None, **kwargs):
         if int_data_list is None:
             int_data_list = []
         if key_list is None:
@@ -56,6 +49,8 @@ class Waterfall:
             canvas = self.fig.canvas
         self.canvas = canvas
         self.kwargs = kwargs
+        self.x_array_list = []
+        self.y_array_list = []
 
         # callback for showing legend
         self.canvas.mpl_connect('pick_event', self.on_plot_hover)
@@ -63,21 +58,19 @@ class Waterfall:
         self.int_data_list = int_data_list
         self.ax = self.fig.add_subplot(111)
         self.unit = unit
-        self.label_size = label_size
-        self.tick_size = tick_size
-        # flag to prevent update
         self.halt = False
         # add sliders, which store information
+        self.ydist = 0
+        self.xdist = 0
         y_offset_slider_ax = self.fig.add_axes([0.15, 0.95, 0.3, 0.035])
         self.y_offset_slider = Slider(y_offset_slider_ax,
                                       'y-offset', 0.0, 1.0,
                                       valinit=0.1, valfmt='%1.2f')
         self.y_offset_slider.on_changed(self.update_y_offset)
-
         x_offset_slider_ax = self.fig.add_axes([0.6, 0.95, 0.3, 0.035])
         self.x_offset_slider = Slider(x_offset_slider_ax,
                                       'x-offset', 0.0, 1.0,
-                                      valinit=0.1, valfmt='%1.2f')
+                                      valinit=0., valfmt='%1.2f')
         self.x_offset_slider.on_changed(self.update_x_offset)
         # init
         self.update(self.key_list, self.int_data_list, refresh=True)
@@ -98,7 +91,6 @@ class Waterfall:
             print("INFO: no reduced data was fed in, "
                   "waterfall plot can't be updated")
             self.halt = True
-            self.no_int_data_plot(self.ax, self.canvas)
             return
         # refresh list
         if refresh:
@@ -106,9 +98,6 @@ class Waterfall:
             self.int_data_list = []
         self.key_list.extend(key_list)
         self.int_data_list.extend(int_data_list)
-        if len(self.key_list) > self.size:
-            self.key_list.pop(0)
-            self.int_data_list.pop(0)
         self._adapt_data_list(self.int_data_list)
         # generate plot
         self.halt = False
@@ -116,17 +105,15 @@ class Waterfall:
 
     def _adapt_data_list(self, int_data_list):
         """method to return statefull information of 1D data list"""
-        x_array_list = []
-        y_array_list = []
         # parse
+        x_dist, y_dist = 0, 0
         for x, y in int_data_list:
-            x_array_list.append(x)
-            y_array_list.append(y)
-        self.x_array_list = x_array_list
-        self.y_array_list = y_array_list
-        # stateful information
-        self.y_dist = np.max(y_array_list) - np.min(y_array_list)
-        self.x_dist = np.max(x_array_list) - np.min(x_array_list)
+            self.xdist = max(np.ptp(x), self.xdist)
+            self.ydist = max(np.ptp(y), self.ydist)
+            self.x_array_list.append(x)
+            self.y_array_list.append(y)
+        self.x_dist = x_dist
+        self.y_dist = y_dist
 
     def on_plot_hover(self, event):
         """callback to show legend when click on one of curves"""
@@ -138,28 +125,35 @@ class Waterfall:
 
     def _update_plot(self, x_offset_val=None, y_offset_val=None):
         """core method to update x-, y-offset sliders"""
-        self.ax.set_facecolor('w')
-        self.ax.cla()
         # remain current offset
         if not x_offset_val:
             x_offset_val = self.x_offset_slider.val
         if not y_offset_val:
             y_offset_val = self.y_offset_slider.val
-        # get stateful info
-        for ind, el in enumerate(zip(self.x_array_list,
-                                     self.y_array_list)):
-            x, y = el
-            self.ax.plot(x + self.x_dist * ind * x_offset_val,
-                         y + self.y_dist * ind * y_offset_val,
-                         label=self.key_list[ind], picker=5,
-                         **self.kwargs)
-        self.ax.autoscale()
+        # draw if fresh axes
+        if not self.ax.get_lines():
+            for ind, el in enumerate(zip(self.x_array_list,
+                                         self.y_array_list,
+                                         self.key_list)):
+                x, y, k = el
+                self.ax.plot(x, y, label=k, picker=5,
+                             **self.kwargs)
+        # update matplotlib line data
+        lines = self.ax.get_lines()
+        for i, (l, x, y) in enumerate(zip(lines,
+                                          self.x_array_list,
+                                          self.y_array_list)):
+            xx = x+self.xdist*i*x_offset_val
+            yy = y+self.ydist*i*y_offset_val
+            l.set_data(xx, yy)
+        self.ax.relim()
+        self.ax.autoscale_view()
         if self.unit:
             xlabel, ylabel = self.unit
             self.ax.set_xlabel(xlabel)
             self.ax.set_ylabel(ylabel)
-        conf_tick_size(self.ax, self.tick_size)
-        conf_label_size(self.ax, self.label_size)
+        if self.key_list:
+            self.ax.legend()
         self.canvas.draw_idle()
 
     def update_y_offset(self, val):
@@ -171,19 +165,3 @@ class Waterfall:
         if self.halt:
             return
         self._update_plot(val, None)
-
-    def no_int_data_plot(self, ax, canvas):
-        """method to display instructive text about workflow
-        """
-        ax.cla()
-        ax.text(.5, .5,
-                '{}'.format("No reduced data was generated.\n"
-                            "Proper calibration is required for "
-                            "data reduction.\n"
-                            "Please refer to our documentation for more "
-                            "details:\n"
-                            "http://xpdacq.github.io/quickstart.html"),
-                ha='center', va='center', color='w',
-                transform=ax.transAxes, size=11)
-        ax.set_facecolor('k')
-        canvas.draw_idle()
