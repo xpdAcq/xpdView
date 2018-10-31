@@ -39,7 +39,9 @@ class Waterfall:
     def __init__(self, fig=None, canvas=None,
                  key_list=None, int_data_list=None,
                  *, unit=None, label_size=16, tick_size=14,
+                 size=100,
                  **kwargs):
+        self.size = size
         if int_data_list is None:
             int_data_list = []
         if key_list is None:
@@ -101,6 +103,9 @@ class Waterfall:
             self.int_data_list = []
         self.key_list.extend(key_list)
         self.int_data_list.extend(int_data_list)
+        if len(self.key_list) > self.size:
+            self.key_list.pop(0)
+            self.int_data_list.pop(0)
         self._adapt_data_list(self.int_data_list)
         # generate plot
         self.halt = False
