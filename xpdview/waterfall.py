@@ -32,6 +32,9 @@ class Waterfall:
         size of x-, y-label. default is 16
     tick_size : int, optional
         size of x-, y-tick. default is 14
+    size : int, optional
+        number of lines to show at once, only the latest are shown,
+        defaults to 100
     kwargs :
         keyword arguments for plotting
     """
