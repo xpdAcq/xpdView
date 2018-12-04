@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='xpdview',
-    version='0.3.1',
+    version='0.3.2',
     packages=find_packages(),
     description='Visualization Code for Beam line',
     zip_safe=False,
