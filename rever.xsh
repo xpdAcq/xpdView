@@ -16,6 +16,7 @@ $CHANGELOG_IGNORE = ['TEMPLATE']
 
 $GITHUB_ORG = 'xpdAcq'
 $GITHUB_REPO = $PROJECT
+$TAG_REMOTE = 'git@github.com:xpdAcq/xpdView.git'
 
 $LICENSE_URL = 'https://github.com/{}/{}/blob/master/LICENSE'.format($GITHUB_ORG, $GITHUB_REPO)
 
