@@ -1,4 +1,4 @@
-$PROJECT = 'xpdview'
+$PROJECT = 'xpdView'
 $ACTIVITIES = ['version_bump',
                'changelog',
                'tag',
@@ -8,7 +8,7 @@ $ACTIVITIES = ['version_bump',
 ]
 
 $VERSION_BUMP_PATTERNS = [
-    ($PROJECT + '/__init__.py', '__version__\s*=.*', "__version__ = '$VERSION'"),
+    ($PROJECT.lower() + '/__init__.py', '__version__\s*=.*', "__version__ = '$VERSION'"),
     ('setup.py', 'version\s*=.*,', "version='$VERSION',")
     ]
 $CHANGELOG_FILENAME = 'CHANGELOG.rst'
