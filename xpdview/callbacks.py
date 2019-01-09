@@ -40,9 +40,10 @@ class LiveWaterfall(BrokerCallbackBase):
 
     def event(self, doc):
         super().event(doc)
-        y = doc['data'][self.y_name]
-        x = doc['data'][self.x_name]
-        self.update((x, y))
+        y = doc['data'].get(self.y_name, None)
+        x = doc['data'].get(self.x_name, None)
+        if x is not None and y is not None:
+            self.update((x, y))
 
     def update(self, data):
         self.wf.update(key_list=[self.i], int_data_list=[data])
