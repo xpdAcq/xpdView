@@ -53,7 +53,6 @@ class Waterfall:
         # callback for showing legend
         self.canvas.mpl_connect('pick_event', self.on_plot_hover)
         self.key_list = []
-        self.int_data_list = []
         self.ax = self.fig.add_subplot(111)
         self.unit = unit
 
@@ -82,38 +81,37 @@ class Waterfall:
             list of keys. default to None.
         int_data_list : list, optional
             list of 1D data. default to None.
-        refresh : bool, optional
-            option to set refresh or not. default to False.
         """
-        self.key_list.extend(key_list)
-        self.int_data_list.extend(int_data_list)
+        self._adapt_data_list(key_list, int_data_list)
         # generate plot
         self._update_data()
         self._update_plot()  # use current value of x,y offset
 
-    def _adapt_data_list(self, int_data_list):
+    def _adapt_data_list(self, key_list, int_data_list):
         """method to return stateful information of 1D data list"""
+        self.key_list.extend(key_list)
         # parse
-        x_dist, y_dist = 0, 0
         for x, y in int_data_list:
             self.xdist = max(np.ptp(x), self.xdist)
             self.ydist = max(np.ptp(y), self.ydist)
             self.x_array_list.append(x)
             self.y_array_list.append(y)
-        self.x_dist = x_dist
-        self.y_dist = y_dist
 
     def _update_data(self):
         # draw if fresh axes
-        if not self.ax.get_lines():
+        if len(self.x_array_list) != len(self.key_list):
+            raise RuntimeError(f'The keys must match the data! '
+                               f'{len(self.x_array_list)}, '
+                               f'{len(self.key_list):}')
+        if not self.ax.lines:
             for ind, el in enumerate(zip(self.x_array_list,
                                          self.y_array_list,
                                          self.key_list)):
                 x, y, k = el
                 self.ax.plot(x, y, label=k, picker=5,
                              **self.kwargs)
-        if len(self.ax.get_lines()) < len(self.int_data_list):
-            diff = len(self.int_data_list) - len(self.ax.get_lines())
+        if len(self.ax.get_lines()) < len(self.y_array_list):
+            diff = len(self.y_array_list) - len(self.ax.get_lines())
             for ind, el in enumerate(zip(self.x_array_list[-diff:],
                                          self.y_array_list[-diff:],
                                          self.key_list[-diff:])):
@@ -123,10 +121,9 @@ class Waterfall:
 
     def _update_plot(self):
         """core method to update x-, y-offset sliders"""
-        self._adapt_data_list(self.int_data_list)
-
         x_offset_val = self.x_offset_slider.val
         y_offset_val = self.y_offset_slider.val
+
         # update matplotlib line data
         lines = self.ax.get_lines()
         for i, (l, x, y) in enumerate(zip(lines,
@@ -159,6 +156,7 @@ class Waterfall:
 
     def clear(self):
         self.key_list.clear()
-        self.int_data_list.clear()
+        self.x_array_list.clear()
+        self.y_array_list.clear()
         self.ax.lines.clear()
         self.canvas.draw_idle()

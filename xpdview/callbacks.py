@@ -1,6 +1,7 @@
-from xpdan.vend.callbacks.core import CallbackBase
-from .waterfall import Waterfall
 import matplotlib.pyplot as plt
+from xpdan.vend.callbacks.core import CallbackBase
+
+from .waterfall import Waterfall
 
 
 class LiveWaterfall(CallbackBase):
