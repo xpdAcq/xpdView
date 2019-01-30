@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from xpdan.vend.callbacks.core import CallbackBase
+from bluesky.callbacks.core import CallbackBase
 
 from .waterfall import Waterfall
 
