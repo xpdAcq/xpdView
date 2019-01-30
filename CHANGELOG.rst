@@ -4,6 +4,17 @@ xpdview Change Log
 
 .. current developments
 
+v0.4.0
+====================
+
+**Changed:**
+
+* Waterfall plot is now more efficent
+* The waterfall callback now supports data which it can't handle, it just
+  ignores the data. This allows us to support the RunRouter.
+
+
+
 v0.3.2
 ====================
 
