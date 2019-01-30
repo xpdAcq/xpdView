@@ -4,6 +4,15 @@ xpdview Change Log
 
 .. current developments
 
+v0.4.1
+====================
+
+**Fixed:**
+
+* Use ``bluesky`` for callback base to avoid circular deps
+
+
+
 v0.4.0
 ====================
 
