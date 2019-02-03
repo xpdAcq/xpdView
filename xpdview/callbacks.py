@@ -6,42 +6,70 @@ from .waterfall import Waterfall
 
 class LiveWaterfall(CallbackBase):
     """
-    Stream 1D images in a waterfall viewer.
-
-    Parameters
-    ----------
-    x_name : str
-        field name for x dimension
-    y_name: str
-        field name for y dimension
-    units: tuple of str
-        The units for the x and y axes
+    Stream 1D line data in a waterfall viewer.
     """
 
-    def __init__(self, x_name, y_name, units=None,
-                 window_title=None):
+    def __init__(self):
         super().__init__()
-        self.x_name = x_name
-        self.y_name = y_name
-        self.units = units
-
-        self.fig = plt.figure(window_title)
-        self.wf = Waterfall(fig=self.fig, unit=self.units)
-
-        self.i = 0
+        self.wfs = {}
+        self.units = None
+        self.in_dep_shapes = {}
+        self.dim_names = {}
+        self.dep_shapes = {}
 
     def start(self, doc):
-        self.fig.show()
-        self.wf.clear()
-        self.i = 0
+        self.dim_names = [
+            d[0][0]
+            for d in doc.get("hints", {}).get("dimensions")
+            if d[0][0] != "time"
+        ]
+
+    def descriptor(self, doc):
+        self.in_dep_shapes = {
+            n: doc["data_keys"][n]["shape"] for n in self.dim_names
+        }
+        self.dep_shapes = {
+            n: doc["data_keys"][n]["shape"]
+            for n in set(self.dim_names) ^ set(doc["data_keys"])
+        }
+        for one_d_ind_var in [
+            k for k, v in self.in_dep_shapes.items() if len(v) == 1
+        ]:
+            for one_d_dep_var in [
+                k for k, v in self.dep_shapes.items() if len(v) == 1
+            ]:
+                fig = plt.figure(f"{one_d_ind_var} vs. {one_d_dep_var}")
+                # if not in waterfall plots already make one, else clear it
+                if (one_d_ind_var, one_d_dep_var) not in self.wfs:
+                    self.wfs[(one_d_ind_var, one_d_dep_var)] = Waterfall(
+                        fig,
+                        unit=(
+                            f"{one_d_ind_var} ({doc['data_keys'][one_d_ind_var].get('units', 'arb')})",
+                            (
+                                f"{one_d_dep_var} ({doc['data_keys'][one_d_dep_var].get('units','arb')})"
+                            ),
+                        ),
+                    )
+                else:
+                    self.wfs[(one_d_ind_var, one_d_dep_var)].clear()
 
     def event(self, doc):
         super().event(doc)
-        y = doc['data'].get(self.y_name, None)
-        x = doc['data'].get(self.x_name, None)
-        if x is not None and y is not None:
-            self.update((x, y))
+        for one_d_ind_var in [
+            k for k, v in self.in_dep_shapes.items() if len(v) == 1
+        ]:
+            for one_d_dep_var in [
+                k for k, v in self.dep_shapes.items() if len(v) == 1
+            ]:
+                y = doc["data"].get(one_d_dep_var, None)
+                x = doc["data"].get(one_d_ind_var, None)
+                if x is not None and y is not None:
+                    # TODO: use actual indep vars in legend.
+                    self.update(
+                        (x, y),
+                        self.wfs[(one_d_ind_var, one_d_dep_var)],
+                        doc["seq_num"],
+                    )
 
-    def update(self, data):
-        self.wf.update(key_list=[self.i], int_data_list=[data])
-        self.i += 1
+    def update(self, data, wf, i):
+        wf.update(key_list=[i], int_data_list=[data])
