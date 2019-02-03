@@ -1,0 +1,14 @@
+**Added:** None
+
+**Changed:**
+
+* A single ``Waterfall`` instance can be used for all 1D data in a stream
+* ``LiveWaterfall`` will inspect the events for which 1D data to plot
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None

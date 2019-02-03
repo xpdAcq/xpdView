@@ -4,16 +4,26 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 from cycler import cycler
 
-simonCycle2 = ["#0B3C5D", "#B82601", "#1c6b0a",
-               "#328CC1", "#062F4F", "#D9B310",
-               "#984B43", "#76323F", "#626E60",
-               "#AB987A", "#C09F80", "#b0b0b0ff"]
-mpl.rcParams['axes.prop_cycle'] = cycler(color=simonCycle2)
+simonCycle2 = [
+    "#0B3C5D",
+    "#B82601",
+    "#1c6b0a",
+    "#328CC1",
+    "#062F4F",
+    "#D9B310",
+    "#984B43",
+    "#76323F",
+    "#626E60",
+    "#AB987A",
+    "#C09F80",
+    "#b0b0b0ff",
+]
+mpl.rcParams["axes.prop_cycle"] = cycler(color=simonCycle2)
 
-plt.rcParams['axes.linewidth'] = 3.0
-plt.rcParams['figure.dpi'] = 100
-plt.rcParams['lines.linewidth'] = 2.0
-plt.rcParams['font.size'] = 14
+plt.rcParams["axes.linewidth"] = 3.0
+plt.rcParams["figure.dpi"] = 100
+plt.rcParams["lines.linewidth"] = 2.0
+plt.rcParams["font.size"] = 14
 
 
 class Waterfall:
@@ -36,12 +46,12 @@ class Waterfall:
         keyword arguments for plotting
     """
 
-    def __init__(self, fig=None, canvas=None,
-                 *, unit=None, **kwargs):
+    def __init__(self, fig=None, canvas=None, *, unit=None, **kwargs):
         if not fig:
             fig = plt.figure()
 
         self.fig = fig
+        self.fig.clear()
 
         if not canvas:
             canvas = self.fig.canvas
@@ -51,7 +61,7 @@ class Waterfall:
         self.y_array_list = []
 
         # callback for showing legend
-        self.canvas.mpl_connect('pick_event', self.on_plot_hover)
+        self.canvas.mpl_connect("pick_event", self.on_plot_hover)
         self.key_list = []
         self.ax = self.fig.add_subplot(111)
         self.unit = unit
@@ -61,15 +71,25 @@ class Waterfall:
         self.xdist = 0
 
         y_offset_slider_ax = self.fig.add_axes([0.15, 0.95, 0.3, 0.035])
-        self.y_offset_slider = Slider(y_offset_slider_ax,
-                                      'y-offset', 0.0, 1.0,
-                                      valinit=0.1, valfmt='%1.2f')
+        self.y_offset_slider = Slider(
+            y_offset_slider_ax,
+            "y-offset",
+            0.0,
+            1.0,
+            valinit=0.1,
+            valfmt="%1.2f",
+        )
         self.y_offset_slider.on_changed(self.update_y_offset)
 
         x_offset_slider_ax = self.fig.add_axes([0.6, 0.95, 0.3, 0.035])
-        self.x_offset_slider = Slider(x_offset_slider_ax,
-                                      'x-offset', 0.0, 1.0,
-                                      valinit=0., valfmt='%1.2f')
+        self.x_offset_slider = Slider(
+            x_offset_slider_ax,
+            "x-offset",
+            0.0,
+            1.0,
+            valinit=0.,
+            valfmt="%1.2f",
+        )
         self.x_offset_slider.on_changed(self.update_x_offset)
 
     def update(self, key_list, int_data_list):
@@ -100,24 +120,28 @@ class Waterfall:
     def _update_data(self):
         # draw if fresh axes
         if len(self.x_array_list) != len(self.key_list):
-            raise RuntimeError(f'The keys must match the data! '
-                               f'{len(self.x_array_list)}, '
-                               f'{len(self.key_list):}')
+            raise RuntimeError(
+                f"The keys must match the data! "
+                f"{len(self.x_array_list)}, "
+                f"{len(self.key_list):}"
+            )
         if not self.ax.lines:
-            for ind, el in enumerate(zip(self.x_array_list,
-                                         self.y_array_list,
-                                         self.key_list)):
+            for ind, el in enumerate(
+                zip(self.x_array_list, self.y_array_list, self.key_list)
+            ):
                 x, y, k = el
-                self.ax.plot(x, y, label=k, picker=5,
-                             **self.kwargs)
+                self.ax.plot(x, y, label=k, picker=5, **self.kwargs)
         if len(self.ax.get_lines()) < len(self.y_array_list):
             diff = len(self.y_array_list) - len(self.ax.get_lines())
-            for ind, el in enumerate(zip(self.x_array_list[-diff:],
-                                         self.y_array_list[-diff:],
-                                         self.key_list[-diff:])):
+            for ind, el in enumerate(
+                zip(
+                    self.x_array_list[-diff:],
+                    self.y_array_list[-diff:],
+                    self.key_list[-diff:],
+                )
+            ):
                 x, y, k = el
-                self.ax.plot(x, y, label=k, picker=5,
-                             **self.kwargs)
+                self.ax.plot(x, y, label=k, picker=5, **self.kwargs)
 
     def _update_plot(self):
         """core method to update x-, y-offset sliders"""
@@ -126,11 +150,11 @@ class Waterfall:
 
         # update matplotlib line data
         lines = self.ax.get_lines()
-        for i, (l, x, y) in enumerate(zip(lines,
-                                          self.x_array_list,
-                                          self.y_array_list)):
-            xx = x+self.xdist*i*x_offset_val
-            yy = y+self.ydist*i*y_offset_val
+        for i, (l, x, y) in enumerate(
+            zip(lines, self.x_array_list, self.y_array_list)
+        ):
+            xx = x + self.xdist * i * x_offset_val
+            yy = y + self.ydist * i * y_offset_val
             l.set_data(xx, yy)
         self.ax.relim()
         self.ax.autoscale_view()
@@ -150,8 +174,9 @@ class Waterfall:
         """callback to show legend when click on one of curves"""
         line = event.artist
         name = line.get_label()
-        line.axes.legend([name], handlelength=0,
-                         handletextpad=0, fancybox=True)
+        line.axes.legend(
+            [name], handlelength=0, handletextpad=0, fancybox=True
+        )
         line.figure.canvas.draw_idle()
 
     def clear(self):
