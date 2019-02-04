@@ -4,6 +4,16 @@ xpdview Change Log
 
 .. current developments
 
+v0.5.0
+====================
+
+**Changed:**
+
+* A single ``Waterfall`` instance can be used for all 1D data in a stream
+* ``LiveWaterfall`` will inspect the events for which 1D data to plot
+
+
+
 v0.4.1
 ====================
 
