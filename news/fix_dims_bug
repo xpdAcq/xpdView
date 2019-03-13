@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:**
+
+* Have a safe default for start doc dimensions in case there are none
+
+**Security:** None

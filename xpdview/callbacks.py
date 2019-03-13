@@ -20,7 +20,7 @@ class LiveWaterfall(CallbackBase):
     def start(self, doc):
         self.dim_names = [
             d[0][0]
-            for d in doc.get("hints", {}).get("dimensions")
+            for d in doc.get("hints", {}).get("dimensions", [[]])
             if d[0][0] != "time"
         ]
 
