@@ -18,11 +18,13 @@ class LiveWaterfall(CallbackBase):
         self.dep_shapes = {}
 
     def start(self, doc):
-        self.dim_names = [
-            d[0][0]
-            for d in doc.get("hints", {}).get("dimensions", [[]])
-            if d[0][0] != "time"
-        ]
+        dimensions = doc.get("hints", {}).get("dimensions", [])
+        if dimensions:
+            self.dim_names = [
+                d[0][0]
+                for d in dimensions
+                if d[0][0] != "time"
+            ]
 
     def descriptor(self, doc):
         self.in_dep_shapes = {
