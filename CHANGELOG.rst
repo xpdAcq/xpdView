@@ -4,6 +4,16 @@ xpdview Change Log
 
 .. current developments
 
+v0.5.1
+====================
+
+**Fixed:**
+
+* Have a safe default for start doc dimensions in case there are none
+* Handle null dimensions more gracefully
+
+
+
 v0.5.0
 ====================
 
